@@ -66,7 +66,7 @@ export default function Hero() {
                 backgroundSize: '180px 180px',
             }} />
 
-            {/* ── Studio label — top left ─────────────────────── */}
+            {/* ── Studio label - top left ─────────────────────── */}
             <motion.div
                 className="absolute flex items-center gap-2.5 z-30"
                 style={{ top: 'clamp(88px, 11vw, 128px)', left: 'clamp(24px, 5vw, 48px)' }}
@@ -85,7 +85,7 @@ export default function Hero() {
                 </span>
             </motion.div>
 
-            {/* ── Available — top right ───────────────────────── */}
+            {/* ── Available - top right ───────────────────────── */}
             <motion.div
                 className="absolute hidden sm:flex items-center gap-2 z-30"
                 style={{ top: 'clamp(100px, 15vw, 128px)', right: 'clamp(24px, 5vw, 48px)' }}
@@ -105,7 +105,7 @@ export default function Hero() {
             </motion.div>
 
         
-        {/* FLOATING IMAGE — absolute z-20
+        {/* FLOATING IMAGE - absolute z-20
           Desktop : right side, vertically centered
           Mobile  : top-center, above text  */}
             <motion.div
@@ -189,7 +189,7 @@ export default function Hero() {
                 </motion.div>
             </motion.div>
 
-        {/*TEXT BLOCK — full section height, bottom anchored
+        {/*TEXT BLOCK - full section height, bottom anchored
           Mobile: paddingTop pushes text below the image
           Desktop: text stays left, image floats right freely */}
             <div
@@ -244,7 +244,7 @@ export default function Hero() {
                                     animate={{ y: '0%', opacity: 1 }}
                                     transition={{ duration: 1.05, ease: EASE as unknown as number[], delay: 1.08 }}
                                 >
-                                    — always.
+                                    - always.
                                 </motion.span>
                             </span>
                         </span>
@@ -260,7 +260,7 @@ export default function Hero() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 1.45, duration: 0.85, ease: EASE as unknown as number[] }}
                         >
-                            From idea to launch — we build digital products, SaaS platforms,
+                            From idea to launch - we build digital products, SaaS platforms,
                             and brand systems for founders who refuse to ship mediocrity.
                         </motion.p>
 

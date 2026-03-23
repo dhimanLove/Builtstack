@@ -4,7 +4,7 @@ import { useEffect, useRef, createContext, useContext } from 'react';
 import Lenis from '@studio-freight/lenis';
 import { useMotionValue, useSpring, motionValue } from 'framer-motion';
 
-// ── Context — expose lenis + scroll progress globally ─────────
+// ── Context - expose lenis + scroll progress globally ─────────
 interface LenisContextType {
   lenis: Lenis | null;
   scrollY: ReturnType<typeof motionValue<number>>;
@@ -25,7 +25,7 @@ export const useLenis = () => useContext(LenisContext);
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
 
-  // Live motion values — any component can subscribe via useLenis()
+  // Live motion values - any component can subscribe via useLenis()
   const scrollY        = useMotionValue(0);
   const scrollProgress = useMotionValue(0);
   const velocity       = useMotionValue(0);
@@ -59,7 +59,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       velocity.set(vel);
     });
 
-    // RAF loop — Framer Motion's useAnimationFrame would conflict,
+    // RAF loop - Framer Motion's useAnimationFrame would conflict,
     // so we keep a dedicated loop just for Lenis
     let rafId: number;
     function raf(time: number) {
@@ -68,7 +68,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     }
     rafId = requestAnimationFrame(raf);
 
-    // Pause Lenis when tab is hidden — saves CPU
+    // Pause Lenis when tab is hidden - saves CPU
     const onVisibility = () => {
       if (document.hidden) {
         lenisRef.current?.stop();

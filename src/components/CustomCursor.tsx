@@ -11,11 +11,11 @@ export default function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
   const isTouchDevice = useRef(false);
 
-  // Outer ring — slow, springy
+  // Outer ring - slow, springy
   const ringX = useSpring(cursorX, { damping: 20, stiffness: 180, mass: 0.4 });
   const ringY = useSpring(cursorY, { damping: 20, stiffness: 180, mass: 0.4 });
 
-  // Inner dot — fast, snappy
+  // Inner dot - fast, snappy
   const dotX = useSpring(cursorX, { damping: 28, stiffness: 400, mass: 0.2 });
   const dotY = useSpring(cursorY, { damping: 28, stiffness: 400, mass: 0.2 });
 

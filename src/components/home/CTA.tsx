@@ -74,7 +74,7 @@ function MagneticButton({ href, children, primary = false }: {
     );
 }
 
-// ── Word reveal — descender safe ─────────────────────────────
+// ── Word reveal - descender safe ─────────────────────────────
 function Word({ word, delay, accent = false }: { word: string; delay: number; accent?: boolean }) {
     return (
         <span style={{
@@ -126,7 +126,7 @@ export default function CTA() {
             style={{
                 background: '#080808',
                 borderTop: '1px solid #1e1e1e',
-                // Responsive padding — more room on desktop
+                // Responsive padding - more room on desktop
                 padding: 'clamp(80px, 12vw, 160px) clamp(24px, 6vw, 80px)',
             }}
         >
@@ -137,7 +137,7 @@ export default function CTA() {
                 backgroundSize: '180px 180px',
             }} />
 
-            {/* ── Parallax grid — NO green, just lines ───── */}
+            {/* ── Parallax grid - NO green, just lines ───── */}
             <motion.div
                 className="absolute inset-x-0 pointer-events-none"
                 style={{ y: gridY, top: '-20%', bottom: '-20%', opacity: 0.025 }}
@@ -184,7 +184,7 @@ export default function CTA() {
                 style={{ maxWidth: 1200, margin: '0 auto' }}
             >
 
-                {/* ── LEFT — Text content ─────────────────── */}
+                {/* ── LEFT - Text content ─────────────────── */}
                 <div className="flex flex-col items-center md:items-start text-center md:text-left flex-1">
 
                     {/* Vertical lime line + label */}
@@ -244,7 +244,7 @@ export default function CTA() {
                         viewport={{ once: true }}
                         transition={{ delay: 0.55, duration: 0.7, ease: EASE as unknown as number[] }}
                     >
-                        From MVP to full product — we move fast, write clean code,
+                        From MVP to full product - we move fast, write clean code,
                         and ship things that actually work.
                     </motion.p>
 
@@ -314,7 +314,7 @@ export default function CTA() {
                     </motion.div>
                 </div>
 
-                {/* ── RIGHT — Floating mascot image ───────── */}
+                {/* ── RIGHT - Floating mascot image ───────── */}
                 <motion.div
                     className="flex items-center justify-center flex-shrink-0"
                     style={{
@@ -329,7 +329,7 @@ export default function CTA() {
                     transition={{ delay: 0.4, duration: 1.1, ease: EASE as unknown as number[] }}
                 >
                     <div style={{ position: 'relative', width: '100%' }}>
-                        {/* Lime glow behind — subtle, not green blob */}
+                        {/* Lime glow behind - subtle, not green blob */}
                         <div style={{
                             position: 'absolute', inset: '0%',
                             background: 'radial-gradient(ellipse, rgba(212,245,60,0.08) 0%, transparent 65%)',

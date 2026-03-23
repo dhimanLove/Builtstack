@@ -7,31 +7,31 @@ const SERVICES = [
   {
     n: '01',
     title: 'Product Design',
-    desc: 'End-to-end UX/UI — wireframes, prototypes, design systems, and handoff-ready Figma files that engineers love.',
+    desc: 'End-to-end UX/UI - wireframes, prototypes, design systems, and handoff-ready Figma files that engineers love.',
     tags: ['UX Research', 'UI Design', 'Design Systems'],
   },
   {
     n: '02',
     title: 'Web Development',
-    desc: 'Next.js, React, TypeScript — production-grade web apps with obsessive attention to performance and code quality.',
+    desc: 'Next.js, React, TypeScript - production-grade web apps with obsessive attention to performance and code quality.',
     tags: ['Next.js', 'React', 'TypeScript'],
   },
   {
     n: '03',
     title: 'SaaS Engineering',
-    desc: 'Full-stack product development — auth, billing, dashboards, APIs. From MVP to scalable architecture.',
+    desc: 'Full-stack product development - auth, billing, dashboards, APIs. From MVP to scalable architecture.',
     tags: ['Full Stack', 'APIs', 'Databases'],
   },
   {
     n: '04',
     title: 'Brand Identity',
-    desc: 'Visual identity systems that hold up at every scale — logos, typography, color, motion, brand guidelines.',
+    desc: 'Visual identity systems that hold up at every scale - logos, typography, color, motion, brand guidelines.',
     tags: ['Logo', 'Identity', 'Guidelines'],
   },
   {
     n: '05',
     title: 'Motion & Interaction',
-    desc: 'Framer Motion, GSAP, Three.js — scroll storytelling and micro-interactions that make products feel alive.',
+    desc: 'Framer Motion, GSAP, Three.js - scroll storytelling and micro-interactions that make products feel alive.',
     tags: ['Framer Motion', 'GSAP', '3D'],
   },
 ];

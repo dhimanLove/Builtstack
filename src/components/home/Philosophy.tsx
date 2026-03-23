@@ -35,7 +35,7 @@ export default function Philosophy() {
   return (
     <section className="px-6 md:px-10 py-24 md:py-40 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
-        {/* Left — vertical label */}
+        {/* Left - vertical label */}
         <motion.div
           className="lg:col-span-2"
           initial={{ opacity: 0 }}
@@ -48,7 +48,7 @@ export default function Philosophy() {
           </span>
         </motion.div>
 
-        {/* Center — statement */}
+        {/* Center - statement */}
         <motion.div
           className="lg:col-span-6"
           initial={{ opacity: 0, y: 40 }}
@@ -63,11 +63,11 @@ export default function Philosophy() {
           </p>
           <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg">
             Every pixel, every API call, every animation is in service of one thing
-            — helping your users achieve their goal faster than your competitors can.
+            - helping your users achieve their goal faster than your competitors can.
           </p>
         </motion.div>
 
-        {/* Right — stats */}
+        {/* Right - stats */}
         <div className="lg:col-span-4 flex flex-row lg:flex-col gap-8 lg:gap-12 lg:items-end">
           {STATS.map((stat, i) => (
             <motion.div

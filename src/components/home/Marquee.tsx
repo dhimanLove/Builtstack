@@ -43,7 +43,7 @@ function VelocityRow({ baseVelocity = -4 }: { baseVelocity?: number }) {
         const move = baseVelocity * (delta / 1000) * 60 + direction.current * Math.abs(baseVelocity) * vel;
         xPx.set(xPx.get() + move);
 
-        // Get item strip width from DOM — fallback to 4000px
+        // Get item strip width from DOM - fallback to 4000px
         const stripEl = document.getElementById(`marquee-inner-${baseVelocity}`);
         const halfW   = stripEl ? stripEl.scrollWidth / 2 : 4000;
 
