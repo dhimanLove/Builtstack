@@ -51,7 +51,7 @@ function MagneticButton({ href, children, primary = false }: {
             {primary && (
                 <motion.span
                     style={{ position: 'absolute', inset: 0, background: '#fff', scaleX: 0, originX: 0 }}
-                    whileHover={{ scaleX: 1 } as any}
+                    whileHover={{ scaleX: 1 } }
                     transition={{ duration: 0.42, ease: EASE as unknown as number[] }}
                 />
             )}
@@ -59,12 +59,12 @@ function MagneticButton({ href, children, primary = false }: {
                 <>
                     <motion.span
                         style={{ position: 'absolute', inset: 0, border: '1px solid #d4f53c', opacity: 0 }}
-                        whileHover={{ opacity: 1 } as always}
+                        whileHover={{ opacity: 1 }}
                         transition={{ duration: 0.28 }}
                     />
                     <motion.span
                         style={{ position: 'absolute', inset: 0, background: 'rgba(212,245,60,0.04)', opacity: 0 }}
-                        whileHover={{ opacity: 1 } as always}
+                        whileHover={{ opacity: 1 } }
                         transition={{ duration: 0.28 }}
                     />
                 </>

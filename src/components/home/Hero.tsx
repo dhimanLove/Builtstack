@@ -104,11 +104,10 @@ export default function Hero() {
                 </span>
             </motion.div>
 
-            {/* ────────────────────────────────────────────────────
-          FLOATING IMAGE — absolute z-20
+        
+        {/* FLOATING IMAGE — absolute z-20
           Desktop : right side, vertically centered
-          Mobile  : top-center, above text
-      ─────────────────────────────────────────────────── */}
+          Mobile  : top-center, above text  */}
             <motion.div
                 className="hero-img-float absolute z-20 pointer-events-none"
                 style={{
@@ -190,11 +189,9 @@ export default function Hero() {
                 </motion.div>
             </motion.div>
 
-            {/* ────────────────────────────────────────────────────
-          TEXT BLOCK — full section height, bottom anchored
+        {/*TEXT BLOCK — full section height, bottom anchored
           Mobile: paddingTop pushes text below the image
-          Desktop: text stays left, image floats right freely
-      ─────────────────────────────────────────────────── */}
+          Desktop: text stays left, image floats right freely */}
             <div
                 className="relative z-10 flex flex-col justify-end"
                 style={{
