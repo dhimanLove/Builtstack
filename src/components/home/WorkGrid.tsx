@@ -6,13 +6,13 @@ const PROJECTS = [
   {
     title: 'Vaultly',
     category: 'SaaS · Web App',
-    year: '2024',
+    year: '2026',
     gradient: 'from-emerald-900/40 to-cyan-900/20',
   },
   {
     title: 'Forma UI',
     category: 'Design System',
-    year: '2024',
+    year: '2026',
     gradient: 'from-violet-900/40 to-fuchsia-900/20',
   },
   {

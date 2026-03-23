@@ -2,8 +2,8 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 const CASE_STUDIES = [
-  { title: 'Vaultly', sub: 'SaaS · 2024', bg: 'hsl(0,0%,6.7%)' },
-  { title: 'Forma UI', sub: 'Design System · 2024', bg: 'hsl(0,0%,5.5%)' },
+  { title: 'Vaultly', sub: 'SaaS · 2026', bg: 'hsl(0,0%,6.7%)' },
+  { title: 'Forma UI', sub: 'Design System · 2026', bg: 'hsl(0,0%,5.5%)' },
   { title: 'Meridian', sub: 'Brand · 2023', bg: 'hsl(0,0%,6.7%)' },
   { title: 'Stackwise', sub: 'Web App · 2023', bg: 'hsl(0,0%,5.5%)' },
 ];

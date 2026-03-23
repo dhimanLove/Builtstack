@@ -273,7 +273,7 @@ export default function Navbar() {
               <span className="text-xs tracking-widest uppercase" style={{ color: '#2e2e2c' }}>
                 Design & Engineering Studio
               </span>
-                  <span className="text-xs" style={{ color: '#2e2e2c' }}>© 2024</span>
+                  <span className="text-xs" style={{ color: '#2e2e2c' }}>© 2026</span>
                 </motion.div>
               </motion.div>
           )}
