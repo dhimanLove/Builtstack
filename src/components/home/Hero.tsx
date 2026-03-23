@@ -12,15 +12,15 @@ function Word({ word, delay, accent = false }: { word: string; delay: number; ac
             marginRight: '0.22em', paddingBottom: '0.18em',
             marginBottom: '-0.18em', verticalAlign: 'bottom',
         }}>
-      <motion.span
-          style={{ display: 'inline-block', color: accent ? '#d4f53c' : 'inherit' }}
-          initial={{ y: '110%', opacity: 0 }}
-          animate={{ y: '0%', opacity: 1 }}
-          transition={{ duration: 1.05, ease: EASE as unknown as number[], delay }}
-      >
-        {word}
-      </motion.span>
-    </span>
+            <motion.span
+                style={{ display: 'inline-block', color: accent ? '#d4f53c' : 'inherit' }}
+                initial={{ y: '110%', opacity: 0 }}
+                animate={{ y: '0%', opacity: 1 }}
+                transition={{ duration: 1.05, ease: EASE as unknown as number[], delay }}
+            >
+                {word}
+            </motion.span>
+        </span>
     );
 }
 
@@ -40,11 +40,11 @@ export default function Hero() {
     const ref = useRef<HTMLElement>(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
 
-    const textY  = useTransform(scrollYProgress, [0, 1], ['0%', '22%']);
+    const textY = useTransform(scrollYProgress, [0, 1], ['0%', '22%']);
     const textOp = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
     const textSc = useTransform(scrollYProgress, [0, 0.5], [1, 0.97]);
-    const imgY   = useTransform(scrollYProgress, [0, 1], ['0%', '8%']);
-    const imgOp  = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+    const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '8%']);
+    const imgOp = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
 
     return (
         <section
@@ -81,8 +81,8 @@ export default function Hero() {
                     transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 2.2 }}
                 />
                 <span style={{ fontSize: 10, letterSpacing: '0.32em', color: '#5a5a56', textTransform: 'uppercase' }}>
-          Design & Engineering Studio
-        </span>
+                    Design & Engineering Studio
+                </span>
             </motion.div>
 
             {/* ── Available — top right ───────────────────────── */}
@@ -100,8 +100,8 @@ export default function Hero() {
                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
                 <span style={{ fontSize: 10, letterSpacing: '0.25em', color: '#5a5a56', textTransform: 'uppercase' }}>
-          Available for projects
-        </span>
+                    Available for projects
+                </span>
             </motion.div>
 
             {/* ────────────────────────────────────────────────────
@@ -110,14 +110,12 @@ export default function Hero() {
           Mobile  : top-center, above text
       ─────────────────────────────────────────────────── */}
             <motion.div
-                className="absolute z-20 pointer-events-none"
+                className="hero-img-float absolute z-20 pointer-events-none"
                 style={{
                     y: imgY,
                     opacity: imgOp,
-                    // ── Desktop ──
                     right: 'clamp(-20px, 2vw, 40px)',
-                    top: '30%',
-                    transform: 'translateY(-52%)',
+                    top: 'clamp(80px, 12vw, 140px)',
                     width: 'clamp(280px, 38vw, 540px)',
                 }}
                 initial={{ opacity: 0, x: 50 }}
@@ -128,10 +126,10 @@ export default function Hero() {
                 <style>{`
           @media (max-width: 767px) {
             .hero-img-float {
-              right: 50% !important;
+              right: 40% !important;
               transform: translateX(50%) translateY(0) !important;
-              top: 90px !important;
-              width: clamp(200px, 72vw, 320px) !important;
+              top: 130px !important;
+              width: clamp(160px, 58vw, 240px) !important;
             }
           }
         `}</style>
@@ -155,7 +153,7 @@ export default function Hero() {
                 {/* Float + rock animation */}
                 <motion.div
                     style={{ position: 'relative', zIndex: 1 }}
-                    animate={{ y: [0,20, 0], rotate: [0, 1.2, -0.8, 0] }}
+                    animate={{ y: [0, 20, 0], rotate: [0, 1.2, -0.8, 0] }}
                     transition={{
                         duration: 5.5,
                         repeat: Infinity,
@@ -230,29 +228,29 @@ export default function Hero() {
                             maxWidth: 'min(100%, 56vw)',
                         }}
                     >
-            <span style={{ display: 'block' }}>
-              <SplitWords text="We design &" baseDelay={0.28} />
-            </span>
                         <span style={{ display: 'block' }}>
-              <SplitWords text="engineer products" baseDelay={0.52} />
-            </span>
+                            <SplitWords text="We design &" baseDelay={0.28} />
+                        </span>
                         <span style={{ display: 'block' }}>
-              <SplitWords text="that perform" baseDelay={0.76} />
-              <span style={{
-                  display: 'inline-block', overflow: 'hidden',
-                  paddingBottom: '0.18em', marginBottom: '-0.18em',
-                  marginLeft: '0.1em', verticalAlign: 'bottom',
-              }}>
-                <motion.span
-                    style={{ display: 'inline-block', color: '#d4f53c', fontStyle: 'italic' }}
-                    initial={{ y: '110%', opacity: 0 }}
-                    animate={{ y: '0%', opacity: 1 }}
-                    transition={{ duration: 1.05, ease: EASE as unknown as number[], delay: 1.08 }}
-                >
-                  — always.
-                </motion.span>
-              </span>
-            </span>
+                            <SplitWords text="engineer products" baseDelay={0.52} />
+                        </span>
+                        <span style={{ display: 'block' }}>
+                            <SplitWords text="that perform" baseDelay={0.76} />
+                            <span style={{
+                                display: 'inline-block', overflow: 'hidden',
+                                paddingBottom: '0.18em', marginBottom: '-0.18em',
+                                marginLeft: '0.1em', verticalAlign: 'bottom',
+                            }}>
+                                <motion.span
+                                    style={{ display: 'inline-block', color: '#d4f53c', fontStyle: 'italic' }}
+                                    initial={{ y: '110%', opacity: 0 }}
+                                    animate={{ y: '0%', opacity: 1 }}
+                                    transition={{ duration: 1.05, ease: EASE as unknown as number[], delay: 1.08 }}
+                                >
+                                    — always.
+                                </motion.span>
+                            </span>
+                        </span>
                     </h1>
 
                     <div
@@ -282,8 +280,8 @@ export default function Hero() {
                                 />
                             </div>
                             <span style={{ fontSize: 10, letterSpacing: '0.3em', color: '#5a5a56', textTransform: 'uppercase' }}>
-                Scroll
-              </span>
+                                Scroll
+                            </span>
                         </motion.div>
                     </div>
                 </motion.div>
