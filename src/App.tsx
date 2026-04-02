@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -22,6 +23,7 @@ const App = () => (
           <CustomCursor />
           <Navbar />
           <Routes>
+
             <Route path="/" element={<Index />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,40 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, useInView, animate } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-
-function CountUp({ target, suffix = '' }: { target: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  const [val, setVal] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    const ctrl = animate(0, target, {
-      duration: 2.2,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v: number) => setVal(Math.floor(v)),
-    });
-    return ctrl.stop;
-  }, [inView, target]);
-
-  return (
-    <span ref={ref} className="font-display text-5xl md:text-7xl text-foreground">
-      {val}{suffix}
-    </span>
-  );
-}
-
-const STATS = [
-  { value: 80, suffix: '+', label: 'Products shipped' },
-  { value: 5, suffix: ' yrs', label: 'In the industry' },
-  { value: 97, suffix: '%', label: 'Client retention' },
-];
 
 export default function Philosophy() {
   return (
     <section className="px-6 md:px-10 py-24 md:py-40 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+
         {/* Left - vertical label */}
         <motion.div
           className="lg:col-span-2"
@@ -50,7 +22,7 @@ export default function Philosophy() {
 
         {/* Center - statement */}
         <motion.div
-          className="lg:col-span-6"
+          className="lg:col-span-10"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
@@ -67,26 +39,6 @@ export default function Philosophy() {
           </p>
         </motion.div>
 
-        {/* Right - stats */}
-        <div className="lg:col-span-4 flex flex-row lg:flex-col gap-8 lg:gap-12 lg:items-end">
-          {STATS.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              className="text-left lg:text-right"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{
-                duration: 0.6,
-                ease: EASE as unknown as number[],
-                delay: i * 0.1,
-              }}
-            >
-              <CountUp target={stat.value} suffix={stat.suffix} />
-              <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
       </div>
     </section>
   );

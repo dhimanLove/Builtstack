@@ -13,7 +13,7 @@ function Word({ word, delay, accent = false }: { word: string; delay: number; ac
             marginBottom: '-0.18em', verticalAlign: 'bottom',
         }}>
             <motion.span
-                style={{ display: 'inline-block', color: accent ? '#d4f53c' : 'inherit' }}
+                style={{ display: 'inline-block', color: accent ? '#b1cc3a' : 'inherit' }}
                 initial={{ y: '110%', opacity: 0 }}
                 animate={{ y: '0%', opacity: 1 }}
                 transition={{ duration: 1.05, ease: EASE as unknown as number[], delay }}
@@ -53,20 +53,27 @@ export default function Hero() {
             style={{ minHeight: '100svh', background: '#080808' }}
         >
             {/* Grid */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-                opacity: 0.028,
-                backgroundImage: 'linear-gradient(#eeebe4 1px,transparent 1px),linear-gradient(90deg,#eeebe4 1px,transparent 1px)',
-                backgroundSize: '64px 64px',
-            }} />
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    opacity: 0.07,
+                    backgroundImage:
+                        'linear-gradient(#f5f2ea 1.5px, transparent 1.5px), linear-gradient(90deg, #999999 1.5px, transparent 1.5px)',
+                    backgroundSize: '56px 56px',
+                }}
+            />
 
             {/* Grain */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-                opacity: 0.04,
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.70' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-                backgroundSize: '180px 180px',
-            }} />
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    opacity: 0.05,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                    backgroundSize: '180px 180px',
+                }}
+            />
 
-            {/* ── Studio label - top left ─────────────────────── */}
+            {/* Studio label - top left */}
             <motion.div
                 className="absolute flex items-center gap-2.5 z-30"
                 style={{ top: 'clamp(88px, 11vw, 128px)', left: 'clamp(24px, 5vw, 48px)' }}
@@ -80,12 +87,12 @@ export default function Hero() {
                     animate={{ scale: [1, 1.6, 1] }}
                     transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 2.2 }}
                 />
-                <span style={{ fontSize: 10, letterSpacing: '0.32em', color: '#5a5a56', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: 12, letterSpacing: '0.32em', color: '#9e9e9a', textTransform: 'uppercase' }}>
                     Design & Engineering Studio
                 </span>
             </motion.div>
 
-            {/* ── Available - top right ───────────────────────── */}
+            {/* Available - top right*/}
             <motion.div
                 className="absolute hidden sm:flex items-center gap-2 z-30"
                 style={{ top: 'clamp(100px, 15vw, 128px)', right: 'clamp(24px, 5vw, 48px)' }}
@@ -95,25 +102,26 @@ export default function Hero() {
             >
                 <motion.span
                     className="rounded-full shrink-0"
-                    style={{ width: 6, height: 6, background: '#4ade80' }}
+                    style={{ width: 6, height: 6, background: '#60de4a' }}
                     animate={{ opacity: [1, 0.25, 1] }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
-                <span style={{ fontSize: 10, letterSpacing: '0.25em', color: '#5a5a56', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: 12, letterSpacing: '0.25em', color: '#9e9e9a', textTransform: 'uppercase' }}>
                     Available for projects
                 </span>
             </motion.div>
 
-        
-        {/* FLOATING IMAGE - absolute z-20
+
+            {/* FLOATING IMAGE - absolute z-20
           Desktop : right side, vertically centered
           Mobile  : top-center, above text  */}
+
             <motion.div
                 className="hero-img-float absolute z-20 pointer-events-none"
                 style={{
                     y: imgY,
                     opacity: imgOp,
-                    right: 'clamp(-20px, 2vw, 40px)',
+                    right: 'clamp(-10px, 2vw, 40px)',
                     top: 'clamp(80px, 12vw, 140px)',
                     width: 'clamp(280px, 38vw, 540px)',
                 }}
@@ -134,7 +142,7 @@ export default function Hero() {
         `}</style>
                 <div className="hero-img-float" style={{
                     position: 'absolute',
-                    right: 'clamp(-20px, 2vw, 40px)',
+                    right: 'clamp(-10px, 2vw, 70px)',
                     top: '10',
                     width: '100%',
                     height: '100%',
@@ -143,7 +151,7 @@ export default function Hero() {
                 {/* Lime glow behind */}
                 <div style={{
                     position: 'absolute', inset: '5%',
-                    background: 'radial-gradient(ellipse, rgba(212,245,60,0.10) 0%, transparent 65%)',
+                    background: 'radial-gradient(ellipse, #d3f53c74 0%, transparent 65%)',
                     filter: 'blur(40px)',
                     borderRadius: '50%',
                     zIndex: 0,
@@ -164,14 +172,33 @@ export default function Hero() {
                     <motion.div
                         style={{
                             position: 'absolute',
-                            bottom: '-50%', left: '18%', right: '18%',
-                            height: 28,
-                            background: 'rgba(212,245,60,0.12)',
-                            filter: 'blur(18px)',
+                            bottom: '-50%',
+                            left: '18%',
+                            right: '18%',
+                            height: 32,
+
+                            background: 'rgba(212,245,60,0.18)',
+
                             borderRadius: '50%',
+
+
+                            boxShadow: `
+                             0 0 40px rgba(212,245,60,0.25),
+                             0 0 80px rgba(212,245,60,0.18),
+                             0 20px 60px rgba(0,0,0,0.35)
+                             `,
+
+                            filter: 'blur(22px)',
                         }}
-                        animate={{ scaleX: [1, 0.7, 1], opacity: [0.65, 0.2, 0.65] }}
-                        transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+                        animate={{
+                            scaleX: [1, 0.75, 1],
+                            opacity: [0.7, 0.25, 0.7],
+                        }}
+                        transition={{
+                            duration: 5.5,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                        }}
                     />
 
                     <img
@@ -182,14 +209,13 @@ export default function Hero() {
                             width: '100%', height: 'auto',
                             objectFit: 'contain', display: 'block',
                             userSelect: 'none', pointerEvents: 'none',
-                            // Subtle drop shadow so it pops off the dark bg
                             filter: 'drop-shadow(0 32px 48px rgba(0,0,0,0.6)) drop-shadow(0 0 40px rgba(212,245,60,0.08))',
                         }}
                     />
                 </motion.div>
             </motion.div>
 
-        {/*TEXT BLOCK - full section height, bottom anchored
+            {/*TEXT BLOCK - full section height, bottom anchored
           Mobile: paddingTop pushes text below the image
           Desktop: text stays left, image floats right freely */}
             <div
@@ -221,7 +247,7 @@ export default function Hero() {
                             lineHeight: 1.08,
                             letterSpacing: '-0.025em',
                             marginBottom: 'clamp(28px, 4vw, 52px)',
-                            color: '#eeebe4',
+                            color: '#f0f0f0',
                             maxWidth: 'min(100%, 56vw)',
                         }}
                     >
@@ -255,7 +281,7 @@ export default function Hero() {
                         style={{ maxWidth: 'min(100%, 56vw)' }}
                     >
                         <motion.p
-                            style={{ color: '#5a5a56', fontSize: 'clamp(0.78rem, 1vw, 0.88rem)', maxWidth: 320, lineHeight: 1.8 }}
+                            style={{ color: '#c9c9c9', fontSize: 'clamp(1rem, 1vw, 1rem)', maxWidth: 320, lineHeight: 1.8 }}
                             initial={{ opacity: 0, y: 18 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 1.45, duration: 0.85, ease: EASE as unknown as number[] }}
@@ -269,16 +295,14 @@ export default function Hero() {
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                             transition={{ delay: 2, duration: 0.8 }}
                         >
-                            <div style={{ position: 'relative', width: 1, height: 52, background: '#1e1e1e', flexShrink: 0 }}>
+                            <div style={{ position: 'absolute', width: 3, height: 52, background: '#2e2e2e', flexShrink: 0 }}>
                                 <motion.div
-                                    style={{ position: 'absolute', left: 0, width: '100%', background: '#d4f53c', borderRadius: 1 }}
+                                    style={{ position: 'absolute', left: 0, width: '100%', background: '#8aa900', borderRadius: 50 }}
                                     animate={{ top: ['0%', '80%', '0%'], height: ['20%', '20%', '20%'], opacity: [0, 1, 0] }}
                                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                                 />
                             </div>
-                            <span style={{ fontSize: 10, letterSpacing: '0.3em', color: '#5a5a56', textTransform: 'uppercase' }}>
-                                Scroll
-                            </span>
+
                         </motion.div>
                     </div>
                 </motion.div>

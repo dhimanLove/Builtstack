@@ -40,8 +40,8 @@ function MagneticButton({ href, children, primary = false }: {
                 textTransform: 'uppercase',
                 fontWeight: primary ? 600 : 400,
                 background: primary ? '#d4f53c' : 'transparent',
-                color: primary ? '#000' : '#eeebe4',
-                border: primary ? 'none' : '1px solid #2a2a2a',
+                color: primary ? '#000' : '#ffffff',
+                border: primary ? 'none' : '1px solid #ffffff',
                 position: 'relative',
                 overflow: 'hidden',
                 cursor: 'none',
@@ -51,7 +51,7 @@ function MagneticButton({ href, children, primary = false }: {
             {primary && (
                 <motion.span
                     style={{ position: 'absolute', inset: 0, background: '#fff', scaleX: 0, originX: 0 }}
-                    whileHover={{ scaleX: 1 } }
+                    whileHover={{ scaleX: 1 }}
                     transition={{ duration: 0.42, ease: EASE as unknown as number[] }}
                 />
             )}
@@ -63,8 +63,8 @@ function MagneticButton({ href, children, primary = false }: {
                         transition={{ duration: 0.28 }}
                     />
                     <motion.span
-                        style={{ position: 'absolute', inset: 0, background: 'rgba(212,245,60,0.04)', opacity: 0 }}
-                        whileHover={{ opacity: 1 } }
+                        style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.99)', opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
                         transition={{ duration: 0.28 }}
                     />
                 </>
@@ -83,30 +83,30 @@ function Word({ word, delay, accent = false }: { word: string; delay: number; ac
             paddingBottom: '0.15em', marginBottom: '-0.15em',
             verticalAlign: 'bottom',
         }}>
-      <motion.span
-          style={{
-              display: 'inline-block',
-              color: accent ? '#d4f53c' : 'inherit',
-              fontStyle: accent ? 'italic' : 'inherit',
-          }}
-          initial={{ y: '110%', opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ delay, duration: 1, ease: EASE as unknown as number[] }}
-      >
-        {word}
-      </motion.span>
-    </span>
+            <motion.span
+                style={{
+                    display: 'inline-block',
+                    color: accent ? '#d4f53c' : 'inherit',
+                    fontStyle: accent ? 'italic' : 'inherit',
+                }}
+                initial={{ y: '110%', opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ delay, duration: 1, ease: EASE as unknown as number[] }}
+            >
+                {word}
+            </motion.span>
+        </span>
     );
 }
 
 function Line({ text, delay, accent = false }: { text: string; delay: number; accent?: boolean }) {
     return (
         <span style={{ display: 'block' }}>
-      {text.split(' ').map((w, i) => (
-          <Word key={i} word={w} delay={delay + i * 0.09} accent={accent} />
-      ))}
-    </span>
+            {text.split(' ').map((w, i) => (
+                <Word key={i} word={w} delay={delay + i * 0.09} accent={accent} />
+            ))}
+        </span>
     );
 }
 
@@ -114,8 +114,8 @@ export default function CTA() {
     const ref = useRef<HTMLElement>(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
 
-    const gridY     = useTransform(scrollYProgress, [0, 1], ['-6%', '6%']);
-    const imgY      = useTransform(scrollYProgress, [0, 1], ['-5%', '10%']);
+    const gridY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%']);
+    const imgY = useTransform(scrollYProgress, [0, 1], ['-5%', '10%']);
     const headlineY = useTransform(scrollYProgress, [0, 1], ['3%', '-3%']);
 
     return (
@@ -130,26 +130,27 @@ export default function CTA() {
                 padding: 'clamp(80px, 12vw, 160px) clamp(24px, 6vw, 80px)',
             }}
         >
-            {/* ── Noise grain ────────────────────────────── */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-                opacity: 0.055,
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-                backgroundSize: '180px 180px',
-            }} />
+            {/* Grid */}
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    opacity: 0.07,
+                    backgroundImage:
+                        'linear-gradient(#f5f2ea 1.5px, transparent 1.5px), linear-gradient(90deg, #f5f2ea 1.5px, transparent 1.5px)',
+                    backgroundSize: '56px 56px',
+                }}
+            />
 
-            {/* ── Parallax grid - NO green, just lines ───── */}
-            <motion.div
-                className="absolute inset-x-0 pointer-events-none"
-                style={{ y: gridY, top: '-20%', bottom: '-20%', opacity: 0.025 }}
-            >
-                <div style={{
-                    width: '100%', height: '100%',
-                    backgroundImage: 'linear-gradient(#eeebe4 1px,transparent 1px),linear-gradient(90deg,#eeebe4 1px,transparent 1px)',
-                    backgroundSize: '64px 64px',
-                }} />
-            </motion.div>
-
-            {/* ── Corner brackets ──────────────────────── */}
+            {/* Grain */}
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    opacity: 0.06,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                    backgroundSize: '160px 160px',
+                }}
+            />
+            {/*  Corner brackets */}
             {[
                 { top: 20, left: 20, borderTop: true, borderLeft: true },
                 { top: 20, right: 20, borderTop: true, borderRight: true },
@@ -162,10 +163,10 @@ export default function CTA() {
                     style={{
                         ...pos,
                         width: 28, height: 28,
-                        borderTop:    pos.borderTop    ? '1px solid #2a2a2a' : undefined,
+                        borderTop: pos.borderTop ? '1px solid #2a2a2a' : undefined,
                         borderBottom: pos.borderBottom ? '1px solid #2a2a2a' : undefined,
-                        borderLeft:   pos.borderLeft   ? '1px solid #2a2a2a' : undefined,
-                        borderRight:  pos.borderRight  ? '1px solid #2a2a2a' : undefined,
+                        borderLeft: pos.borderLeft ? '1px solid #2a2a2a' : undefined,
+                        borderRight: pos.borderRight ? '1px solid #2a2a2a' : undefined,
                     }}
                     initial={{ opacity: 0, scale: 0.7 }}
                     whileInView={{ opacity: 1, scale: 1 }}
@@ -174,38 +175,23 @@ export default function CTA() {
                 />
             ))}
 
-            {/* ══════════════════════════════════════════════
-          LAYOUT: stacked on mobile, side-by-side on desktop
+            {/*LAYOUT: stacked on mobile, side-by-side on desktop
           Left: text content
-          Right: floating mascot image
-      ══════════════════════════════════════════════ */}
+          Right: floating mascot image */}
             <div
                 className="relative z-10 flex flex-col md:flex-row items-center md:items-stretch gap-12 md:gap-0"
                 style={{ maxWidth: 1200, margin: '0 auto' }}
             >
 
-                {/* ── LEFT - Text content ─────────────────── */}
+                {/*LEFT - Text content*/}
                 <div className="flex flex-col items-center md:items-start text-center md:text-left flex-1">
 
                     {/* Vertical lime line + label */}
                     <div className="flex flex-col items-center md:items-start mb-10">
-                        <motion.div
-                            style={{ width: 1, height: 52, background: '#1e1e1e', position: 'relative', marginBottom: 20 }}
-                            initial={{ scaleY: 0 }}
-                            whileInView={{ scaleY: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, ease: EASE as unknown as number[] }}
-                        >
-                            <motion.div
-                                style={{ position: 'absolute', inset: 0, background: '#d4f53c', transformOrigin: 'top' }}
-                                initial={{ scaleY: 0 }}
-                                whileInView={{ scaleY: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.12, duration: 0.5, ease: EASE as unknown as number[] }}
-                            />
-                        </motion.div>
+
+
                         <motion.span
-                            style={{ fontSize: 10, letterSpacing: '0.36em', color: '#5a5a56', textTransform: 'uppercase' }}
+                            style={{ fontSize: 30, letterSpacing: '0.36em', color: '#9e9e9a', textTransform: 'uppercase' }}
                             initial={{ opacity: 0, y: 8 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -234,8 +220,8 @@ export default function CTA() {
                     <motion.p
                         className="mb-10"
                         style={{
-                            color: '#5a5a56',
-                            fontSize: 'clamp(0.82rem, 1.1vw, 0.92rem)',
+                            color: '#9e9e9a',
+                            fontSize: 'clamp(1rem, 1.1vw, 1rem)',
                             maxWidth: 360,
                             lineHeight: 1.85,
                         }}
@@ -293,9 +279,9 @@ export default function CTA() {
                     >
                         <a
                             href="mailto:hello@builtstack.co"
-                            style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#2e2e2c' }}
+                            style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#9e9e9a' }}
                             onMouseEnter={e => (e.currentTarget.style.color = '#d4f53c')}
-                            onMouseLeave={e => (e.currentTarget.style.color = '#2e2e2c')}
+                            onMouseLeave={e => (e.currentTarget.style.color = '#9e9e9a')}
                         >
                             hello@builtstack.co
                         </a>
@@ -304,9 +290,9 @@ export default function CTA() {
                             <a
                                 key={s}
                                 href="#"
-                                style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#2e2e2c' }}
+                                style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#9e9e9a' }}
                                 onMouseEnter={e => (e.currentTarget.style.color = '#eeebe4')}
-                                onMouseLeave={e => (e.currentTarget.style.color = '#2e2e2c')}
+                                onMouseLeave={e => (e.currentTarget.style.color = '#9e9e9a')}
                             >
                                 {s}
                             </a>
@@ -314,14 +300,14 @@ export default function CTA() {
                     </motion.div>
                 </div>
 
-                {/* ── RIGHT - Floating mascot image ───────── */}
+                {/*RIGHT - Floating mascot image*/}
                 <motion.div
                     className="flex items-center justify-center flex-shrink-0"
                     style={{
                         y: imgY,
                         // Desktop: right column fixed width
                         // Mobile: full width with max cap
-                        width: 'clamp(220px, 40vw, 480px)',
+                        width: 'clamp(250px, 50vw, 500px)',
                     }}
                     initial={{ opacity: 0, x: 40 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -377,9 +363,9 @@ export default function CTA() {
 
             </div>
 
-            {/* ── Ghost watermark ────────────────────────── */}
+            {/*Ghost watermark*/}
             <div className="absolute bottom-0 left-0 right-0 flex justify-center overflow-hidden pointer-events-none"
-                 style={{ height: '40%', alignItems: 'flex-end' }}
+                style={{ height: '40%', alignItems: 'flex-end' }}
             >
                 <motion.span
                     className="font-display select-none whitespace-nowrap"
