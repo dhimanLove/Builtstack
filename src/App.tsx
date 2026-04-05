@@ -9,11 +9,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
-
+import About from "./components/home/about.tsx";
 
 const queryClient = new QueryClient();
 
+
 const App = () => (
+  
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -23,11 +25,11 @@ const App = () => (
           <CustomCursor />
           <Navbar />
           <Routes>
-
             <Route path="/" element={<Index />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/about" element={<About />} />
           </Routes>
-          <Footer />
+          <Footer />  {/* Footer stays here (appears on all pages) */}
         </BrowserRouter>
       </SmoothScroll>
     </TooltipProvider>

@@ -4,7 +4,7 @@ import { useEffect, useRef, createContext, useContext } from 'react';
 import Lenis from '@studio-freight/lenis';
 import { useMotionValue, useSpring, motionValue } from 'framer-motion';
 
-// ── Context - expose lenis + scroll progress globally ─────────
+// Context
 interface LenisContextType {
   lenis: Lenis | null;
   scrollY: ReturnType<typeof motionValue<number>>;
@@ -19,82 +19,101 @@ const LenisContext = createContext<LenisContextType>({
   velocity: motionValue(0),
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLenis = () => useContext(LenisContext);
 
-// ── Provider ──────────────────────────────────────────────────
-export default function SmoothScroll({ children }: { children: React.ReactNode }) {
+
+// Provider
+
+export default function SmoothScroll({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const lenisRef = useRef<Lenis | null>(null);
 
-  // Live motion values - any component can subscribe via useLenis()
-  const scrollY        = useMotionValue(0);
+  // Motion values (global reactive scroll state)
+  const scrollY = useMotionValue(0);
   const scrollProgress = useMotionValue(0);
-  const velocity       = useMotionValue(0);
+  const velocity = useMotionValue(0);
 
-  // Springified velocity for smooth-reading components
-  const smoothVelocity = useSpring(velocity, { damping: 50, stiffness: 400 });
+  // Smooth velocity (more natural feel)
+  const smoothVelocity = useSpring(velocity, {
+    damping: 30,
+    stiffness: 200,
+    mass: 0.5,
+  });
 
   useEffect(() => {
-    lenisRef.current = new Lenis({
-      duration: 1.6,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+
+    // Lenis Init (optimized)
+
+    const lenis = new Lenis({
+      duration: 1.1, // faster but smoother perception
+      easing: (t: number) => 1 - Math.pow(1 - t, 3), // cubic ease-out
       orientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 0.85,
-      touchMultiplier: 1.4,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.2,
       infinite: false,
     });
 
-    // Feed Lenis scroll data into motion values every frame
-    lenisRef.current.on('scroll', ({
-                                     scroll,
-                                     progress,
-                                     velocity: vel,
-                                   }: {
-      scroll: number;
-      progress: number;
-      velocity: number;
-    }) => {
+    lenisRef.current = lenis;
+
+
+    // Sync Lenis -> Motion Values
+
+    lenis.on('scroll', ({ scroll, progress, velocity: vel }) => {
       scrollY.set(scroll);
       scrollProgress.set(progress);
       velocity.set(vel);
     });
 
-    // RAF loop - Framer Motion's useAnimationFrame would conflict,
-    // so we keep a dedicated loop just for Lenis
+
+    // RAF Loop (stable + efficient)
+
     let rafId: number;
-    function raf(time: number) {
-      lenisRef.current?.raf(time);
+
+    const raf = (time: number) => {
+      lenis.raf(time);
       rafId = requestAnimationFrame(raf);
-    }
+    };
+
     rafId = requestAnimationFrame(raf);
 
-    // Pause Lenis when tab is hidden - saves CPU
+
+    // Pause on tab switch (perf boost)
+
     const onVisibility = () => {
       if (document.hidden) {
-        lenisRef.current?.stop();
+        lenis.stop();
       } else {
-        lenisRef.current?.start();
+        lenis.start();
       }
     };
+
     document.addEventListener('visibilitychange', onVisibility);
+
+     
+    // Cleanup
 
     return () => {
       cancelAnimationFrame(rafId);
-      lenisRef.current?.destroy();
+      lenis.destroy();
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [scrollY, scrollProgress, velocity]);
+  }, [scrollProgress, scrollY, velocity]);
 
   return (
-      <LenisContext.Provider
-          value={{
-            lenis: lenisRef.current,
-            scrollY,
-            scrollProgress,
-            velocity: smoothVelocity,
-          }}
-      >
-        {children}
-      </LenisContext.Provider>
+    <LenisContext.Provider
+      value={{
+        lenis: lenisRef.current,
+        scrollY,
+        scrollProgress,
+        velocity: smoothVelocity,
+      }}
+    >
+      {children}
+    </LenisContext.Provider>
   );
 }

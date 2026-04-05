@@ -58,7 +58,7 @@ export default function Hero() {
                 style={{
                     opacity: 0.07,
                     backgroundImage:
-                        'linear-gradient(#f5f2ea 1.5px, transparent 1.5px), linear-gradient(90deg, #999999 1.5px, transparent 1.5px)',
+                        'linear-gradient(#f5f2ea 1.5px, transparent 1.5px), linear-gradient(90deg, #d0d0d0 1.5px, transparent 1.5px)',
                     backgroundSize: '56px 56px',
                 }}
             />
@@ -67,7 +67,7 @@ export default function Hero() {
             <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                    opacity: 0.05,
+                    opacity: 0.02,
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
                     backgroundSize: '180px 180px',
                 }}
@@ -83,7 +83,7 @@ export default function Hero() {
             >
                 <motion.span
                     className="rounded-full shrink-0"
-                    style={{ width: 6, height: 6, background: '#d4f53c' }}
+                    style={{ width: 3, height: 3, background: '#d4f53c' }}
                     animate={{ scale: [1, 1.6, 1] }}
                     transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 2.2 }}
                 />
@@ -102,7 +102,7 @@ export default function Hero() {
             >
                 <motion.span
                     className="rounded-full shrink-0"
-                    style={{ width: 6, height: 6, background: '#60de4a' }}
+                    style={{ width: 4, height: 4, background: '#78cb3d' }}
                     animate={{ opacity: [1, 0.25, 1] }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
@@ -286,8 +286,7 @@ export default function Hero() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 1.45, duration: 0.85, ease: EASE as unknown as number[] }}
                         >
-                            From idea to launch - we build digital products, SaaS platforms,
-                            and brand systems for founders who refuse to ship mediocrity.
+                            From idea to launch - we build high performance products, SaaS platforms, and brand systems for founders who refuse to blend in.
                         </motion.p>
 
                         <motion.div

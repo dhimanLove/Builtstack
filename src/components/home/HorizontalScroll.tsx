@@ -3,35 +3,46 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 
 const TESTIMONIALS = [
   {
-    quote: "BuiltStack didn't just build a product – they built a strategy. The attention to detail and the final output exceeded every expectation.",
-    name: "Sarah Chen",
-    role: "CTO, Vaultly",
-    avatar: "https://randomuser.me/api/portraits/women/68.jpg",
-    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=V",
-  },
-  {
-    quote: "The design system they created for Forma UI saved us months of development. It's pure elegance in every component.",
-    name: "Marcus De Silva",
-    role: "Lead Designer, Forma",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    quote:
+      "BuiltStack helped us go from a rough MVP to a production-ready platform in weeks. The clarity in their process and speed of execution is rare.",
+    name: "Ananya Sharma",
+    role: "Founder, FinEdge (Fintech Startup)",
+    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
     companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=F",
   },
   {
-    quote: "Working with BuiltStack felt like having an in-house team that actually cares. They brought our brand to life in ways we couldn't imagine.",
-    name: "Elena Voss",
-    role: "Brand Director, Meridian",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=M",
-  },
-  {
-    quote: "Stackwise's API architecture is rock‑solid, and the user experience is buttery smooth. BuiltStack is our go‑to for anything critical.",
-    name: "James Okafor",
-    role: "Founder, Stackwise",
-    avatar: "https://randomuser.me/api/portraits/men/52.jpg",
+    quote:
+      "Their design system completely transformed how our product feels. Clean, scalable, and actually developer-friendly.",
+    name: "Rohit Mehta",
+    role: "Product Lead, ScaleX",
+    avatar: "https://randomuser.me/api/portraits/men/45.jpg",
     companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=S",
   },
+  {
+    quote:
+      "We’ve worked with multiple agencies, but BuiltStack stands out. They think like product builders, not just designers.",
+    name: "Priya Nair",
+    role: "Co-founder, HealthBridge",
+    avatar: "https://randomuser.me/api/portraits/women/32.jpg",
+    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=H",
+  },
+  {
+    quote:
+      "From UI to backend architecture, everything was handled with precision. Our platform feels fast, stable, and premium.",
+    name: "Arjun Verma",
+    role: "CTO, EduStack",
+    avatar: "https://randomuser.me/api/portraits/men/28.jpg",
+    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=E",
+  },
+  {
+    quote:
+      "They don’t just deliver screens — they deliver thinking. Every decision felt intentional and aligned with our business goals.",
+    name: "Kavya Reddy",
+    role: "Head of Product, GrowthLoop",
+    avatar: "https://randomuser.me/api/portraits/women/50.jpg",
+    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=G",
+  },
 ];
-
 export default function HorizontalScroll() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({

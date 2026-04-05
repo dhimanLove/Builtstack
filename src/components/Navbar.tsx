@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useNavigate } from "react-router-dom";
 import gsap from 'gsap';
 
 const NAV_LINKS = ['Work', 'Services', 'About', 'Contact'];
@@ -8,6 +9,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const navigate = useNavigate();
     const { scrollY } = useScroll();
     const navbarRef = useRef<HTMLElement>(null);
 
@@ -21,7 +23,7 @@ export default function Navbar() {
     const ctaCircleRef = useRef<HTMLSpanElement | null>(null);
     const ctaTlRef = useRef<gsap.core.Timeline | null>(null);
     const ctaActiveTweenRef = useRef<gsap.core.Tween | null>(null);
-    const ctaItemRef = useRef<HTMLElement | null>(null);
+    const ctaItemRef = useRef<HTMLDivElement | null>(null);
 
     // Remove default body margin once on mount
     useEffect(() => {
@@ -53,9 +55,15 @@ export default function Navbar() {
         window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
     };
 
-    const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, link: string) => {
+    const handleNavClick = (e, link) => {
         e.preventDefault();
-        scrollToSection(link.toLowerCase());
+
+        if (link === "About") {
+            navigate("/about");   // 👉 NEW PAGE
+        } else {
+            scrollToSection(link.toLowerCase()); // 👉 OLD SCROLL
+        }
+
         setMenuOpen(false);
     };
 
@@ -162,7 +170,7 @@ export default function Navbar() {
             setupPillAnimations();
             setupCtaAnimation();
         });
-        return () => window.removeEventListener('resize', () => {});
+        return () => window.removeEventListener('resize', () => { });
     }, []);
 
     const handlePillEnter = (i: number) => {
@@ -273,8 +281,8 @@ export default function Navbar() {
                         transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                     />
                     <span className="font-display italic text-2xl tracking-tight leading-none" style={{ color: '#eeebe4' }}>
-            Built<span style={{ color: '#d4f53c' }}>Stack</span>
-          </span>
+                        Built<span style={{ color: '#d4f53c' }}>Stack</span>
+                    </span>
                 </motion.a>
 
                 {/* Desktop navigation with PILL ANIMATION for both links and CTA */}
@@ -301,25 +309,25 @@ export default function Navbar() {
                             }}
                             onMouseEnter={() => handlePillEnter(i)}
                             onMouseLeave={() => handlePillLeave(i)}
-                            onClick={(e) => handleNavClick(e as any, link)}
+                            onClick={(e) => handleNavClick(e as React.MouseEvent<HTMLDivElement>, link)}
                         >
-              <span
-                  className="absolute left-1/2 bottom-0 rounded-full pointer-events-none"
-                  style={{ background: '#d4f53c', willChange: 'transform' }}
-                  ref={el => { circleRefs.current[i] = el; }}
-              />
+                            <span
+                                className="absolute left-1/2 bottom-0 rounded-full pointer-events-none"
+                                style={{ background: '#d4f53c', willChange: 'transform' }}
+                                ref={el => { circleRefs.current[i] = el; }}
+                            />
                             <span className="label-stack relative inline-block leading-none z-[2]">
-                <span className="pill-label relative inline-block leading-none" style={{ willChange: 'transform' }}>
-                  {link}
-                </span>
-                <span
-                    className="pill-label-hover absolute left-0 top-0 inline-block"
-                    style={{ color: '#000', willChange: 'transform, opacity' }}
-                    aria-hidden="true"
-                >
-                  {link}
-                </span>
-              </span>
+                                <span className="pill-label relative inline-block leading-none" style={{ willChange: 'transform' }}>
+                                    {link}
+                                </span>
+                                <span
+                                    className="pill-label-hover absolute left-0 top-0 inline-block"
+                                    style={{ color: '#000', willChange: 'transform, opacity' }}
+                                    aria-hidden="true"
+                                >
+                                    {link}
+                                </span>
+                            </span>
                         </div>
                     ))}
 
@@ -339,25 +347,25 @@ export default function Navbar() {
                         }}
                         onMouseEnter={handleCtaEnter}
                         onMouseLeave={handleCtaLeave}
-                        onClick={(e) => handleNavClick(e as any, 'Contact')}
+                        onClick={(e) => handleNavClick(e as React.MouseEvent<HTMLDivElement>, 'Contact')}
                     >
-            <span
-                className="absolute left-1/2 bottom-0 rounded-full pointer-events-none"
-                style={{ background: '#000', willChange: 'transform' }}
-                ref={ctaCircleRef}
-            />
+                        <span
+                            className="absolute left-1/2 bottom-0 rounded-full pointer-events-none"
+                            style={{ background: '#000', willChange: 'transform' }}
+                            ref={ctaCircleRef}
+                        />
                         <span className="label-stack relative inline-block leading-none z-[2]">
-              <span className="pill-label relative inline-block leading-none" style={{ willChange: 'transform' }}>
-                Start a project
-              </span>
-              <span
-                  className="pill-label-hover absolute left-0 top-0 inline-block whitespace-nowrap"
-                  style={{ color: '#d4f53c', willChange: 'transform, opacity' }}
-                  aria-hidden="true"
-              >
-                Start a project
-              </span>
-            </span>
+                            <span className="pill-label relative inline-block leading-none" style={{ willChange: 'transform' }}>
+                                Start a project
+                            </span>
+                            <span
+                                className="pill-label-hover absolute left-0 top-0 inline-block whitespace-nowrap"
+                                style={{ color: '#d4f53c', willChange: 'transform, opacity' }}
+                                aria-hidden="true"
+                            >
+                                Start a project
+                            </span>
+                        </span>
                     </div>
                 </motion.div>
 
@@ -431,13 +439,13 @@ export default function Navbar() {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20 }}
                                     transition={{ delay: 0.05 + i * 0.08, duration: 0.55, ease: EASE as unknown as number[] }}
-                                    onClick={(e) => handleNavClick(e, link)}
+                                    onClick={(e) => handleNavClick(e as React.MouseEvent<HTMLAnchorElement>, link)}
                                 >
                                     <div className="flex items-baseline gap-5">
-                                        <span className="text-xs font-mono" style={{ color: '#2e2e2c' }}>0{i+1}</span>
+                                        <span className="text-xs font-mono" style={{ color: '#2e2e2c' }}>0{i + 1}</span>
                                         <span className="font-display italic text-5xl leading-none transition-colors duration-300 group-hover:text-[#d4f53c]" style={{ color: '#eeebe4' }}>
-                      {link}
-                    </span>
+                                            {link}
+                                        </span>
                                     </div>
                                     <motion.span className="text-2xl" style={{ color: '#2e2e2c' }} animate={{ x: 0 }} whileHover={{ x: 4 }}>→</motion.span>
                                 </motion.a>
@@ -450,7 +458,7 @@ export default function Navbar() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ delay: 0.4, duration: 0.55, ease: EASE as unknown as number[] }}
-                                onClick={(e) => handleNavClick(e, 'Contact')}
+                                onClick={(e) => handleNavClick(e as React.MouseEvent<HTMLAnchorElement>, 'Contact')}
                             >
                                 Start a project →
                             </motion.a>

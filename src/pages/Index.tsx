@@ -5,6 +5,7 @@ import WorkGrid from '@/components/home/WorkGrid';
 import Philosophy from '@/components/home/Philosophy';
 import HorizontalScroll from '@/components/home/HorizontalScroll';
 import CTA from '@/components/home/CTA';
+import About from '@/components/home/about';
 
 const Index = () => {
   return (
@@ -15,6 +16,7 @@ const Index = () => {
       <WorkGrid />
       <Philosophy />
       <HorizontalScroll />
+
       <CTA />
     </>
   );
