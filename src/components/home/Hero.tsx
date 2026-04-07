@@ -112,9 +112,6 @@ export default function Hero() {
             </motion.div>
 
 
-            {/* FLOATING IMAGE - absolute z-20
-          Desktop : right side, vertically centered
-          Mobile  : top-center, above text  */}
 
             <motion.div
                 className="hero-img-float absolute z-20 pointer-events-none"

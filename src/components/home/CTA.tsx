@@ -12,6 +12,21 @@ import {
 
 const EASE = [0.23, 1, 0.32, 1] as const; // Premium smoother easing
 
+const shineVariants = {
+  rest: { scaleX: 0 },
+  hover: { scaleX: 1 },
+};
+
+const secondaryBorderVariants = {
+  rest: { opacity: 0 },
+  hover: { opacity: 0.6 },
+};
+
+const secondaryOverlayVariants = {
+  rest: { opacity: 0 },
+  hover: { opacity: 1 },
+};
+
 // Improved Magnetic Button – Premium Edition
 function MagneticButton({
   href,
@@ -73,6 +88,8 @@ function MagneticButton({
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       whileTap={{ scale: reducedMotion ? 1 : 0.96 }}
+      initial="rest"
+      whileHover="hover"
       style={{
         x: reducedMotion ? 0 : sx,
         y: reducedMotion ? 0 : sy,
@@ -90,7 +107,6 @@ function MagneticButton({
         borderRadius: '9999px',
         position: 'relative',
         overflow: 'hidden',
-        cursor: 'none',
         userSelect: 'none',
         boxShadow: primary
           ? '0 4px 20px rgba(212, 245, 60, 0.3)'
@@ -116,6 +132,7 @@ function MagneticButton({
       {/* Primary Button Shine */}
       {primary && (
         <motion.span
+          variants={shineVariants}
           style={{
             position: 'absolute',
             inset: 0,
@@ -123,7 +140,6 @@ function MagneticButton({
             scaleX: 0,
             originX: 0,
           }}
-          whileHover={{ scaleX: 1 }}
           transition={{ duration: 0.55, ease: EASE }}
         />
       )}
@@ -133,6 +149,7 @@ function MagneticButton({
         <>
           {/* Lime Border Glow */}
           <motion.span
+            variants={secondaryBorderVariants}
             style={{
               position: 'absolute',
               inset: 0,
@@ -140,11 +157,11 @@ function MagneticButton({
               borderRadius: '9999px',
               opacity: 0,
             }}
-            whileHover={{ opacity: 0.6 }}
             transition={{ duration: 0.3 }}
           />
           {/* Subtle Background Overlay */}
           <motion.span
+            variants={secondaryOverlayVariants}
             style={{
               position: 'absolute',
               inset: 0,
@@ -152,7 +169,6 @@ function MagneticButton({
               borderRadius: '9999px',
               opacity: 0,
             }}
-            whileHover={{ opacity: 1 }}
             transition={{ duration: 0.35 }}
           />
         </>
