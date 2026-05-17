@@ -40,31 +40,72 @@ console.log(`Prerender server on http://localhost:${PORT}`);
 
 const browser = await puppeteer.launch({ headless: true });
 
-for (const route of ROUTES) {
-  const page = await browser.newPage();
-  const url = `http://localhost:${PORT}${route}`;
-  console.log(`  → ${route}`);
+const closeServer = () => new Promise((resolve, reject) => {
+  server.close((err) => (err ? reject(err) : resolve()));
+});
 
-  page.on("pageerror", (err) => console.warn(`  [pageerror] ${err.message}`));
+let prerenderError = null;
 
-  await page.goto(url, { waitUntil: "networkidle0", timeout: 90000 });
-  await page.waitForSelector("#root *", { timeout: 45000 });
-  await page.evaluate(() => document.dispatchEvent(new Event("render-event")));
-  await new Promise((r) => setTimeout(r, route === "/about" ? 8000 : 3000));
+try {
+  for (const route of ROUTES) {
+    const page = await browser.newPage();
+    const url = `http://localhost:${PORT}${route}`;
+    console.log(`  → ${route}`);
 
-  const rootChildCount = await page.evaluate(
-    () => document.getElementById("root")?.childElementCount ?? 0,
-  );
+    let pageError = null;
+    page.on("pageerror", (err) => {
+      pageError = err;
+    });
 
-  const html = await page.content();
-  const out = routeOutputPath(route);
-  fs.mkdirSync(path.dirname(out), { recursive: true });
-  fs.writeFileSync(out, html);
-  console.log(`  ✓ ${out} (${rootChildCount} root children)`);
+    try {
+      await page.goto(url, { waitUntil: "networkidle0", timeout: 90000 });
+      await page.waitForSelector("#root *", { timeout: 45000 });
+      await page.evaluate(() => document.dispatchEvent(new Event("render-event")));
+      await new Promise((r) => setTimeout(r, route === "/about" ? 8000 : 3000));
 
-  await page.close();
+      if (pageError) {
+        throw new Error(`Fatal page error on ${route}: ${pageError.stack || pageError.message}`);
+      }
+
+      const rootChildCount = await page.evaluate(
+        () => document.getElementById("root")?.childElementCount ?? 0,
+      );
+
+      const html = await page.content();
+      const out = routeOutputPath(route);
+      fs.mkdirSync(path.dirname(out), { recursive: true });
+      fs.writeFileSync(out, html);
+      console.log(`  ✓ ${out} (${rootChildCount} root children)`);
+    } catch (err) {
+      console.error(`  ✗ ${route} failed: ${err.message}`);
+      throw err;
+    } finally {
+      if (page && !page.isClosed()) {
+        await page.close();
+      }
+    }
+  }
+} catch (err) {
+  prerenderError = err;
+} finally {
+  try {
+    await browser.close();
+  } catch (closeErr) {
+    console.error(`Failed to close browser: ${closeErr.message}`);
+    prerenderError = prerenderError || closeErr;
+  }
+
+  try {
+    await closeServer();
+  } catch (closeErr) {
+    console.error(`Failed to close server: ${closeErr.message}`);
+    prerenderError = prerenderError || closeErr;
+  }
+
+  if (prerenderError) {
+    console.error("Prerender failed.");
+    process.exitCode = 1;
+  } else {
+    console.log("Prerender complete.");
+  }
 }
-
-await browser.close();
-server.close();
-console.log("Prerender complete.");
