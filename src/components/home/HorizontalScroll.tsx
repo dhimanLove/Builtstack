@@ -36,7 +36,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      "They don’t just deliver screens — they deliver thinking. Every decision felt intentional and aligned with our business goals.",
+      "They don’t just deliver screens - they deliver thinking. Every decision felt intentional and aligned with our business goals.",
     name: "Kavya Reddy",
     role: "Head of Product, GrowthLoop",
     avatar: "https://randomuser.me/api/portraits/women/50.jpg",
@@ -114,7 +114,7 @@ export default function HorizontalScroll() {
             {/* Company logo / branding */}
             <div className="flex items-center gap-2 pt-4 border-t border-white/10">
               <img src={item.companyLogo} alt="logo" className="w-8 h-8 rounded-lg" />
-              <span className="text-white/40 text-xs tracking-wider">— trusted partner</span>
+              <span className="text-white/40 text-xs tracking-wider">- trusted partner</span>
             </div>
 
             {/* Hover glow effect */}

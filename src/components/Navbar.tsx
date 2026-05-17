@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import gsap from 'gsap';
 
 const NAV_LINKS = ['Work', 'Services', 'About', 'Contact'];
@@ -10,6 +10,7 @@ export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const { scrollY } = useScroll();
     const navbarRef = useRef<HTMLElement>(null);
 
@@ -25,7 +26,6 @@ export default function Navbar() {
     const ctaActiveTweenRef = useRef<gsap.core.Tween | null>(null);
     const ctaItemRef = useRef<HTMLDivElement | null>(null);
 
-    // Remove default body margin once on mount
     useEffect(() => {
         document.body.style.margin = '0';
         document.body.style.padding = '0';
@@ -39,7 +39,7 @@ export default function Navbar() {
         return unsub;
     }, [scrollY]);
 
-    // Lock body scroll when mobile menu open
+
     useEffect(() => {
         document.body.style.overflow = menuOpen ? 'hidden' : '';
         return () => { document.body.style.overflow = ''; };
@@ -55,13 +55,17 @@ export default function Navbar() {
         window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
     };
 
-    const handleNavClick = (e, link) => {
+    const handleNavClick = (e: React.MouseEvent, link: string) => {
         e.preventDefault();
 
         if (link === "About") {
-            navigate("/about");   // 👉 NEW PAGE
+            navigate("/about");
+        } else if (link === "Contact") {
+            navigate("/contact");
+        } else if (location.pathname !== "/") {
+            navigate(`/#${link.toLowerCase()}`);
         } else {
-            scrollToSection(link.toLowerCase()); // 👉 OLD SCROLL
+            scrollToSection(link.toLowerCase());
         }
 
         setMenuOpen(false);
@@ -75,7 +79,7 @@ export default function Navbar() {
         }
     }, []);
 
-    // ---------- PILL ANIMATION SETUP (for nav links) ----------
+    //  PILL ANIMATION SETUP (for nav links) 
     const setupPillAnimations = () => {
         circleRefs.current.forEach((circle, i) => {
             const pill = navItemRefs.current[i];
@@ -119,7 +123,7 @@ export default function Navbar() {
         });
     };
 
-    // ---------- CTA BUTTON PILL ANIMATION SETUP ----------
+    //  CTA BUTTON PILL ANIMATION SETUP 
     const setupCtaAnimation = () => {
         const pill = ctaItemRef.current;
         const circle = ctaCircleRef.current;

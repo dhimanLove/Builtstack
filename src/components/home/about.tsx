@@ -1,7 +1,5 @@
-'use client';
-
 /**
- * BuiltStack — About Section (Fully Fixed)
+ * BuiltStack - About Section (Fully Fixed)
  *
  * Stack:
  *   - PixelBlast        → WebGL pixel-noise animated background (WebGL2)
@@ -38,7 +36,7 @@ import { SplitText } from 'gsap/SplitText';
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 
-// PIXEL BLAST — WebGL2 + fixed cleanup + event listeners
+// PIXEL BLAST - WebGL2 + fixed cleanup + event listeners
 
 
 type PixelBlastVariant = 'square' | 'circle' | 'triangle' | 'diamond';
@@ -426,7 +424,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 };
 
 
-// PROFILE CARD — fixed opacity and tilt
+// PROFILE CARD - fixed opacity and tilt
 
 
 const ANIMATION_CONFIG = {
@@ -595,7 +593,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
     '--behind-glow-size': behindGlowSize,
     '--pointer-x': '50%', '--pointer-y': '50%',
     '--pointer-from-center': '0', '--pointer-from-top': '0.5', '--pointer-from-left': '0.5',
-    '--card-opacity': '1',  // FIXED: set to 1 so glow is visible
+    '--card-opacity': '1', 
     '--rotate-x': '0deg', '--rotate-y': '0deg',
     '--background-x': '50%', '--background-y': '50%', '--card-radius': cardRadius,
     '--sunpillar-1': 'hsl(80,100%,70%)', '--sunpillar-2': 'hsl(120,80%,65%)',
@@ -658,7 +656,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
               mixBlendMode: 'luminosity', transform: 'translateZ(2px)',
               gridArea: '1/-1', borderRadius: cardRadius, pointerEvents: 'none', backfaceVisibility: 'hidden',
             }}>
-              {/* Avatar placeholder — replace src with real image */}
+              {/* Avatar placeholder - replace src with real image */}
               <div className="w-full absolute left-1/2 bottom-[-1px]" style={{
                 transform: 'translateX(calc(-50% + (var(--pointer-from-left) - 0.5) * 6px)) translateZ(0)',
                 display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
@@ -737,7 +735,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
 const ProfileCard = React.memo(ProfileCardComponent);
 
 
-// FOUNDER DATA — edit these for your actual team
+// FOUNDER DATA - edit these for your actual team
 
 
 const FOUNDERS = [
@@ -768,7 +766,7 @@ const FOUNDERS = [
 ];
 
 
-// STAT COUNTER — GSAP animated number
+// STAT COUNTER - GSAP animated number
 
 
 interface StatCounterProps { end: number; suffix?: string; label: string; delay?: number; }
@@ -796,7 +794,7 @@ const StatCounter: React.FC<StatCounterProps> = ({ end, suffix = '+', label, del
 };
 
 
-// MAGNETIC BUTTON — Framer Motion magnetic hover (fixed invalid prop)
+// MAGNETIC BUTTON - Framer Motion magnetic hover (fixed invalid prop)
 
 
 const MagneticButton: React.FC<{ children: React.ReactNode; onClick?: () => void }> = ({ children, onClick }) => {
@@ -847,10 +845,10 @@ const AboutSection: React.FC = () => {
   // GSAP headline split text animation (fixed revert)
   useEffect(() => {
     if (!headlineRef.current || !subRef.current) return;
-    const ctx = gsap.context(() => {
+    const ctx = gsap.context((self) => {
       const split = new SplitText(headlineRef.current!, { type: 'words,chars' });
       // Store split instance for revert
-      ctx.add(() => split.revert());
+      self.add(() => split.revert());
       gsap.from(split.chars, {
         opacity: 0, y: 60, rotateX: -40, stagger: 0.018, duration: 0.9,
         ease: 'power4.out', delay: 0.2,
@@ -969,7 +967,7 @@ const AboutSection: React.FC = () => {
             color: 'rgba(232,228,216,0.45)', maxWidth: '520px', marginBottom: '72px', fontStyle: 'italic',
           }}
         >
-          BuiltStack isn't an agency. It's two senior practitioners — one on design, one on engineering — who refuse to let either side compromise the other. The result is software that's as rigorous to use as it is to look at.
+          BuiltStack isn't an agency. It's two senior practitioners - one on design, one on engineering - who refuse to let either side compromise the other. The result is software that's as rigorous to use as it is to look at.
         </p>
 
         {/* ── Stats row ── */}
@@ -1143,10 +1141,10 @@ const AboutSection: React.FC = () => {
                 Reach {FOUNDERS[activeFounder].name}
               </h4>
               <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', color: 'rgba(232,228,216,0.4)', lineHeight: 1.7, marginBottom: '32px' }}>
-                Drop a line about your project — scope, timeline, and what you're building. We reply within 24 hours.
+                Drop a line about your project - scope, timeline, and what you're building. We reply within 24 hours.
               </p>
               <a
-                href={`mailto:hello@builtstack.co?subject=Project Inquiry — ${FOUNDERS[activeFounder].name}`}
+                href={`mailto:hello@builtstack.co?subject=Project Inquiry - ${FOUNDERS[activeFounder].name}`}
                 style={{
                   display: 'block', textAlign: 'center', background: '#c8f065', color: '#0a0a09',
                   padding: '16px 32px', fontFamily: "'Syne', sans-serif",

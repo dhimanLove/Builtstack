@@ -339,7 +339,7 @@ export default function CTA() {
             viewport={{ once: true }}
             transition={{ delay: 0.55, duration: 0.7, ease: EASE }}
           >
-            From MVP to full product — we move fast, write clean code,
+            From MVP to full product - we move fast, write clean code,
             and ship things that actually work.
           </motion.p>
 
@@ -351,7 +351,7 @@ export default function CTA() {
             viewport={{ once: true }}
             transition={{ delay: 0.62, duration: 0.7, ease: EASE }}
           >
-            <MagneticButton href="mailto:hello@builtstack.co" primary>
+            <MagneticButton href="/contact" primary>
               Start a project
             </MagneticButton>
             <MagneticButton href="#work">

@@ -1,10 +1,20 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-const LINKS: Record<string, string[]> = {
-  Pages: ['Work', 'Services', 'About', 'Contact'],
-  Services: ['Product Design', 'Web Development', 'SaaS Engineering', 'Brand Identity'],
-  Connect: ['Twitter', 'LinkedIn', 'GitHub', 'Dribbble'],
-};
+const PAGE_LINKS = [
+  { label: 'Work', href: '/#work' },
+  { label: 'Services', href: '/#services' },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const SERVICE_LINKS = ['Product Design', 'Web Development', 'SaaS Engineering', 'Brand Identity'];
+
+const SOCIAL_LINKS = [
+  { label: 'Twitter', href: 'https://twitter.com/BuiltStack' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/builtstack' },
+  { label: 'GitHub', href: 'https://github.com/builtstack' },
+];
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -19,7 +29,6 @@ export default function Footer() {
         transition={{ duration: 0.8, ease: EASE as unknown as number[] }}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          {/* Brand */}
           <div className="lg:col-span-1">
             <span className="font-display italic text-2xl text-foreground">
               BuiltStack
@@ -29,37 +38,72 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Nav columns */}
-          {Object.entries(LINKS).map(([col, items]) => (
-            <div key={col}>
-              <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-6">
-                {col}
-              </h4>
-              <ul className="space-y-3">
-                {items.map((item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 relative group inline-block"
-                    >
-                      {item}
-                      <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div>
+            <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-6">Pages</h4>
+            <ul className="space-y-3">
+              {PAGE_LINKS.map(({ label, href }) => (
+                <li key={label}>
+                  <Link
+                    to={href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 relative group inline-block"
+                  >
+                    {label}
+                    <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-6">Services</h4>
+            <ul className="space-y-3">
+              {SERVICE_LINKS.map((item) => (
+                <li key={item}>
+                  <Link
+                    to="/#services"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 relative group inline-block"
+                  >
+                    {item}
+                    <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-6">Connect</h4>
+            <ul className="space-y-3">
+              {SOCIAL_LINKS.map(({ label, href }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 relative group inline-block"
+                  >
+                    {label}
+                    <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        {/* Bottom bar */}
         <div className="pt-8 border-t border-bs-border flex flex-col md:flex-row justify-between items-center gap-4">
           <span className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} BuiltStack. All rights reserved.
           </span>
-          <span className="text-xs text-muted-foreground">
-            Designed & built by BuiltStack.
-          </span>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
+            <Link to="/privacy" className="hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </motion.div>
     </footer>
