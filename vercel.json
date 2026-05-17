@@ -1,3 +1,16 @@
 {
-  "trailingSlash": false
+  "trailingSlash": false,
+  "installCommand": "npm install --legacy-peer-deps",
+  "build": {
+    "env": {
+      "PUPPETEER_SKIP_DOWNLOAD": "1",
+      "SKIP_PRERENDER": "1"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!assets/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

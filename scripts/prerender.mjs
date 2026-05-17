@@ -104,8 +104,8 @@ try {
 
   if (prerenderError) {
     console.error("Prerender failed.");
-    process.exitCode = 1;
-  } else {
-    console.log("Prerender complete.");
+    process.exit(1);
   }
+
+  console.log("Prerender complete.");
 }
