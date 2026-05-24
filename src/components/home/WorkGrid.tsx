@@ -1,19 +1,23 @@
+'use client';
+
 import { motion } from 'framer-motion';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import * as THREE from 'three';
 
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+// ============================================================================
+// CONSTANTS & TYPES
+// ============================================================================
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1] as const;
 
 const PROJECTS = [
-  { title: 'Vaultly', category: 'SaaS · Web App', year: '2026' },
-  { title: 'Forma UI', category: 'Design System', year: '2026' },
+  { title: 'Portfolio', category: 'Web App', year: '2025' },
+  { title: 'Duo Studio', category: 'Web App', year: '2026' },
   { title: 'Meridian', category: 'Brand Identity', year: '2023' },
-  { title: 'Stackwise', category: 'Web App · API', year: '2023' },
+  { title: 'Sahara', category: 'Web and Mobile App', year: '2023' },
   { title: 'Onyx Brand', category: 'Brand · Web', year: '2023' },
 ];
 
-// ========== PIXELBLAST SHADER (unchanged) ==========
 type PixelBlastVariant = 'square' | 'circle' | 'triangle' | 'diamond';
 
 const SHAPE_MAP: Record<PixelBlastVariant, number> = {
@@ -23,6 +27,11 @@ const SHAPE_MAP: Record<PixelBlastVariant, number> = {
   diamond: 3,
 };
 
+const MAX_CLICKS = 10;
+
+// ============================================================================
+// SHADERS (unchanged logic, theme-aware uniforms injected at runtime)
+// ============================================================================
 const VERTEX_SRC = `
 void main() {
   gl_Position = vec4(position, 1.0);
@@ -192,13 +201,45 @@ void main(){
 }
 `;
 
-const MAX_CLICKS = 10;
+// ============================================================================
+// THEME UTILS
+// ============================================================================
+function getThemeColor(cssVar: string, fallback: string): string {
+  if (typeof window === 'undefined') return fallback;
+  return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim() || fallback;
+}
 
-// ========== PARTICLE CARD ==========
+function parseHslToRgb(hslStr: string): [number, number, number] {
+  // Fallback if parsing fails
+  if (!hslStr) return [212, 245, 60];
+  const match = hslStr.match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/);
+  if (!match) return [212, 245, 60];
+  const [, h, s, l] = match.map(Number);
+  const sDec = s / 100, lDec = l / 100;
+  const c = (1 - Math.abs(2 * lDec - 1)) * sDec;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = lDec - c / 2;
+  let [r, g, b] = [0, 0, 0];
+  if (h < 60) [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else[r, g, b] = [c, 0, x];
+  return [
+    Math.round((r + m) * 255),
+    Math.round((g + m) * 255),
+    Math.round((b + m) * 255),
+  ];
+}
+
+// ============================================================================
+// PARTICLE CARD COMPONENT
+// ============================================================================
 const ParticleCard = ({
   children,
   className = '',
-  glowColor = '212, 245, 60',
+  glowColorCssVar = '--lime',
   particleCount = 12,
   enableTilt = true,
   clickEffect = true,
@@ -207,7 +248,7 @@ const ParticleCard = ({
 }: {
   children: React.ReactNode;
   className?: string;
-  glowColor?: string;
+  glowColorCssVar?: string;
   particleCount?: number;
   enableTilt?: boolean;
   clickEffect?: boolean;
@@ -219,16 +260,37 @@ const ParticleCard = ({
   const ctxRef = useRef<gsap.Context | null>(null);
   const isHoveredRef = useRef(false);
 
+  const getGlowRgb = useCallback(() => {
+    const hex = getThemeColor(glowColorCssVar, '#d4f53c');
+    // If it's already rgb, parse it
+    if (hex.startsWith('rgb')) {
+      const match = hex.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (match) return match.slice(1, 4).join(', ');
+    }
+    // If it's hex, convert
+    if (hex.startsWith('#')) {
+      const bigint = parseInt(hex.slice(1), 16);
+      return `${(bigint >> 16) & 255}, ${(bigint >> 8) & 255}, ${bigint & 255}`;
+    }
+    // If it's hsl, convert
+    if (hex.startsWith('hsl')) {
+      const [r, g, b] = parseHslToRgb(hex);
+      return `${r}, ${g}, ${b}`;
+    }
+    return '212, 245, 60';
+  }, [glowColorCssVar]);
+
   const createParticle = useCallback((x: number, y: number) => {
     const el = document.createElement('div');
+    const glowRgb = getGlowRgb();
     el.className = 'work-particle';
     el.style.cssText = `
       position: absolute;
       width: 4px;
       height: 4px;
       border-radius: 50%;
-      background: rgba(${glowColor}, 1);
-      box-shadow: 0 0 8px rgba(${glowColor}, 0.8);
+      background: rgba(${glowRgb}, 1);
+      box-shadow: 0 0 8px rgba(${glowRgb}, 0.8);
       pointer-events: none;
       z-index: 100;
       left: ${x}px;
@@ -236,7 +298,7 @@ const ParticleCard = ({
       will-change: transform, opacity;
     `;
     return el;
-  }, [glowColor]);
+  }, [getGlowRgb]);
 
   const clearParticles = useCallback(() => {
     particlesRef.current.forEach((p) => p.remove());
@@ -343,6 +405,7 @@ const ParticleCard = ({
         const rect = el.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
+        const glowRgb = getGlowRgb();
 
         const maxDist = Math.max(
           Math.hypot(clickX, clickY),
@@ -357,7 +420,7 @@ const ParticleCard = ({
           width: ${maxDist * 2}px;
           height: ${maxDist * 2}px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(${glowColor}, 0.35) 10%, rgba(${glowColor}, 0.15) 40%, transparent 70%);
+          background: radial-gradient(circle, rgba(${glowRgb}, 0.35) 10%, rgba(${glowRgb}, 0.15) 40%, transparent 70%);
           left: ${clickX - maxDist}px;
           top: ${clickY - maxDist}px;
           pointer-events: none;
@@ -396,7 +459,7 @@ const ParticleCard = ({
     return () => {
       ctxRef.current?.revert();
     };
-  }, [disableAnimations, enableTilt, enableMagnetism, clickEffect, glowColor, particleCount, createParticle, clearParticles]);
+  }, [disableAnimations, enableTilt, enableMagnetism, clickEffect, particleCount, createParticle, clearParticles, getGlowRgb]);
 
   return (
     <div ref={cardRef} className={`${className} relative overflow-hidden`} style={{ position: 'relative' }}>
@@ -405,62 +468,46 @@ const ParticleCard = ({
   );
 };
 
-// ========== WORK CARD WITH PATTERN ==========
+// ============================================================================
+// WORK CARD WITH PATTERN
+// ============================================================================
 function WorkCardWithPattern({
   project,
   index,
-  glowColor = '212, 245, 60',
+  glowColorCssVar = '--lime',
 }: {
   project: (typeof PROJECTS)[0];
   index: number;
-  glowColor?: string;
+  glowColorCssVar?: string;
 }) {
   const isLarge = index === 0 || index === 4;
   const isFull = index === 2;
 
   const patterns = ['dots', 'grid', 'diagonal', 'zigzag', 'waves'];
   const pattern = patterns[index % patterns.length];
+
   const getPatternStyle = () => {
     switch (pattern) {
       case 'dots':
-        return {
-          backgroundImage: `url("https://i.pinimg.com/1200x/1a/0f/4a/1a0f4a8592a92eaf93a7c5a09715dd1e.jpg")`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'none',
-        };
+        return { backgroundImage: `url("/projects/portfolio.png")` };
       case 'grid':
-        return {
-          backgroundImage: `url("https://i.pinimg.com/736x/d0/01/00/d00100318cf498c6363c202861fd88f9.jpg")`,
-          backgroundSize: 'fit-content',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        };
+        return { backgroundImage: `url("/projects/duostudio.png")` };
       case 'diagonal':
-        return {
-          backgroundImage: `url("https://i.pinimg.com/736x/15/97/21/15972177e2c07a646e0f5fa5d7591654.jpg")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        };
+        return { backgroundImage: `url("/projects/adminpannel.png")` };
       case 'zigzag':
-        return {
-          backgroundImage: `url("https://i.pinimg.com/736x/dc/b0/3f/dcb03ff1e3e051aa49393e0a86a1547b.jpg")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        };
+        return { backgroundImage: `url("/projects/neerajdental.png")` };
       case 'waves':
-        return {
-          backgroundImage: `url("https://i.pinimg.com/736x/5f/4a/a0/5f4aa0e1047ea8b941971549d3eadd2b.jpg")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        };
+        return { backgroundImage: `url("/projects/sahara.png")` };
       default:
         return {};
     }
   };
+
+  // Theme-aware overlay gradient
+  const overlayGradient = `linear-gradient(to top, 
+    hsl(var(--bg) / 0.9) 0%, 
+    hsl(var(--bg) / 0.5) 50%, 
+    transparent 100%)`;
 
   return (
     <motion.div
@@ -472,7 +519,7 @@ function WorkCardWithPattern({
     >
       <ParticleCard
         className="group cursor-pointer rounded-2xl"
-        glowColor={glowColor}
+        glowColorCssVar={glowColorCssVar}
         particleCount={10}
         enableTilt={true}
         clickEffect={true}
@@ -480,38 +527,64 @@ function WorkCardWithPattern({
       >
         <div
           className={`relative overflow-hidden rounded-2xl ${isFull ? 'aspect-[2.1/1]' : 'aspect-[4/3]'}`}
-          style={{ backgroundColor: '#080808', ...getPatternStyle() }}
+          style={{
+            backgroundColor: 'hsl(var(--bg))',
+            ...getPatternStyle(),
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
         >
+          {/* Pattern overlay */}
           <div
             className="absolute inset-0 transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-[2deg]"
-            style={{ ...getPatternStyle(), opacity: 0.35 }}
+            style={{
+              ...getPatternStyle(),
+              opacity: 0.35,
+              backgroundSize: 'contain',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            }}
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-8 text-center">
-            <h3 className="text-white text-3xl md:text-4xl font-display mb-3 translate-y-6 group-hover:translate-y-0 transition-all duration-500">
+          {/* Hover overlay with theme-aware gradient */}
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-8 text-center"
+            style={{ background: overlayGradient }}
+          >
+            <h3 className="text-[var(--heading-color,hsl(var(--text-primary)))] text-3xl md:text-4xl font-display mb-3 translate-y-6 group-hover:translate-y-0 transition-all duration-500">
               {project.title}
             </h3>
-            <p className="text-white/75 text-base tracking-wide translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-100">
+            <p className="text-[var(--body-color,hsl(var(--text-muted)))] text-base tracking-wide translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-100">
               {project.category}
             </p>
-            <div className="mt-4 text-xs uppercase tracking-[2px] text-white/50 translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-200">
+            <div className="mt-4 text-xs uppercase tracking-[2px] text-[var(--text-faint,hsl(var(--text-faint)))] translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-200">
               {project.year}
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-lime-400 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center" />
+          {/* Bottom accent line */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center"
+            style={{
+              background: `linear-gradient(90deg, transparent, var(--lime), transparent)`,
+            }}
+          />
         </div>
 
+        {/* Card footer */}
         <div className="flex justify-between items-center mt-5 px-2">
-          <span className="text-sm text-muted-foreground">{project.category}</span>
-          <span className="text-xs text-muted-foreground tracking-widest">{project.year}</span>
+          <span className="text-sm text-[var(--body-color,hsl(var(--text-muted)))]">{project.category}</span>
+          <span className="text-xs text-[var(--text-faint,hsl(var(--text-faint)))] tracking-widest">{project.year}</span>
         </div>
       </ParticleCard>
     </motion.div>
   );
 }
 
-// ========== PIXELBLAST BACKGROUND ==========
+// ============================================================================
+// PIXELBLAST BACKGROUND (Three.js shader)
+// ============================================================================
 function PixelBlastBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
   const threeRef = useRef<{
@@ -525,6 +598,25 @@ function PixelBlastBackground() {
     raf: number | null;
   } | null>(null);
 
+  // Get theme-aware color for shader
+  const getShaderColor = useCallback(() => {
+    const lime = getThemeColor('--lime', '#d4f53c');
+    // Parse to THREE.Color
+    if (lime.startsWith('#')) return new THREE.Color(lime);
+    if (lime.startsWith('rgb')) {
+      const match = lime.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (match) {
+        const [, r, g, b] = match.map(Number);
+        return new THREE.Color(r / 255, g / 255, b / 255);
+      }
+    }
+    if (lime.startsWith('hsl')) {
+      const [r, g, b] = parseHslToRgb(lime);
+      return new THREE.Color(r / 255, g / 255, b / 255);
+    }
+    return new THREE.Color('#d4f53c');
+  }, []);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -532,7 +624,7 @@ function PixelBlastBackground() {
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setClearColor(0x080808, 0); // transparent, so HTML background shows
+    renderer.setClearColor(0x080808, 0);
     renderer.domElement.style.position = 'absolute';
     renderer.domElement.style.top = '0';
     renderer.domElement.style.left = '0';
@@ -544,7 +636,7 @@ function PixelBlastBackground() {
     const uniforms = {
       uResolution: { value: new THREE.Vector2(container.clientWidth, container.clientHeight) },
       uTime: { value: 0 },
-      uColor: { value: new THREE.Color('#d4f53c') },
+      uColor: { value: getShaderColor() },
       uClickPos: { value: Array.from({ length: MAX_CLICKS }, () => new THREE.Vector2(-1, -1)) },
       uClickTimes: { value: new Float32Array(MAX_CLICKS) },
       uShapeType: { value: SHAPE_MAP.circle },
@@ -620,15 +712,21 @@ function PixelBlastBackground() {
         container.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [getShaderColor]);
 
   return <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />;
 }
 
-// ========== MAIN WORKGRID COMPONENT ==========
+// ============================================================================
+// MAIN WORKGRID COMPONENT
+// ============================================================================
 export default function WorkGrid() {
   return (
-    <section id="work" className="relative px-6 md:px-10 py-24 md:py-40 max-w-7xl mx-auto overflow-hidden bg-[#080808]">
+    <section
+      id="work"
+      className="relative px-6 md:px-10 py-24 md:py-40 max-w-7xl mx-auto overflow-hidden"
+      style={{ backgroundColor: 'var(--section-bg, hsl(var(--bg)))' }}
+    >
       {/* Background Shader */}
       <PixelBlastBackground />
 
@@ -642,10 +740,17 @@ export default function WorkGrid() {
           transition={{ duration: 0.85, ease: EASE }}
         >
           <div>
-            <span className="text-xs uppercase tracking-[3px] text-muted-foreground">Selected work</span>
-            <h2 className="font-display text-4xl md:text-6xl mt-3 leading-none">What we've shipped.</h2>
+            <span className="text-xs uppercase tracking-[3px] text-[var(--text-muted,hsl(var(--text-muted)))]">
+              Selected work
+            </span>
+            <h2 className="font-display text-4xl md:text-6xl mt-3 leading-none" style={{ color: 'var(--heading-color, hsl(var(--text-primary)))' }}>
+              What we&apos;ve shipped.
+            </h2>
           </div>
-          <a href="#" className="text-sm text-muted-foreground hover:text-white transition-colors flex items-center group">
+          <a
+            href="#"
+            className="text-sm text-[var(--body-color,hsl(var(--text-muted)))] hover:text-[var(--heading-color,hsl(var(--text-primary)))] transition-colors flex items-center group"
+          >
             View all work
             <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
           </a>
@@ -653,7 +758,12 @@ export default function WorkGrid() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {PROJECTS.map((project, i) => (
-            <WorkCardWithPattern key={project.title} project={project} index={i} glowColor="212, 245, 60" />
+            <WorkCardWithPattern
+              key={project.title}
+              project={project}
+              index={i}
+              glowColorCssVar="--lime"
+            />
           ))}
         </div>
       </div>

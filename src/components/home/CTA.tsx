@@ -10,7 +10,10 @@ import {
   useReducedMotion,
 } from 'framer-motion';
 
-const EASE = [0.23, 1, 0.32, 1] as const; // Premium smoother easing
+// ============================================================================
+// EASING & CONSTANTS
+// ============================================================================
+const EASE = [0.23, 1, 0.32, 1] as const;
 
 const shineVariants = {
   rest: { scaleX: 0 },
@@ -27,7 +30,9 @@ const secondaryOverlayVariants = {
   hover: { opacity: 1 },
 };
 
-// Improved Magnetic Button – Premium Edition
+// ============================================================================
+// THEME-AWARE MAGNETIC BUTTON
+// ============================================================================
 function MagneticButton({
   href,
   children,
@@ -43,19 +48,8 @@ function MagneticButton({
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  // Smoother, more premium springs
-  const sx = useSpring(x, {
-    stiffness: 280,
-    damping: 24,
-    mass: 0.8,
-  });
-  const sy = useSpring(y, {
-    stiffness: 280,
-    damping: 24,
-    mass: 0.8,
-  });
-
-  // Glow intensity tied to mouse distance
+  const sx = useSpring(x, { stiffness: 280, damping: 24, mass: 0.8 });
+  const sy = useSpring(y, { stiffness: 280, damping: 24, mass: 0.8 });
   const glowOpacity = useMotionValue(0);
 
   const onMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -63,14 +57,10 @@ function MagneticButton({
     const r = ref.current.getBoundingClientRect();
     const centerX = r.left + r.width / 2;
     const centerY = r.top + r.height / 2;
-
     const distX = (e.clientX - centerX) * 0.32;
     const distY = (e.clientY - centerY) * 0.32;
-
     x.set(distX);
     y.set(distY);
-
-    // Dynamic glow based on distance from center
     const distance = Math.sqrt(distX * distX + distY * distY);
     glowOpacity.set(Math.min(distance / 80, 1));
   };
@@ -80,6 +70,16 @@ function MagneticButton({
     y.set(0);
     glowOpacity.set(0);
   };
+
+  // Theme-aware button styles
+  const primaryBg = 'var(--lime, #d4f53c)';
+  const primaryText = 'var(--on-lime, #0a0a0a)';
+  const primaryShadow = 'var(--glow-lime, rgba(212, 245, 60, 0.3))';
+  
+  const secondaryBorder = 'hsl(var(--text-primary))';
+  const secondaryText = 'hsl(var(--text-primary))';
+  const secondaryHoverBorder = 'var(--lime, #d4f53c)';
+  const secondaryHoverBg = 'var(--glow-lime, rgba(212, 245, 60, 0.08))';
 
   return (
     <motion.a
@@ -101,18 +101,16 @@ function MagneticButton({
         letterSpacing: '0.28em',
         textTransform: 'uppercase',
         fontWeight: primary ? 600 : 500,
-        background: primary ? '#d4f53c' : 'transparent',
-        color: primary ? '#0a0a0a' : '#ffffff',
-        border: primary ? 'none' : '1.5px solid #ffffff',
+        background: primary ? primaryBg : 'transparent',
+        color: primary ? primaryText : secondaryText,
+        border: primary ? 'none' : `1.5px solid ${secondaryBorder}`,
         borderRadius: '9999px',
         position: 'relative',
         overflow: 'hidden',
         userSelect: 'none',
-        boxShadow: primary
-          ? '0 4px 20px rgba(212, 245, 60, 0.3)'
-          : 'none',
+        boxShadow: primary ? `0 4px 20px ${primaryShadow}` : 'none',
       }}
-      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4f53c]/70 focus-visible:ring-offset-4 focus-visible:ring-offset-[#080808]"
+      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lime)]/70 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--section-bg,hsl(var(--bg)))]"
     >
       {/* Outer Glow Layer */}
       <motion.div
@@ -121,8 +119,8 @@ function MagneticButton({
           inset: '-20%',
           borderRadius: '9999px',
           background: primary
-            ? 'radial-gradient(circle, rgba(212,245,60,0.45) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(212,245,60,0.25) 0%, transparent 70%)',
+            ? `radial-gradient(circle, var(--glow-lime, rgba(212,245,60,0.45)) 0%, transparent 70%)`
+            : `radial-gradient(circle, var(--glow-lime, rgba(212,245,60,0.25)) 0%, transparent 70%)`,
           opacity: reducedMotion ? 0 : glowOpacity,
           filter: 'blur(12px)',
           zIndex: 0,
@@ -147,25 +145,23 @@ function MagneticButton({
       {/* Secondary Button Hover Effects */}
       {!primary && (
         <>
-          {/* Lime Border Glow */}
           <motion.span
             variants={secondaryBorderVariants}
             style={{
               position: 'absolute',
               inset: 0,
-              border: '1.5px solid #d4f53c',
+              border: `1.5px solid ${secondaryHoverBorder}`,
               borderRadius: '9999px',
               opacity: 0,
             }}
             transition={{ duration: 0.3 }}
           />
-          {/* Subtle Background Overlay */}
           <motion.span
             variants={secondaryOverlayVariants}
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'rgba(212, 245, 60, 0.08)',
+              background: secondaryHoverBg,
               borderRadius: '9999px',
               opacity: 0,
             }}
@@ -195,19 +191,16 @@ function MagneticButton({
   );
 }
 
-// Keep your existing Word and Line components unchanged (they're solid)
+// ============================================================================
+// WORD & LINE COMPONENTS (Theme-aware text colors)
+// ============================================================================
 function Word({ word, delay, accent = false }: { word: string; delay: number; accent?: boolean }) {
   return (
-    <span style={{
-      display: 'inline-block', overflow: 'hidden',
-      marginRight: '0.25em',
-      paddingBottom: '0.18em', marginBottom: '-0.18em',
-      verticalAlign: 'bottom',
-    }}>
+    <span className="inline-block overflow-hidden mr-[0.25em] pb-[0.18em] mb-[-0.18em] align-bottom">
       <motion.span
+        className="inline-block"
         style={{
-          display: 'inline-block',
-          color: accent ? '#d4f53c' : 'inherit',
+          color: accent ? 'var(--lime, #d4f53c)' : 'inherit',
           fontStyle: accent ? 'italic' : 'inherit',
         }}
         initial={{ y: '110%', opacity: 0 }}
@@ -223,7 +216,7 @@ function Word({ word, delay, accent = false }: { word: string; delay: number; ac
 
 function Line({ text, delay, accent = false }: { text: string; delay: number; accent?: boolean }) {
   return (
-    <span style={{ display: 'block' }}>
+    <span className="block">
       {text.split(' ').map((w, i) => (
         <Word key={i} word={w} delay={delay + i * 0.085} accent={accent} />
       ))}
@@ -231,6 +224,9 @@ function Line({ text, delay, accent = false }: { text: string; delay: number; ac
   );
 }
 
+// ============================================================================
+// CTA SECTION - THEME ADAPTIVE + TAILWIND REFACTORED
+// ============================================================================
 export default function CTA() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
@@ -239,27 +235,46 @@ export default function CTA() {
   const imgY = useTransform(scrollYProgress, [0, 1], ['-5%', '10%']);
   const headlineY = useTransform(scrollYProgress, [0, 1], ['3%', '-3%']);
 
+  // Theme-aware color tokens
+  const sectionBg = 'var(--section-bg, hsl(var(--bg)))';
+  const sectionBorder = 'var(--card-border, hsl(var(--border)))';
+  const headingColor = 'var(--heading-color, hsl(var(--text-primary)))';
+  const bodyColor = 'var(--body-color, hsl(var(--text-muted)))';
+  const faintColor = 'var(--text-faint, hsl(var(--text-faint)))';
+  const cornerBorderColor = 'var(--nav-border, hsl(var(--border)))';
+  const dividerColor = 'var(--card-border, hsl(var(--border)))';
+  const linkHoverColor = 'var(--lime, #d4f53c)';
+  const socialHoverColor = 'var(--logo-text, hsl(var(--text-primary)))';
+  
+  // Grid colors adapt to theme: light uses warm tones, dark uses cool
+  const gridLight = 'hsl(var(--text-primary))';
+  const gridDark = 'hsl(var(--border))';
+
   return (
     <section
       id="contact"
       ref={ref}
       className="relative overflow-hidden"
       style={{
-        background: '#080808',
-        borderTop: '1px solid #1e1e1e',
+        background: sectionBg,
+        borderTop: `1px solid ${sectionBorder}`,
         padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 60px)',
       }}
     >
-      {/* Grid + Grain (unchanged) */}
+      {/* ── Grid Background (Theme-aware) ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           opacity: 0.07,
-          backgroundImage:
-            'linear-gradient(#f5f2ea 1.5px, transparent 1.5px), linear-gradient(90deg, #d0d0d0 1.5px, transparent 1.5px)',
+          backgroundImage: `
+            linear-gradient(${gridLight} 1.5px, transparent 1.5px),
+            linear-gradient(90deg, ${gridDark} 1.5px, transparent 1.5px)
+          `,
           backgroundSize: '56px 56px',
         }}
       />
+
+      {/* ── Grain Overlay ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -269,7 +284,7 @@ export default function CTA() {
         }}
       />
 
-      {/* Corner brackets (unchanged) */}
+      {/* ── Corner Brackets (Theme-aware border) ── */}
       {[
         { top: 20, left: 20, borderTop: true, borderLeft: true },
         { top: 20, right: 20, borderTop: true, borderRight: true },
@@ -282,10 +297,10 @@ export default function CTA() {
           style={{
             ...pos,
             width: 28, height: 28,
-            borderTop: pos.borderTop ? '1px solid #2a2a2a' : undefined,
-            borderBottom: pos.borderBottom ? '1px solid #2a2a2a' : undefined,
-            borderLeft: pos.borderLeft ? '1px solid #2a2a2a' : undefined,
-            borderRight: pos.borderRight ? '1px solid #2a2a2a' : undefined,
+            borderTop: pos.borderTop ? `1px solid ${cornerBorderColor}` : undefined,
+            borderBottom: pos.borderBottom ? `1px solid ${cornerBorderColor}` : undefined,
+            borderLeft: pos.borderLeft ? `1px solid ${cornerBorderColor}` : undefined,
+            borderRight: pos.borderRight ? `1px solid ${cornerBorderColor}` : undefined,
           }}
           initial={{ opacity: 0, scale: 0.7 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -298,17 +313,18 @@ export default function CTA() {
         className="relative z-10 flex flex-col md:flex-row items-center md:items-stretch gap-8 md:gap-6"
         style={{ maxWidth: 1200, margin: '0 auto' }}
       >
-        {/* Left Text Content (unchanged) */}
+        {/* ── Left Text Content ── */}
         <div className="flex flex-col items-center md:items-start text-center md:text-left flex-1">
           <div className="flex flex-col items-center md:items-start mb-10">
             <motion.span
-              style={{ fontSize: 30, letterSpacing: '0.36em', color: '#9e9e9a', textTransform: 'uppercase' }}
+              className="text-[30px] tracking-[0.36em] uppercase"
+              style={{ color: bodyColor }}
               initial={{ opacity: 0, y: 8 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.25, duration: 0.6 }}
             >
-              Let's work together
+              Let&apos;s work together
             </motion.span>
           </div>
 
@@ -319,7 +335,7 @@ export default function CTA() {
               fontSize: 'clamp(3rem, 7vw, 8.5rem)',
               lineHeight: 0.92,
               letterSpacing: '-0.03em',
-              color: '#eeebe4',
+              color: headingColor,
             }}
           >
             <Line text="Ready to build" delay={0.15} />
@@ -329,7 +345,7 @@ export default function CTA() {
           <motion.p
             className="mb-10"
             style={{
-              color: '#9e9e9a',
+              color: bodyColor,
               fontSize: 'clamp(1rem, 1.1vw, 1rem)',
               maxWidth: 360,
               lineHeight: 1.85,
@@ -343,7 +359,7 @@ export default function CTA() {
             and ship things that actually work.
           </motion.p>
 
-          {/* Improved Buttons */}
+          {/* ── Buttons ── */}
           <motion.div
             className="flex flex-col sm:flex-row items-center md:items-start gap-5 mb-14"
             initial={{ opacity: 0, y: 20 }}
@@ -359,10 +375,16 @@ export default function CTA() {
             </MagneticButton>
           </motion.div>
 
-          {/* Divider with shimmer (unchanged) */}
+          {/* ── Divider with Shimmer (Theme-aware) ── */}
           <motion.div
             className="w-full"
-            style={{ height: 1, background: '#1e1e1e', maxWidth: 400, position: 'relative', overflow: 'hidden' }}
+            style={{ 
+              height: 1, 
+              background: dividerColor, 
+              maxWidth: 400, 
+              position: 'relative', 
+              overflow: 'hidden' 
+            }}
             initial={{ scaleX: 0, originX: 0 }}
             whileInView={{ scaleX: 1 }}
             viewport={{ once: true }}
@@ -371,14 +393,14 @@ export default function CTA() {
             <motion.div
               style={{
                 position: 'absolute', top: 0, height: '100%', width: '25%',
-                background: 'linear-gradient(90deg, transparent, #d4f53c, transparent)',
+                background: `linear-gradient(90deg, transparent, var(--lime, #d4f53c), transparent)`,
               }}
               animate={{ left: ['-25%', '125%'] }}
               transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 2 }}
             />
           </motion.div>
 
-          {/* Email + socials (unchanged) */}
+          {/* ── Email + Socials (Theme-aware hover) ── */}
           <motion.div
             className="flex flex-wrap items-center justify-center md:justify-start gap-6 mt-8"
             initial={{ opacity: 0 }}
@@ -388,20 +410,22 @@ export default function CTA() {
           >
             <a
               href="mailto:hello@builtstack.co"
-              style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#9e9e9a' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#d4f53c')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#9e9e9a')}
+              className="text-[10px] tracking-[0.3em] uppercase"
+              style={{ color: bodyColor }}
+              onMouseEnter={e => (e.currentTarget.style.color = linkHoverColor)}
+              onMouseLeave={e => (e.currentTarget.style.color = bodyColor)}
             >
               builtstack@gmail.com
             </a>
-            <span style={{ color: '#2a2a2a', fontSize: 10 }}>·</span>
+            <span style={{ color: cornerBorderColor, fontSize: 10 }}>·</span>
             {['Twitter', 'LinkedIn', 'GitHub'].map(s => (
               <a
                 key={s}
                 href="#"
-                style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#9e9e9a' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#eeebe4')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#9e9e9a')}
+                className="text-[10px] tracking-[0.3em] uppercase"
+                style={{ color: bodyColor }}
+                onMouseEnter={e => (e.currentTarget.style.color = socialHoverColor)}
+                onMouseLeave={e => (e.currentTarget.style.color = bodyColor)}
               >
                 {s}
               </a>
@@ -409,7 +433,7 @@ export default function CTA() {
           </motion.div>
         </div>
 
-        {/* Right Image (unchanged) */}
+        {/* ── Right Image (Theme-aware glow) ── */}
         <motion.div
           className="flex items-center justify-center flex-shrink-0"
           style={{
@@ -421,11 +445,11 @@ export default function CTA() {
           viewport={{ once: true, amount: 0.2 }}
           transition={{ delay: 0.4, duration: 1.1, ease: EASE }}
         >
-          {/* ... your existing mascot code ... */}
           <div style={{ position: 'relative', width: '100%' }}>
+            {/* Glow behind mascot */}
             <div style={{
               position: 'absolute', inset: '0%',
-              background: 'radial-gradient(ellipse, rgba(212,245,60,0.08) 0%, transparent 65%)',
+              background: 'radial-gradient(ellipse, var(--glow-lime, rgba(212,245,60,0.08)) 0%, transparent 65%)',
               filter: 'blur(40px)',
               borderRadius: '50%',
               pointerEvents: 'none',
@@ -439,12 +463,13 @@ export default function CTA() {
               }}
               style={{ position: 'relative', zIndex: 1 }}
             >
+              {/* Ground shadow */}
               <motion.div
                 style={{
                   position: 'absolute', bottom: '-4%',
                   left: '20%', right: '20%',
                   height: 24,
-                  background: 'rgba(212,245,60,0.1)',
+                  background: 'var(--glow-lime, rgba(212,245,60,0.1))',
                   filter: 'blur(16px)',
                   borderRadius: '50%',
                 }}
@@ -452,14 +477,18 @@ export default function CTA() {
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               />
 
+              {/* Mascot Image */}
               <img
                 src="/builtstack.png"
                 alt="BuiltStack mascot"
                 loading="eager"
+                className="w-full h-auto block select-none pointer-events-none"
                 style={{
-                  width: '100%', height: 'auto', display: 'block',
-                  userSelect: 'none', pointerEvents: 'none',
-                  filter: 'drop-shadow(0 24px 40px rgba(0,0,0,0.6)) drop-shadow(0 0 32px rgba(212,245,60,0.06))',
+                  objectFit: 'contain',
+                  filter: `
+                    drop-shadow(0 24px 40px var(--color-shadow-soft, rgba(0,0,0,0.6)))
+                    drop-shadow(0 0 32px var(--glow-subtle, rgba(212,245,60,0.06)))
+                  `,
                 }}
               />
             </motion.div>
@@ -467,7 +496,7 @@ export default function CTA() {
         </motion.div>
       </div>
 
-      {/* Ghost watermark (unchanged) */}
+      {/* ── Ghost Watermark (Theme-aware stroke) ── */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-center overflow-hidden pointer-events-none"
         style={{ height: '40%', alignItems: 'flex-end' }}
       >
@@ -478,7 +507,7 @@ export default function CTA() {
             lineHeight: 0.82,
             letterSpacing: '-0.04em',
             color: 'transparent',
-            WebkitTextStroke: '1px rgba(255,255,255,0.025)',
+            WebkitTextStroke: `1px ${faintColor.replace('hsl', 'rgba').replace(/[\d\s%,()]+/, '0.025')}`,
           }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

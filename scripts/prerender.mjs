@@ -10,7 +10,7 @@ const staticDir = path.join(__dirname, "..", "dist");
 const PORT = 4173;
 const ROUTES = ["/", "/about", "/contact", "/privacy", "/terms"];
 
-/** Vite-built SPA shell - never serve partially prerendered HTML during this pass */
+
 const spaShell = fs.readFileSync(path.join(staticDir, "index.html"), "utf8");
 
 function routeOutputPath(route) {

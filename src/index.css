@@ -1,10 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* ── Core palette ── */
   --bg: 0 0% 3.1%;
   --surface: 0 0% 6.3%;
   --surface-raised: 0 0% 8.6%;
@@ -13,9 +14,37 @@
   --text-muted: 0 0% 62%;
   --text-faint: 0 0% 38%;
   --accent: 73 90% 59.8%;
-  --accent-dim: 73 90% 59.8%;
-  --accent-glow: 73 90% 59.8%;
 
+  /* ── Component-level tokens ── */
+  --nav-pill-bg: #1a1a1a;
+  --nav-pill-text: #9e9e9a;
+  --nav-backdrop: rgba(8, 8, 8, 0.60);
+  --nav-backdrop-mobile: rgba(8, 8, 8, 0.82);
+  --nav-border: #1e1e1e;
+  --logo-text: #eeebe4;
+  --logo-subtext: #2e2e2c;
+  --lime: #d4f53c;
+  --lime-dark: #8aa900;
+  --on-lime: #000000;
+  --on-lime-hover: #d4f53c;
+  --hamburger: #eeebe4;
+  --glow-lime: rgba(211, 245, 60, 0.35);
+  --section-bg: #080808;
+  --card-bg: #111111;
+  --card-border: #1e1e1e;
+  --heading-color: #eeebe4;
+  --body-color: #9e9e9a;
+  --tag-bg: #1a1a1a;
+  --tag-text: #6b6b66;
+  --input-bg: #0f0f0f;
+  --input-border: #1e1e1e;
+  --input-focus: #d4f53c;
+  --chip-bg: #1a1a1a;
+  --chip-text: #9e9e9a;
+  --chip-active-bg: #d4f53c;
+  --chip-active-text: #000000;
+
+  /* ── Shadcn aliases ── */
   --background: var(--bg);
   --foreground: var(--text-primary);
   --card: var(--surface);
@@ -46,6 +75,49 @@
   --duration-xslow: 1.4s;
 }
 
+/* ── Light theme ── */
+[data-theme="light"] {
+  --bg: 36 25% 93%;
+  --surface: 36 20% 97%;
+  --surface-raised: 36 18% 89%;
+  --border: 36 14% 80%;
+  --text-primary: 30 8% 10%;
+  --text-muted: 30 5% 42%;
+  --text-faint: 30 4% 64%;
+  --accent: 73 75% 32%;
+
+  --nav-pill-bg: #e8e2d8;
+  --nav-pill-text: #6b6560;
+  --nav-backdrop: rgba(237, 232, 223, 0.72);
+  --nav-backdrop-mobile: rgba(237, 232, 223, 0.94);
+  --nav-border: #d4cdc2;
+  --logo-text: #1a1714;
+  --logo-subtext: #9e988f;
+  --lime: #4a6a00;
+  --lime-dark: #3a5500;
+  --on-lime: #f5f2ec;
+  --on-lime-hover: #4a6a00;
+  --hamburger: #1a1714;
+  --glow-lime: rgba(74, 106, 0, 0.12);
+  --section-bg: #f0ebe2;
+  --card-bg: #f7f4f0;
+  --card-border: #ddd7cc;
+  --heading-color: #1a1714;
+  --body-color: #6b6560;
+  --tag-bg: #e8e2d8;
+  --tag-text: #8c877f;
+  --input-bg: #f7f4f0;
+  --input-border: #ddd7cc;
+  --input-focus: #4a6a00;
+  --chip-bg: #e8e2d8;
+  --chip-text: #6b6560;
+  --chip-active-bg: #4a6a00;
+  --chip-active-text: #f5f2ec;
+
+  --primary-foreground: 0 0% 100%;
+  --destructive: 0 65% 48%;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -64,14 +136,32 @@ body {
   overflow-x: hidden;
 }
 
+/* Font utility classes */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: normal;
+}
+
+.font-display-italic {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
 ::selection {
-  background: hsl(var(--accent));
-  color: #000;
+  background: var(--lime);
+  color: var(--on-lime);
 }
 
 ::-webkit-scrollbar { width: 2px; }
 ::-webkit-scrollbar-track { background: hsl(var(--bg)); }
 ::-webkit-scrollbar-thumb { background: hsl(var(--border)); }
+
 @layer base {
   * {
     border-color: hsl(var(--border));
@@ -81,9 +171,132 @@ body {
     color: hsl(var(--text-primary));
   }
 }
+
+/* Smooth transitions for theme switching */
+* {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-expo);
+}
+
+/* Exempt elements where transitions cause issues */
+img, video, canvas, svg,
+[data-no-transition],
+.pill-label, 
+.pill-label-hover,
+.gsap-animated {
+  transition: none !important;
+}
+
 img {
   pointer-events: none;
-  
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* Form element styles */
+input, textarea, select, button {
+  font-family: var(--font-body);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Custom scrollbar for dark/light theme */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track { background: hsl(var(--bg)); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); }
+}
+
+/* SplitWords animation support */
+.split-words-wrapper {
+  display: inline-flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.split-words-wrapper > span {
+  display: inline-block;
+  overflow: hidden;
+  margin-right: 0.25em;
+}
+
+.split-words-wrapper > span > span {
+  display: inline-block;
+  transform: translateY(0);
+  transition: transform 0.65s var(--ease-expo);
+}
+
+/* Chip styles for ContactForm */
+.chip {
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: all 0.2s var(--ease-expo);
+}
+
+.chip-inactive {
+  border: 1px solid var(--chip-bg);
+  background: var(--chip-bg);
+  color: var(--chip-text);
+}
+
+.chip-active {
+  border: 1px solid var(--chip-active-bg);
+  background: var(--chip-active-bg);
+  color: var(--chip-active-text);
+}
+
+/* Form input styles */
+.form-input {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 14px 18px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 0.75rem;
+  color: var(--heading-color);
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.25s var(--ease-expo);
+}
+
+.form-input:focus {
+  border-color: var(--input-focus);
+}
+
+.form-input::placeholder {
+  opacity: 0.6;
+  color: var(--text-faint);
+}
+
+/* Button styles */
+.btn-primary {
+  background: var(--lime);
+  color: var(--on-lime);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-expo);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: scale(1.03);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  background: var(--nav-pill-bg);
+  color: var(--nav-pill-text);
+  cursor: not-allowed;
 }

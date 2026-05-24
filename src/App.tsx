@@ -9,7 +9,7 @@ import CustomCursor from "@/components/CustomCursor";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index.tsx";
-import AboutPage from "./pages/About";
+
 import ContactPage from "./pages/Contact";
 import PrivacyPage from "./pages/Privacy";
 import TermsPage from "./pages/Terms";
@@ -27,7 +27,7 @@ const AppShell = () => {
       {showNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/about" element={<AboutPage />} />
+
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
