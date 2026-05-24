@@ -5,9 +5,9 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import * as THREE from 'three';
 
-// ============================================================================
+
 // CONSTANTS & TYPES
-// ============================================================================
+
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1] as const;
 
 const PROJECTS = [
@@ -29,9 +29,9 @@ const SHAPE_MAP: Record<PixelBlastVariant, number> = {
 
 const MAX_CLICKS = 10;
 
-// ============================================================================
+
 // SHADERS (unchanged logic, theme-aware uniforms injected at runtime)
-// ============================================================================
+
 const VERTEX_SRC = `
 void main() {
   gl_Position = vec4(position, 1.0);
@@ -201,9 +201,9 @@ void main(){
 }
 `;
 
-// ============================================================================
+
 // THEME UTILS
-// ============================================================================
+
 function getThemeColor(cssVar: string, fallback: string): string {
   if (typeof window === 'undefined') return fallback;
   return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim() || fallback;
@@ -233,9 +233,9 @@ function parseHslToRgb(hslStr: string): [number, number, number] {
   ];
 }
 
-// ============================================================================
+
 // PARTICLE CARD COMPONENT
-// ============================================================================
+
 const ParticleCard = ({
   children,
   className = '',
@@ -259,6 +259,7 @@ const ParticleCard = ({
   const particlesRef = useRef<HTMLDivElement[]>([]);
   const ctxRef = useRef<gsap.Context | null>(null);
   const isHoveredRef = useRef(false);
+  const glowRgbRef = useRef<string>('212, 245, 60');
 
   const getGlowRgb = useCallback(() => {
     const hex = getThemeColor(glowColorCssVar, '#d4f53c');
@@ -280,9 +281,17 @@ const ParticleCard = ({
     return '212, 245, 60';
   }, [glowColorCssVar]);
 
+  useEffect(() => {
+    const updateColor = () => { glowRgbRef.current = getGlowRgb(); };
+    updateColor();
+    const observer = new MutationObserver(updateColor);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, [getGlowRgb]);
+
   const createParticle = useCallback((x: number, y: number) => {
     const el = document.createElement('div');
-    const glowRgb = getGlowRgb();
+    const glowRgb = glowRgbRef.current;
     el.className = 'work-particle';
     el.style.cssText = `
       position: absolute;
@@ -405,7 +414,7 @@ const ParticleCard = ({
         const rect = el.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
-        const glowRgb = getGlowRgb();
+        const glowRgb = glowRgbRef.current;
 
         const maxDist = Math.max(
           Math.hypot(clickX, clickY),
@@ -468,9 +477,9 @@ const ParticleCard = ({
   );
 };
 
-// ============================================================================
+
 // WORK CARD WITH PATTERN
-// ============================================================================
+
 function WorkCardWithPattern({
   project,
   index,
@@ -582,9 +591,9 @@ function WorkCardWithPattern({
   );
 }
 
-// ============================================================================
+
 // PIXELBLAST BACKGROUND (Three.js shader)
-// ============================================================================
+
 function PixelBlastBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
   const threeRef = useRef<{
@@ -699,7 +708,16 @@ function PixelBlastBackground() {
 
     threeRef.current = { renderer, scene, camera, material, clock, clickIx: 0, uniforms, raf: null };
 
+    const updateShaderColor = () => {
+      if (threeRef.current) {
+        threeRef.current.uniforms.uColor.value = getShaderColor();
+      }
+    };
+    const observer = new MutationObserver(updateShaderColor);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
     return () => {
+      observer.disconnect();
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('click', handleClick);
       if (threeRef.current?.raf) cancelAnimationFrame(threeRef.current.raf);
@@ -717,9 +735,9 @@ function PixelBlastBackground() {
   return <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />;
 }
 
-// ============================================================================
+
 // MAIN WORKGRID COMPONENT
-// ============================================================================
+
 export default function WorkGrid() {
   return (
     <section

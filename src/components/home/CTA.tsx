@@ -9,10 +9,11 @@ import {
   useSpring,
   useReducedMotion,
 } from 'framer-motion';
+import InteractiveMeshGrid from '@/components/ui/InteractiveMeshGrid';
 
-// ============================================================================
+
 // EASING & CONSTANTS
-// ============================================================================
+
 const EASE = [0.23, 1, 0.32, 1] as const;
 
 const shineVariants = {
@@ -30,9 +31,9 @@ const secondaryOverlayVariants = {
   hover: { opacity: 1 },
 };
 
-// ============================================================================
+
 // THEME-AWARE MAGNETIC BUTTON
-// ============================================================================
+
 function MagneticButton({
   href,
   children,
@@ -75,7 +76,7 @@ function MagneticButton({
   const primaryBg = 'var(--lime, #d4f53c)';
   const primaryText = 'var(--on-lime, #0a0a0a)';
   const primaryShadow = 'var(--glow-lime, rgba(212, 245, 60, 0.3))';
-  
+
   const secondaryBorder = 'hsl(var(--text-primary))';
   const secondaryText = 'hsl(var(--text-primary))';
   const secondaryHoverBorder = 'var(--lime, #d4f53c)';
@@ -191,9 +192,9 @@ function MagneticButton({
   );
 }
 
-// ============================================================================
+
 // WORD & LINE COMPONENTS (Theme-aware text colors)
-// ============================================================================
+
 function Word({ word, delay, accent = false }: { word: string; delay: number; accent?: boolean }) {
   return (
     <span className="inline-block overflow-hidden mr-[0.25em] pb-[0.18em] mb-[-0.18em] align-bottom">
@@ -224,9 +225,9 @@ function Line({ text, delay, accent = false }: { text: string; delay: number; ac
   );
 }
 
-// ============================================================================
+
 // CTA SECTION - THEME ADAPTIVE + TAILWIND REFACTORED
-// ============================================================================
+
 export default function CTA() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
@@ -245,7 +246,7 @@ export default function CTA() {
   const dividerColor = 'var(--card-border, hsl(var(--border)))';
   const linkHoverColor = 'var(--lime, #d4f53c)';
   const socialHoverColor = 'var(--logo-text, hsl(var(--text-primary)))';
-  
+
   // Grid colors adapt to theme: light uses warm tones, dark uses cool
   const gridLight = 'hsl(var(--text-primary))';
   const gridDark = 'hsl(var(--border))';
@@ -261,18 +262,8 @@ export default function CTA() {
         padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 60px)',
       }}
     >
-      {/* ── Grid Background (Theme-aware) ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          opacity: 0.07,
-          backgroundImage: `
-            linear-gradient(${gridLight} 1.5px, transparent 1.5px),
-            linear-gradient(90deg, ${gridDark} 1.5px, transparent 1.5px)
-          `,
-          backgroundSize: '56px 56px',
-        }}
-      />
+      {/* ── Interactive Mesh Grid ── */}
+      <InteractiveMeshGrid className="absolute inset-0 z-0 pointer-events-none opacity-[0.85]" />
 
       {/* ── Grain Overlay ── */}
       <div
@@ -378,12 +369,12 @@ export default function CTA() {
           {/* ── Divider with Shimmer (Theme-aware) ── */}
           <motion.div
             className="w-full"
-            style={{ 
-              height: 1, 
-              background: dividerColor, 
-              maxWidth: 400, 
-              position: 'relative', 
-              overflow: 'hidden' 
+            style={{
+              height: 1,
+              background: dividerColor,
+              maxWidth: 400,
+              position: 'relative',
+              overflow: 'hidden'
             }}
             initial={{ scaleX: 0, originX: 0 }}
             whileInView={{ scaleX: 1 }}

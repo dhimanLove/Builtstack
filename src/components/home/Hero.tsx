@@ -1,16 +1,15 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import InteractiveMeshGrid from '@/components/ui/InteractiveMeshGrid';
 
-// ============================================================================
+
 // EASING & CONSTANTS
-// ============================================================================
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// ============================================================================
+
 // WORD ANIMATION COMPONENT
-// ============================================================================
 function Word({ word, delay, accent = false }: { word: string; delay: number; accent?: boolean }) {
   return (
     <span className="inline-block overflow-hidden mr-[0.22em] pb-[0.18em] mb-[-0.18em] align-bottom">
@@ -26,9 +25,8 @@ function Word({ word, delay, accent = false }: { word: string; delay: number; ac
   );
 }
 
-// ============================================================================
+
 // SPLIT WORDS UTILITY
-// ============================================================================
 function SplitWords({ text, baseDelay, accent = false }: {
   text: string; baseDelay: number; accent?: boolean;
 }) {
@@ -41,19 +39,85 @@ function SplitWords({ text, baseDelay, accent = false }: {
   );
 }
 
-// ============================================================================
-// HERO SECTION - THEME ADAPTIVE + TAILWIND REFACTORED
-// ============================================================================
+
+// TYPEWRITER WORD — reveals chars one by one after a start delay
+function TypewriterWord({
+  text,
+  startDelay,
+  charInterval = 80,
+}: {
+  text: string;
+  startDelay: number;
+  charInterval?: number;
+}) {
+  const [displayed, setDisplayed] = useState('');
+  const [cursorVisible, setCursorVisible] = useState(true);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    let index = 0;
+    let typeInterval: number;
+
+    const startTimeout = window.setTimeout(() => {
+      typeInterval = window.setInterval(() => {
+        index += 1;
+        setDisplayed(text.slice(0, index));
+        if (index >= text.length) {
+          window.clearInterval(typeInterval);
+          setDone(true);
+        }
+      }, charInterval);
+    }, startDelay * 1000);
+
+    const blinkInterval = window.setInterval(() => {
+      setCursorVisible(prev => !prev);
+    }, 520);
+
+    return () => {
+      window.clearTimeout(startTimeout);
+      if (typeInterval) window.clearInterval(typeInterval);
+      window.clearInterval(blinkInterval);
+    };
+  }, [text, startDelay, charInterval]);
+
+  return (
+    <span className="inline-block overflow-hidden pb-[0.18em] mb-[-0.18em] align-bottom">
+      <motion.span
+        className="inline-block italic"
+        style={{ color: 'var(--lime)' }}
+        initial={{ y: '110%', opacity: 0 }}
+        animate={{ y: '0%', opacity: 1 }}
+        transition={{ duration: 0.6, ease: EASE as unknown as number[], delay: startDelay - 0.05 }}
+      >
+        {displayed}
+        <span
+          className="inline-block ml-[1px]"
+          style={{
+            opacity: cursorVisible ? 0.85 : 0.05,
+            transition: 'opacity 0.1s',
+            // hide cursor gracefully 1s after typing finishes
+            display: done && !cursorVisible ? 'none' : 'inline',
+          }}
+        >
+          |
+        </span>
+      </motion.span>
+    </span>
+  );
+}
+
+
+// HERO SECTION
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
 
   // Scroll-based transforms
-  const textY = useTransform(scrollYProgress, [0, 1], ['0%', '22%']);
-  const textOp = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const textSc = useTransform(scrollYProgress, [0, 0.5], [1, 0.97]);
-  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '8%']);
-  const imgOp = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+  const textY  = useTransform(scrollYProgress, [0, 1],    ['0%', '22%']);
+  const textOp = useTransform(scrollYProgress, [0, 0.5],  [1, 0]);
+  const textSc = useTransform(scrollYProgress, [0, 0.5],  [1, 0.97]);
+  const imgY   = useTransform(scrollYProgress, [0, 1],    ['0%', '8%']);
+  const imgOp  = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
 
   return (
     <section
@@ -64,18 +128,8 @@ export default function Hero() {
         backgroundColor: 'var(--section-bg, hsl(var(--bg)))',
       }}
     >
-      {/* ── Grid Background ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          opacity: 0.07,
-          backgroundImage: `
-            linear-gradient(hsl(var(--text-primary)) 1.5px, transparent 1.5px),
-            linear-gradient(90deg, hsl(var(--border)) 1.5px, transparent 1.5px)
-          `,
-          backgroundSize: '56px 56px',
-        }}
-      />
+      {/* ── Interactive Mesh Grid ── */}
+      <InteractiveMeshGrid className="absolute inset-0 z-0 pointer-events-none opacity-[0.85]" />
 
       {/* ── Grain Overlay ── */}
       <div
@@ -100,11 +154,7 @@ export default function Hero() {
       >
         <motion.span
           className="rounded-full shrink-0"
-          style={{
-            width: 3,
-            height: 3,
-            backgroundColor: 'var(--lime)',
-          }}
+          style={{ width: 3, height: 3, backgroundColor: 'var(--lime)' }}
           animate={{ scale: [1, 1.6, 1] }}
           transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 2.2 }}
         />
@@ -129,11 +179,7 @@ export default function Hero() {
       >
         <motion.span
           className="rounded-full shrink-0"
-          style={{
-            width: 4,
-            height: 4,
-            backgroundColor: 'var(--lime)',
-          }}
+          style={{ width: 4, height: 4, backgroundColor: 'var(--lime)' }}
           animate={{ opacity: [1, 0.25, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         />
@@ -159,7 +205,6 @@ export default function Hero() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.9, duration: 1.2, ease: EASE as unknown as number[] }}
       >
-        {/* Mobile responsive override */}
         <style>{`
           @media (max-width: 767px) {
             .hero-img-float {
@@ -180,41 +225,24 @@ export default function Hero() {
           }}
         />
 
-        {/* Float + rock animation wrapper */}
+        {/* Float + rock animation */}
         <motion.div
           className="relative z-10"
           animate={{ y: [0, 20, 0], rotate: [0, 1.2, -0.8, 0] }}
-          transition={{
-            duration: 5.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            times: [0, 0.45, 0.75, 1],
-          }}
+          transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', times: [0, 0.45, 0.75, 1] }}
         >
           {/* Ground shadow */}
           <motion.div
             className="absolute bottom-[-50%] left-[18%] right-[18%] h-8 rounded-full"
             style={{
               background: 'var(--glow-lime)',
-              boxShadow: `
-                0 0 40px var(--glow-lime),
-                0 0 80px var(--glow-lime),
-                0 20px 60px var(--color-shadow-soft, rgba(0,0,0,0.35))
-              `,
+              boxShadow: `0 0 40px var(--glow-lime), 0 0 80px var(--glow-lime), 0 20px 60px var(--color-shadow-soft, rgba(0,0,0,0.35))`,
               filter: 'blur(22px)',
             }}
-            animate={{
-              scaleX: [1, 0.75, 1],
-              opacity: [0.7, 0.25, 0.7],
-            }}
-            transition={{
-              duration: 5.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            animate={{ scaleX: [1, 0.75, 1], opacity: [0.7, 0.25, 0.7] }}
+            transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
           />
-
-          {/* Mascot Image */}
+          {/* Mascot */}
           <img
             src="/builtstack.png"
             alt="BuiltStack mascot"
@@ -222,10 +250,7 @@ export default function Hero() {
             className="w-full h-auto block select-none pointer-events-none"
             style={{
               objectFit: 'contain',
-              filter: `
-                drop-shadow(0 32px 48px var(--color-shadow-soft, rgba(0,0,0,0.6)))
-                drop-shadow(0 0 40px var(--glow-subtle, rgba(212,245,60,0.08)))
-              `,
+              filter: `drop-shadow(0 32px 48px var(--color-shadow-soft, rgba(0,0,0,0.6))) drop-shadow(0 0 40px var(--glow-subtle, rgba(212,245,60,0.08)))`,
             }}
           />
         </motion.div>
@@ -250,7 +275,6 @@ export default function Hero() {
             maxWidth: 'min(100%, 56vw)',
           }}
         >
-          {/* Mobile maxWidth override */}
           <style>{`
             @media (max-width: 767px) {
               .hero-text-inner { max-width: 100% !important; }
@@ -276,18 +300,15 @@ export default function Hero() {
             <span className="block">
               <SplitWords text="engineer products" baseDelay={0.52} />
             </span>
+            {/*
+              Third line: "that perform" slides in normally,
+              then "always." types in green with cursor.
+              startDelay = 1.05 (after last SplitWord lands ~0.76 + 0.08*2 = 0.92s)
+            */}
             <span className="block">
               <SplitWords text="that perform" baseDelay={0.76} />
-              <span className="inline-block overflow-hidden pb-[0.18em] mb-[-0.18em] ml-[0.1em] align-bottom">
-                <motion.span
-                  className="inline-block italic"
-                  style={{ color: 'var(--lime)' }}
-                  initial={{ y: '110%', opacity: 0 }}
-                  animate={{ y: '0%', opacity: 1 }}
-                  transition={{ duration: 1.05, ease: EASE as unknown as number[], delay: 1.08 }}
-                >
-                  - always.
-                </motion.span>
+              <span className="inline-block ml-[0.1em]">
+                <TypewriterWord text="always." startDelay={1.1} charInterval={82} />
               </span>
             </span>
           </h1>
@@ -307,7 +328,7 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.45, duration: 0.85, ease: EASE as unknown as number[] }}
             >
-              From idea to launch - we build high performance products, SaaS platforms, and brand systems for founders who refuse to blend in.
+              From idea to launch — we build high-performance products, SaaS platforms, and brand systems for founders who refuse to blend in.
             </motion.p>
 
             {/* Animated vertical indicator */}
@@ -323,14 +344,8 @@ export default function Hero() {
               >
                 <motion.div
                   className="absolute left-0 w-full rounded-full"
-                  style={{
-                    backgroundColor: 'var(--lime-dark, #8aa900)',
-                  }}
-                  animate={{
-                    top: ['0%', '80%', '0%'],
-                    height: ['20%', '20%', '20%'],
-                    opacity: [0, 1, 0],
-                  }}
+                  style={{ backgroundColor: 'var(--lime-dark, #8aa900)' }}
+                  animate={{ top: ['0%', '80%', '0%'], height: ['20%', '20%', '20%'], opacity: [0, 1, 0] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
               </div>
@@ -340,4 +355,4 @@ export default function Hero() {
       </div>
     </section>
   );
-}
+} 

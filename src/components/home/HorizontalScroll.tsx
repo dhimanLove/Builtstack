@@ -3,9 +3,9 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
-// ============================================================================
+
 // TESTIMONIALS DATA
-// ============================================================================
+
 const TESTIMONIALS = [
   {
     quote:
@@ -49,9 +49,9 @@ const TESTIMONIALS = [
   },
 ];
 
-// ============================================================================
+
 // HORIZONTAL SCROLL TESTIMONIALS - THEME ADAPTIVE + TAILWIND REFACTORED
-// ============================================================================
+
 export default function HorizontalScroll() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -74,8 +74,8 @@ export default function HorizontalScroll() {
   const tagText = 'var(--tag-text, hsl(var(--text-faint)))';
 
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className="relative py-24 md:py-40 overflow-hidden"
       style={{ backgroundColor: sectionBg }}
     >
@@ -120,7 +120,7 @@ export default function HorizontalScroll() {
             }}
           >
             {/* Quote icon - theme-aware lime with opacity */}
-            <div 
+            <div
               className="absolute top-6 right-6 text-6xl font-serif select-none"
               style={{ color: `${accentColor}33` }} // 20% opacity hex approximation
             >
@@ -133,7 +133,7 @@ export default function HorizontalScroll() {
                 src={item.avatar}
                 alt={item.name}
                 className="w-14 h-14 rounded-full object-cover"
-                style={{ 
+                style={{
                   ring: `2px solid ${accentColor}`,
                   boxShadow: `0 0 0 2px ${accentColor}4D` // 30% opacity
                 }}
@@ -149,7 +149,7 @@ export default function HorizontalScroll() {
             </div>
 
             {/* Quote text */}
-            <p 
+            <p
               className="text-lg md:text-xl leading-relaxed mb-8 font-light"
               style={{ color: `${headingColor}CC` }} // ~80% opacity
             >
@@ -157,14 +157,14 @@ export default function HorizontalScroll() {
             </p>
 
             {/* Company logo / branding */}
-            <div 
+            <div
               className="flex items-center gap-2 pt-4"
               style={{ borderTop: `1px solid ${cardBorder}` }}
             >
               {/* Company logo with theme-aware background */}
-              <div 
+              <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
-                style={{ 
+                style={{
                   backgroundColor: tagBg,
                   color: accentColor,
                 }}
@@ -179,7 +179,7 @@ export default function HorizontalScroll() {
             </div>
 
             {/* Hover glow effect - theme-aware gradient */}
-            <div 
+            <div
               className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               style={{
                 background: `linear-gradient(135deg, ${glowColor}0D 0%, transparent 50%, transparent 100%)`,

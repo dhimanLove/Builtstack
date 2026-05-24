@@ -272,10 +272,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   const threeRef = useRef<ThreeInstance | null>(null);
   const prevCfgRef = useRef<ReinitConfig | null>(null);
 
+  // Effect 1: Heavy initialization/disposal — only runs when structural config changes
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    speedRef.current = speed;
     const cfg: ReinitConfig = { antialias, liquid, noiseAmount };
     let mustReinit = !threeRef.current;
     if (!mustReinit && prevCfgRef.current) {
@@ -294,6 +294,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         t.renderer.dispose();
         t.renderer.forceContextLoss();
         if (t.renderer.domElement.parentElement === container) container.removeChild(t.renderer.domElement);
+        // Remove event listeners
+        t.renderer.domElement.removeEventListener('pointerdown', t.handlePointerDown);
+        t.renderer.domElement.removeEventListener('pointermove', t.handlePointerMove);
         threeRef.current = null;
       }
       // Create WebGL2 canvas and context
@@ -387,19 +390,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         raf, quad, timeOffset, composer, touch, liquidEffect,
         handlePointerDown, handlePointerMove, clickIx,
       };
-    } else {
-      // Update existing instance
-      const t = threeRef.current!;
-      t.uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
-      t.uniforms.uPixelSize.value = pixelSize * t.renderer.getPixelRatio();
-      t.uniforms.uColor.value.set(color);
-      t.uniforms.uScale.value = patternScale; t.uniforms.uDensity.value = patternDensity;
-      t.uniforms.uPixelJitter.value = pixelSizeJitter; t.uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
-      t.uniforms.uRippleIntensity.value = rippleIntensityScale; t.uniforms.uRippleThickness.value = rippleThickness;
-      t.uniforms.uRippleSpeed.value = rippleSpeed; t.uniforms.uEdgeFade.value = edgeFade;
     }
     prevCfgRef.current = cfg;
-    // Cleanup on unmount or reinit
+    // Cleanup on unmount or when reinit keys change
     return () => {
       const t = threeRef.current;
       if (!t) return;
@@ -414,11 +407,29 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         containerRef.current?.removeChild(t.renderer.domElement);
       }
       // Remove event listeners
-      if (t.handlePointerDown) t.renderer.domElement.removeEventListener('pointerdown', t.handlePointerDown);
-      if (t.handlePointerMove) t.renderer.domElement.removeEventListener('pointermove', t.handlePointerMove);
+      t.renderer.domElement.removeEventListener('pointerdown', t.handlePointerDown);
+      t.renderer.domElement.removeEventListener('pointermove', t.handlePointerMove);
       threeRef.current = null;
     };
-  }, [antialias, liquid, noiseAmount, pixelSize, patternScale, patternDensity, enableRipples, rippleIntensityScale, rippleThickness, rippleSpeed, pixelSizeJitter, edgeFade, transparent, liquidStrength, liquidRadius, liquidWobbleSpeed, autoPauseOffscreen, variant, color, speed]);
+  }, [antialias, liquid, noiseAmount, transparent]);
+
+  // Effect 2: Lightweight uniform updates — runs when visual props change without re-creating the GL context
+  useEffect(() => {
+    speedRef.current = speed;
+    const t = threeRef.current;
+    if (!t) return;
+    t.uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
+    t.uniforms.uPixelSize.value = pixelSize * t.renderer.getPixelRatio();
+    t.uniforms.uColor.value.set(color);
+    t.uniforms.uScale.value = patternScale;
+    t.uniforms.uDensity.value = patternDensity;
+    t.uniforms.uPixelJitter.value = pixelSizeJitter;
+    t.uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
+    t.uniforms.uRippleIntensity.value = rippleIntensityScale;
+    t.uniforms.uRippleThickness.value = rippleThickness;
+    t.uniforms.uRippleSpeed.value = rippleSpeed;
+    t.uniforms.uEdgeFade.value = edgeFade;
+  }, [color, pixelSize, patternScale, patternDensity, pixelSizeJitter, enableRipples, rippleIntensityScale, rippleThickness, rippleSpeed, edgeFade, speed, variant, liquidStrength, liquidRadius, liquidWobbleSpeed, autoPauseOffscreen]);
 
   return <div ref={containerRef} className={`w-full h-full relative overflow-hidden ${className ?? ''}`} style={style} />;
 };
@@ -787,8 +798,8 @@ const StatCounter: React.FC<StatCounterProps> = ({ end, suffix = '+', label, del
 
   return (
     <div ref={wrapRef} className="flex flex-col gap-1">
-      <span ref={ref} style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.04em', color: '#e8e4d8', lineHeight: 1 }}>0{suffix}</span>
-      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: 'rgba(232,228,216,0.35)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>{label}</span>
+      <span ref={ref} style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.04em', color: 'var(--heading-color)', lineHeight: 1 }}>0{suffix}</span>
+      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: 'var(--body-color)', letterSpacing: '0.16em', textTransform: 'uppercase', opacity: 0.5 }}>{label}</span>
     </div>
   );
 };
@@ -899,7 +910,7 @@ const AboutSection: React.FC = () => {
     <section
       ref={sectionRef}
       style={{
-        position: 'relative', background: '#0a0a09', overflow: 'hidden',
+        position: 'relative', background: 'var(--section-bg)', overflow: 'hidden',
         fontFamily: "'Syne', 'DM Mono', sans-serif",
       }}
     >
@@ -928,7 +939,7 @@ const AboutSection: React.FC = () => {
         {/* Radial vignette over the bg */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, transparent 30%, #0a0a09 100%)',
+          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, transparent 30%, var(--section-bg) 100%)',
         }} />
       </motion.div>
 
@@ -941,9 +952,9 @@ const AboutSection: React.FC = () => {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.22em', color: '#c8f065', textTransform: 'uppercase', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '12px' }}
+          style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.22em', color: 'var(--lime)', textTransform: 'uppercase', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '12px' }}
         >
-          <span style={{ display: 'block', width: '32px', height: '1px', background: '#c8f065' }} />
+          <span style={{ display: 'block', width: '32px', height: '1px', background: 'var(--lime)' }} />
           The Studio Behind the Build
         </motion.p>
 
@@ -952,11 +963,11 @@ const AboutSection: React.FC = () => {
           ref={headlineRef}
           style={{
             fontSize: 'clamp(44px, 6vw, 96px)', fontWeight: 800, lineHeight: 1.0,
-            letterSpacing: '-0.035em', color: '#e8e4d8', maxWidth: '780px',
+            letterSpacing: '-0.035em', color: 'var(--heading-color)', maxWidth: '780px',
             marginBottom: '32px', perspective: '600px',
           }}
         >
-          Two builders.<br />One obsession:<br /><span style={{ color: '#c8f065' }}>great products.</span>
+          Two builders.<br />One obsession:<br /><span style={{ color: 'var(--lime)' }}>great products.</span>
         </h2>
 
         {/* ── Sub ── */}
@@ -964,7 +975,7 @@ const AboutSection: React.FC = () => {
           ref={subRef}
           style={{
             fontFamily: "'DM Mono', monospace", fontSize: '15px', lineHeight: 1.9,
-            color: 'rgba(232,228,216,0.45)', maxWidth: '520px', marginBottom: '72px', fontStyle: 'italic',
+            color: 'var(--body-color)', maxWidth: '520px', marginBottom: '72px', fontStyle: 'italic', opacity: 0.7,
           }}
         >
           BuiltStack isn't an agency. It's two senior practitioners - one on design, one on engineering - who refuse to let either side compromise the other. The result is software that's as rigorous to use as it is to look at.
@@ -979,7 +990,7 @@ const AboutSection: React.FC = () => {
         </div>
 
         {/* ── Divider ── */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginBottom: '80px' }} />
+        <div style={{ borderTop: '1px solid var(--card-border)', marginBottom: '80px' }} />
 
         {/* ── Philosophy marquee ── */}
         <div ref={philosophyRef} style={{ overflow: 'hidden', marginBottom: '100px' }}>
@@ -988,10 +999,10 @@ const AboutSection: React.FC = () => {
               <span key={i} style={{
                 fontWeight: 800, fontSize: 'clamp(28px, 3.5vw, 52px)',
                 letterSpacing: '-0.03em', whiteSpace: 'nowrap',
-                color: i % 2 === 0 ? 'rgba(232,228,216,0.08)' : 'rgba(200,240,101,0.12)',
+                color: i % 2 === 0 ? 'var(--heading-color)' : 'var(--lime)', opacity: i % 2 === 0 ? 0.08 : 0.12,
               }}>
                 {v}
-                <span style={{ color: '#c8f065', margin: '0 24px', fontSize: '0.5em', verticalAlign: 'middle' }}>×</span>
+                <span style={{ color: 'var(--lime)', margin: '0 24px', fontSize: '0.5em', verticalAlign: 'middle' }}>×</span>
               </span>
             ))}
           </div>
@@ -1000,10 +1011,10 @@ const AboutSection: React.FC = () => {
         {/* ── Section label ── */}
         <motion.p
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-          style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', letterSpacing: '0.22em', color: 'rgba(232,228,216,0.28)', textTransform: 'uppercase', marginBottom: '56px', display: 'flex', alignItems: 'center', gap: '16px' }}
+          style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', letterSpacing: '0.22em', color: 'var(--body-color)', textTransform: 'uppercase', marginBottom: '56px', display: 'flex', alignItems: 'center', gap: '16px', opacity: 0.5 }}
         >
           The Founders
-          <span style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+          <span style={{ flex: 1, height: '1px', background: 'var(--card-border)' }} />
         </motion.p>
 
         {/* ── Founder cards grid ── */}
@@ -1044,7 +1055,7 @@ const AboutSection: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.3 + i * 0.15, duration: 0.6 }}
-                  style={{ fontSize: '15px', lineHeight: 1.85, color: 'rgba(232,228,216,0.55)', fontStyle: 'italic', fontFamily: "'DM Mono', monospace" }}
+                  style={{ fontSize: '15px', lineHeight: 1.85, color: 'var(--body-color)', fontStyle: 'italic', fontFamily: "'DM Mono', monospace" }}
                 >
                   "{founder.bio}"
                 </motion.p>
@@ -1059,11 +1070,11 @@ const AboutSection: React.FC = () => {
                       whileInView="visible"
                       viewport={{ once: true }}
                       variants={tagVariants}
-                      whileHover={{ borderColor: '#c8f065', color: '#c8f065', backgroundColor: 'rgba(200,240,101,0.06)' }}
+                      whileHover={{ borderColor: 'var(--lime)', color: 'var(--lime)', backgroundColor: 'var(--glow-lime)' }}
                       style={{
                         fontFamily: "'DM Mono', monospace", fontSize: '11px',
-                        padding: '6px 14px', border: '1px solid rgba(255,255,255,0.1)',
-                        color: 'rgba(232,228,216,0.5)', borderRadius: '2px',
+                        padding: '6px 14px', border: '1px solid var(--card-border)',
+                        color: 'var(--body-color)', borderRadius: '2px',
                         letterSpacing: '0.05em', transition: 'all 0.2s', cursor: 'default',
                       }}
                     >
@@ -1083,24 +1094,24 @@ const AboutSection: React.FC = () => {
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           style={{
-            marginTop: '120px', padding: '64px', border: '1px solid rgba(200,240,101,0.15)',
-            background: 'rgba(200,240,101,0.04)', display: 'flex',
+            marginTop: '120px', padding: '64px', border: '1px solid var(--card-border)',
+            background: 'var(--glow-lime)', display: 'flex',
             justifyContent: 'space-between', alignItems: 'center',
             gap: '40px', flexWrap: 'wrap',
           }}
         >
           <div>
-            <h3 style={{ fontSize: 'clamp(28px, 3.5vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1, color: '#e8e4d8' }}>
+            <h3 style={{ fontSize: 'clamp(28px, 3.5vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1, color: 'var(--heading-color)' }}>
               Let's build something<br />
-              <span style={{ color: '#c8f065' }}>worth shipping.</span>
+              <span style={{ color: 'var(--lime)' }}>worth shipping.</span>
             </h3>
-            <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', color: 'rgba(232,228,216,0.35)', marginTop: '16px', lineHeight: 1.7 }}>
+            <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', color: 'var(--body-color)', marginTop: '16px', lineHeight: 1.7, opacity: 0.6 }}>
               We take on 2–3 projects at a time. No queues, no handoffs, no surprises.
             </p>
           </div>
           <MagneticButton onClick={() => window.open('https://builtstack-alpha.vercel.app/', '_blank')}>
             <span style={{
-              display: 'block', background: '#c8f065', color: '#0a0a09',
+              display: 'block', background: 'var(--lime)', color: 'var(--on-lime)',
               padding: '18px 48px', fontFamily: "'Syne', sans-serif",
               fontSize: '14px', fontWeight: 700, letterSpacing: '0.1em',
               textTransform: 'uppercase', borderRadius: '2px', cursor: 'pointer',
@@ -1113,58 +1124,65 @@ const AboutSection: React.FC = () => {
       </div>
 
       {/* ── Contact modal overlay ── */}
-      <AnimatePresence>
-        {activeFounder !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setActiveFounder(null)}
-            style={{
-              position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.7)',
-              backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.92, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.92, y: 20, opacity: 0 }}
-              transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.45 }}
-              onClick={e => e.stopPropagation()}
-              style={{
-                background: '#111110', border: '1px solid rgba(200,240,101,0.2)',
-                padding: '48px', maxWidth: '440px', width: '90%',
-              }}
-            >
-              <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', letterSpacing: '0.2em', color: '#c8f065', textTransform: 'uppercase', marginBottom: '20px' }}>Get in touch</p>
-              <h4 style={{ fontSize: '28px', fontWeight: 800, color: '#e8e4d8', marginBottom: '8px', letterSpacing: '-0.02em' }}>
-                Reach {FOUNDERS[activeFounder].name}
-              </h4>
-              <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', color: 'rgba(232,228,216,0.4)', lineHeight: 1.7, marginBottom: '32px' }}>
-                Drop a line about your project - scope, timeline, and what you're building. We reply within 24 hours.
-              </p>
-              <a
-                href={`mailto:hello@builtstack.co?subject=Project Inquiry - ${FOUNDERS[activeFounder].name}`}
-                style={{
-                  display: 'block', textAlign: 'center', background: '#c8f065', color: '#0a0a09',
-                  padding: '16px 32px', fontFamily: "'Syne', sans-serif",
-                  fontSize: '13px', fontWeight: 700, letterSpacing: '0.1em',
-                  textTransform: 'uppercase', textDecoration: 'none', borderRadius: '2px',
-                  marginBottom: '12px',
-                }}
-              >
-                Send Email ↗
-              </a>
-              <button
-                onClick={() => setActiveFounder(null)}
-                style={{ width: '100%', background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(232,228,216,0.4)', padding: '14px', fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.14em', cursor: 'pointer', borderRadius: '2px' }}
-              >
-                Close
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+<AnimatePresence>
+  {activeFounder !== null && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => setActiveFounder(null)}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 100, background: 'var(--color-shadow-soft)',
+        backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="contact-modal-title"
+        initial={{ scale: 0.92, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.92, y: 20, opacity: 0 }}
+        transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.45 }}
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'var(--card-bg)', border: '1px solid var(--card-border)',
+          padding: '48px', maxWidth: '440px', width: '90%',
+        }}
+      >
+        <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', letterSpacing: '0.2em', color: 'var(--lime)', textTransform: 'uppercase', marginBottom: '20px' }}>Get in touch</p>
+        <h4 
+          id="contact-modal-title"
+          style={{ fontSize: '28px', fontWeight: 800, color: 'var(--heading-color)', marginBottom: '8px', letterSpacing: '-0.02em' }}
+        >
+          Reach {FOUNDERS[activeFounder].name}
+        </h4>
+        <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', color: 'var(--body-color)', lineHeight: 1.7, marginBottom: '32px' }}>
+          Drop a line about your project - scope, timeline, and what you're building. We reply within 24 hours.
+        </p>
+        <a
+          data-modal-email-link
+          href={`mailto:hello@builtstack.co?subject=Project Inquiry - ${FOUNDERS[activeFounder].name}`}
+          style={{
+            display: 'block', textAlign: 'center', background: 'var(--lime)', color: 'var(--on-lime)',
+            padding: '16px 32px', fontFamily: "'Syne', sans-serif",
+            fontSize: '13px', fontWeight: 700, letterSpacing: '0.1em',
+            textTransform: 'uppercase', textDecoration: 'none', borderRadius: '2px',
+            marginBottom: '12px',
+          }}
+        >
+          Send Email ↗
+        </a>
+        <button
+          onClick={() => setActiveFounder(null)}
+          style={{ width: '100%', background: 'transparent', border: '1px solid var(--card-border)', color: 'var(--body-color)', padding: '14px', fontFamily: "'DM Mono', monospace", fontSize: '11px', letterSpacing: '0.14em', cursor: 'pointer', borderRadius: '2px' }}
+        >
+          Close
+        </button>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
     </section>
   );
 };

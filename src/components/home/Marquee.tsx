@@ -36,14 +36,12 @@ function VelocityRow({ baseVelocity = -40 }: { baseVelocity?: number }) {
   const { scrollY } = useScroll();
   const scrollVel = useVelocity(scrollY);
 
-  // 🔥 Better spring (responsive but smooth)
   const smoothVel = useSpring(scrollVel, {
     damping: 25,
     stiffness: 180,
     mass: 0.4,
   });
 
-  // 🔥 More stable velocity mapping
   const velocityFactor = useTransform(
     smoothVel,
     [-1500, 0, 1500],
@@ -56,7 +54,7 @@ function VelocityRow({ baseVelocity = -40 }: { baseVelocity?: number }) {
   // Cache width once (no layout thrash)
   useEffect(() => {
     if (containerRef.current) {
-      widthRef.current = containerRef.current.scrollWidth / 2;
+      widthRef.current = containerRef.current.scrollWidth / 5;
     }
   }, []);
 
@@ -73,7 +71,7 @@ function VelocityRow({ baseVelocity = -40 }: { baseVelocity?: number }) {
 
     const width = widthRef.current || 2000;
 
-    // 🔥 Seamless wrap using modulo (no snapping)
+    // Seamless wrap using modulo (no snapping)
     let wrapped = baseX.get() % width;
 
     if (wrapped < -width) wrapped += width;
@@ -95,7 +93,7 @@ function VelocityRow({ baseVelocity = -40 }: { baseVelocity?: number }) {
               className="whitespace-nowrap font-light"
               style={{
                 fontSize: 'clamp(1.3rem, 2.2vw, 2rem)',
-                color: '#5a5a56',
+                color: 'var(--body-color, hsl(var(--text-muted)))',
                 paddingLeft: '2.5rem',
                 paddingRight: '2.5rem',
                 letterSpacing: '-0.01em',
@@ -105,7 +103,7 @@ function VelocityRow({ baseVelocity = -40 }: { baseVelocity?: number }) {
             </span>
             <span
               className="rounded-full shrink-0"
-              style={{ width: 6, height: 6, background: '#d4f53c' }}
+              style={{ width: 6, height: 6, background: 'var(--lime, #d4f53c)' }}
             />
           </span>
         ))}
@@ -119,11 +117,11 @@ export default function Marquee() {
     <section
       className="overflow-hidden"
       style={{
-        borderTop: '1px solid #1e1e1e',
-        borderBottom: '1px solid #1e1e1e',
+        borderTop: '1px solid var(--card-border, hsl(var(--border)))',
+        borderBottom: '1px solid var(--card-border, hsl(var(--border)))',
       }}
     >
-      <div style={{ borderBottom: '1px solid #1e1e1e' }}>
+      <div style={{ borderBottom: '1px solid var(--card-border, hsl(var(--border)))' }}>
         <VelocityRow baseVelocity={-40} />
       </div>
       <VelocityRow baseVelocity={40} />

@@ -29,6 +29,8 @@
   --on-lime-hover: #d4f53c;
   --hamburger: #eeebe4;
   --glow-lime: rgba(211, 245, 60, 0.35);
+  --glow-subtle: rgba(212, 245, 60, 0.08);
+  --color-shadow-soft: rgba(0, 0, 0, 0.6);
   --section-bg: #080808;
   --card-bg: #111111;
   --card-border: #1e1e1e;
@@ -99,6 +101,8 @@
   --on-lime-hover: #4a6a00;
   --hamburger: #1a1714;
   --glow-lime: rgba(74, 106, 0, 0.12);
+  --glow-subtle: rgba(74, 106, 0, 0.06);
+  --color-shadow-soft: rgba(0, 0, 0, 0.2);
   --section-bg: #f0ebe2;
   --card-bg: #f7f4f0;
   --card-border: #ddd7cc;
@@ -187,11 +191,11 @@ img, video, canvas, svg,
 .gsap-animated {
   transition: none !important;
 }
-
 img {
-  pointer-events: none;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 
 /* Form element styles */
