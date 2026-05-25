@@ -262,10 +262,9 @@ export default function CTA() {
         padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 60px)',
       }}
     >
-      {/* ── Interactive Mesh Grid ── */}
+
       <InteractiveMeshGrid className="absolute inset-0 z-0 pointer-events-none opacity-[0.85]" />
 
-      {/* ── Grain Overlay ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -275,7 +274,7 @@ export default function CTA() {
         }}
       />
 
-      {/* ── Corner Brackets (Theme-aware border) ── */}
+
       {[
         { top: 20, left: 20, borderTop: true, borderLeft: true },
         { top: 20, right: 20, borderTop: true, borderRight: true },
