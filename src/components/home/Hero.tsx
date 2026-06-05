@@ -4,18 +4,18 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import InteractiveMeshGrid from '@/components/ui/InteractiveMeshGrid';
 
-// ─── CONSTANTS    ───────────
+//  ─ CONSTANTS         ─
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const CALENDLY_URL = 'https://calendly.com/builtstack/30min';
 const WHATSAPP_URL = 'https://wa.me/8398919452';
 
-// ─── SEO STRUCTURED DATA    ─
+//  ─ SEO STRUCTURED DATA    ─
 const STRUCTURED_DATA = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'BuiltStack',
-  url: 'https://builtstack.co',
+  url: 'https://builtstack-eight.vercel.app/',
   description:
     'BuiltStack is a design and engineering studio specializing in web apps, SaaS platforms, mobile apps, and brand systems for founders and startups.',
   founder: [
@@ -34,7 +34,7 @@ const STRUCTURED_DATA = {
   },
 };
 
-// ─── CALENDLY HOOK    ───────
+//  ─ CALENDLY HOOK       ─
 function useCalendly() {
   const [ready, setReady] = useState(false);
 
@@ -72,7 +72,7 @@ function useCalendly() {
   return { ready, openPopup };
 }
 
-// ─── SPLIT TEXT ANIMATION    
+//  ─ SPLIT TEXT ANIMATION    
 function SplitWords({ text, baseDelay }: { text: string; baseDelay: number }) {
   return (
     <span className="inline-block">
@@ -99,7 +99,7 @@ function SplitWords({ text, baseDelay }: { text: string; baseDelay: number }) {
   );
 }
 
-// ─── TYPEWRITER    ──────────
+//  ─ TYPEWRITER         
 function TypewriterWord({
   words,
   startDelay = 0,
@@ -162,10 +162,10 @@ function TypewriterWord({
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [displayed, phase, currentWord, typeSpeed, eraseSpeed, pauseAfterType, pauseAfterErase]);
+  }, [displayed, phase, currentWord, typeSpeed, eraseSpeed, pauseAfterType, pauseAfterErase, words.length]);
 
   return (
-    <span className="inline-block italic" style={{ color: 'var(--lime, #d4f53c)' }}>
+    <span className="inline-block italic" style={{ color: 'var(--lime, #8fa42e)' }}>
       {displayed}
       <span
         className="inline-block ml-[1px] font-light"
@@ -180,7 +180,7 @@ function TypewriterWord({
   );
 }
 
-// ─── BUTTON    ──────────────
+//  ─ BUTTON           
 function Button({
   children,
   onClick,
@@ -238,7 +238,7 @@ function Button({
     cursor: 'pointer',
     userSelect: 'none',
     transition: 'background 0.3s, color 0.3s, border-color 0.3s',
-    background: isPrimary ? 'var(--lime, #d4f53c)' : 'transparent',
+    background: isPrimary ? 'var(--lime, #8fa42e)' : 'transparent',
     color: isPrimary ? '#0a0a0a' : 'var(--text-primary, #fff)',
     border: isPrimary ? '1px solid transparent' : '1px solid var(--border, rgba(255,255,255,0.15))',
   };
@@ -287,9 +287,9 @@ function Button({
         {...sharedProps}
         {...motionProps}
         whileHover={{
-          background: isPrimary ? '#c8ee30' : 'transparent',
-          borderColor: isPrimary ? 'transparent' : 'var(--lime, #d4f53c)',
-          color: isPrimary ? '#0a0a0a' : 'var(--lime, #d4f53c)',
+          background: isPrimary ? '#a3b949' : 'transparent',
+          borderColor: isPrimary ? 'transparent' : 'var(--lime, #8fa42e)',
+          color: isPrimary ? '#0a0a0a' : 'var(--lime, #8fa42e)',
         }}
         whileTap={{ scale: 0.97 }}
       >
@@ -303,7 +303,7 @@ function Button({
       type="button"
       {...sharedProps}
       {...motionProps}
-      whileHover={{ background: '#c8ee30' }}
+      whileHover={{ background: '#9ab337' }}
       whileTap={{ scale: 0.97 }}
     >
       {content}
@@ -311,7 +311,7 @@ function Button({
   );
 }
 
-// ─── HERO    ────────────────
+//  ─ HERO            
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -359,7 +359,7 @@ export default function Hero() {
           <div className="flex items-center gap-2.5">
             <span
               className="w-[5px] h-[5px] rounded-full"
-              style={{ backgroundColor: 'var(--lime, #d4f53c)' }}
+              style={{ backgroundColor: 'var(--lime, #8fa42e)' }}
             />
             <span
               className="text-[11px] tracking-[0.28em] uppercase"
@@ -372,7 +372,7 @@ export default function Hero() {
           <div className="hidden sm:flex items-center gap-2">
             <span
               className="w-[5px] h-[5px] rounded-full"
-              style={{ backgroundColor: 'var(--lime, #d4f53c)' }}
+              style={{ backgroundColor: 'var(--lime, #8fa42e)' }}
             />
             <span
               className="text-[11px] tracking-[0.28em] uppercase"

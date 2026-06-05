@@ -8,7 +8,7 @@ const EASE: [number, number, number, number] = [0.23, 1, 0.32, 1];
 const FOUNDERS = [
   {
     name: 'Loveraj',
-    image: 'public/assets/Loveraj.png',
+    image: '/assets/Loveraj.jpg',
     quote: 'Get Set Fly',
     role: 'Founder',
     github: 'https://github.com/dhimanLove',
@@ -16,7 +16,7 @@ const FOUNDERS = [
   },
   {
     name: 'Rudra',
-    image: 'public/assets/Rudra.jpg',
+    image: '/assets/Rudra.jpg',
     quote: "Let's Go",
     role: 'Founder',
     github: 'https://github.com/rudra',
@@ -155,33 +155,33 @@ export default function About() {
 
           {/* Middle Column - Quotes */}
           <motion.div
-            className="hidden lg:flex justify-between items-start w-full py-20"
+            className="hidden lg:flex flex-col justify-evenly h-[520px] py-2"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: EASE, delay: 0.25 }}
           >
             <p
-              className="italic"
+              className="italic self-start"
               style={{
                 fontFamily: 'var(--font-display, "Instrument Serif", serif)',
                 fontWeight: 400,
                 fontSize: '1.5rem',
-                color: 'var(--lime, #d4f53c)',
+                color: 'var(--lime, #97a947)',
                 letterSpacing: '-0.01em',
                 lineHeight: 1.4,
               }}
             >
               "{FOUNDERS[0].quote}"
-            </p>
+            </p>  
 
             <p
-              className="italic text-right mt-11"
+              className="italic text-right self-end"
               style={{
                 fontFamily: 'var(--font-display, "Instrument Serif", serif)',
                 fontWeight: 400,
                 fontSize: '1.5rem',
-                color: 'var(--lime, #d4f53c)',
+                color: 'var(--lime, #b0c940)',
                 letterSpacing: '-0.01em',
                 lineHeight: 1.4,
               }}
