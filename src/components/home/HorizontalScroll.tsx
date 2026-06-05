@@ -1,193 +1,348 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { Github, Linkedin } from 'lucide-react';
 
+const EASE: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
-// TESTIMONIALS DATA
-
-const TESTIMONIALS = [
+const FOUNDERS = [
   {
-    quote:
-      "BuiltStack helped us go from a rough MVP to a production-ready platform in weeks. The clarity in their process and speed of execution is rare.",
-    name: "Ananya Sharma",
-    role: "Founder, FinEdge (Fintech Startup)",
-    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=F",
+    name: 'Loveraj',
+    image: 'public/assets/Loveraj.png',
+    quote: 'Get Set Fly',
+    role: 'Founder',
+    github: 'https://github.com/dhimanLove',
+    linkedin: 'https://www.linkedin.com/in/love-raj-dhiman-a08142274/',
   },
   {
-    quote:
-      "Their design system completely transformed how our product feels. Clean, scalable, and actually developer-friendly.",
-    name: "Rohit Mehta",
-    role: "Product Lead, ScaleX",
-    avatar: "https://randomuser.me/api/portraits/men/45.jpg",
-    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=S",
-  },
-  {
-    quote:
-      "We've worked with multiple agencies, but BuiltStack stands out. They think like product builders, not just designers.",
-    name: "Priya Nair",
-    role: "Co-founder, HealthBridge",
-    avatar: "https://randomuser.me/api/portraits/women/32.jpg",
-    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=H",
-  },
-  {
-    quote:
-      "From UI to backend architecture, everything was handled with precision. Our platform feels fast, stable, and premium.",
-    name: "Arjun Verma",
-    role: "CTO, EduStack",
-    avatar: "https://randomuser.me/api/portraits/men/28.jpg",
-    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=E",
-  },
-  {
-    quote:
-      "They don't just deliver screens - they deliver thinking. Every decision felt intentional and aligned with our business goals.",
-    name: "Kavya Reddy",
-    role: "Head of Product, GrowthLoop",
-    avatar: "https://randomuser.me/api/portraits/women/50.jpg",
-    companyLogo: "https://placehold.co/40x40/1a1a1a/d4f53c?text=G",
+    name: 'Rudra',
+    image: 'public/assets/Rudra.jpg',
+    quote: "Let's Go",
+    role: 'Founder',
+    github: 'https://github.com/rudra',
+    linkedin: 'https://www.linkedin.com/in/rudra-pratap-singh-b99188330/',
   },
 ];
 
-
-// HORIZONTAL SCROLL TESTIMONIALS - THEME ADAPTIVE + TAILWIND REFACTORED
-
-export default function HorizontalScroll() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start'],
-  });
-
-  const x = useTransform(scrollYProgress, [0, 1], ['5%', '-55%']);
-
-  // Theme-aware color tokens from your CSS variables
-  const sectionBg = 'var(--section-bg, hsl(var(--bg)))';
-  const cardBg = 'var(--card-bg, hsl(var(--surface)))';
-  const cardBorder = 'var(--card-border, hsl(var(--border)))';
-  const headingColor = 'var(--heading-color, hsl(var(--text-primary)))';
-  const bodyColor = 'var(--body-color, hsl(var(--text-muted)))';
-  const faintColor = 'var(--text-faint, hsl(var(--text-faint)))';
-  const accentColor = 'var(--lime, #d4f53c)';
-  const glowColor = 'var(--glow-lime, rgba(211, 245, 60, 0.35))';
-  const tagBg = 'var(--tag-bg, hsl(var(--surface)))';
-  const tagText = 'var(--tag-text, hsl(var(--text-faint)))';
-
+export default function About() {
   return (
-    <div
-      ref={ref}
-      className="relative py-24 md:py-40 overflow-hidden"
-      style={{ backgroundColor: sectionBg }}
+    <section
+      id="about"
+      className="relative py-20 md:py-30 overflow-hidden"
+      style={{ backgroundColor: 'var(--section-bg)' }}
     >
-      {/* ── Section Header ── */}
-      <div className="px-6 md:px-10 mb-12">
-        <motion.span
+      <div className="relative z-10 px-6 md:px-12 max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div
+          className="text-center mb-32 md:mb-40"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-xs uppercase tracking-[0.3em] font-mono"
-          style={{ color: accentColor }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: EASE }}
         >
-          Trusted by creators
-        </motion.span>
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-3xl md:text-5xl font-display mt-4 max-w-2xl"
-          style={{ color: headingColor }}
-        >
-          What our clients say
-        </motion.h2>
-      </div>
-
-      {/* ── Horizontal Scroller ── */}
-      <motion.div
-        className="flex gap-8 will-change-transform pl-6 md:pl-10"
-        style={{ x }}
-      >
-        {TESTIMONIALS.map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: i * 0.1 }}
-            whileHover={{ y: -8 }}
-            className="relative shrink-0 w-[85vw] md:w-[35vw] rounded-2xl p-8 md:p-10 shadow-2xl group"
+          <h2
+            className="text-4xl md:text-6xl lg:text-7xl"
             style={{
-              backgroundColor: cardBg,
-              border: `1px solid ${cardBorder}`,
+              fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+              fontWeight: 400,
+
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
             }}
           >
-            {/* Quote icon - theme-aware lime with opacity */}
+            Meet the Founders
+          </h2>
+        </motion.div>
+
+        {/* Main Layout - 3 Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 items-start max-w-6xl mx-auto mb-32">
+
+          {/* Left Column - Loveraj */}
+          <motion.div
+            className="flex flex-col items-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.1 }}
+          >
+            {/* Image */}
             <div
-              className="absolute top-6 right-6 text-6xl font-serif select-none"
-              style={{ color: `${accentColor}33` }} // 20% opacity hex approximation
+              className="w-full max-w-sm aspect-[4/5] rounded-3xl overflow-hidden mb-8"
+              style={{ border: '2px solid var(--border)' }}
             >
-              "
-            </div>
-
-            {/* Avatar + Info */}
-            <div className="flex items-center gap-4 mb-6">
               <img
-                src={item.avatar}
-                alt={item.name}
-                className="w-14 h-14 rounded-full object-cover"
-                style={{
-                  ring: `2px solid ${accentColor}`,
-                  boxShadow: `0 0 0 2px ${accentColor}4D` // 30% opacity
-                }}
+                src={FOUNDERS[0].image}
+                alt={FOUNDERS[0].name}
+                className="w-full h-full object-cover"
+                style={{ fontFamily: 'var(--font-display, "Instrument Serif", serif)' }}
               />
-              <div>
-                <h3 className="font-semibold text-lg" style={{ color: headingColor }}>
-                  {item.name}
-                </h3>
-                <p className="text-sm tracking-wide" style={{ color: bodyColor }}>
-                  {item.role}
-                </p>
-              </div>
             </div>
 
-            {/* Quote text */}
-            <p
-              className="text-lg md:text-xl leading-relaxed mb-8 font-light"
-              style={{ color: `${headingColor}CC` }} // ~80% opacity
+            {/* Name */}
+            <h3
+              className="text-3xl md:text-4xl mb-2"
+              style={{
+                fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+                fontWeight: 400,
+                color: 'var(--heading-color)',
+                letterSpacing: '-0.02em',
+              }}
             >
-              {item.quote}
+              {FOUNDERS[0].name}
+            </h3>
+
+            {/* Role */}
+            <p
+              className="text-xs tracking-[0.25em] uppercase mb-8"
+              style={{
+                color: 'var(--text-muted)',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {FOUNDERS[0].role}
             </p>
 
-            {/* Company logo / branding */}
-            <div
-              className="flex items-center gap-2 pt-4"
-              style={{ borderTop: `1px solid ${cardBorder}` }}
-            >
-              {/* Company logo with theme-aware background */}
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
+            {/* Social Buttons */}
+            <div className="flex items-center gap-3">
+              <a
+                href={FOUNDERS[0].github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium transition-all duration-300"
                 style={{
-                  backgroundColor: tagBg,
-                  color: accentColor,
+                  background: 'var(--surface)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                  fontFamily: 'var(--font-body)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--lime)';
+                  e.currentTarget.style.color = 'var(--lime)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
                 }}
               >
-                {item.companyLogo ? (
-                  <img src={item.companyLogo} alt="logo" className="w-full h-full rounded-lg object-cover" />
-                ) : item.name.charAt(0)}
-              </div>
-              <span className="text-xs tracking-wider" style={{ color: tagText }}>
-                - trusted partner
-              </span>
+                <Github size={14} />
+                Github
+              </a>
+              <a
+                href={FOUNDERS[0].linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium transition-all duration-300"
+                style={{
+                  background: 'var(--surface)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                  fontFamily: 'var(--font-body)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--lime)';
+                  e.currentTarget.style.color = 'var(--lime)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
+              >
+                <Linkedin size={14} />
+                linkedin
+              </a>
+            </div>
+          </motion.div>
+
+          {/* Middle Column - Quotes */}
+          <motion.div
+            className="hidden lg:flex justify-between items-start w-full py-20"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.25 }}
+          >
+            <p
+              className="italic"
+              style={{
+                fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+                fontWeight: 400,
+                fontSize: '1.5rem',
+                color: 'var(--lime, #d4f53c)',
+                letterSpacing: '-0.01em',
+                lineHeight: 1.4,
+              }}
+            >
+              "{FOUNDERS[0].quote}"
+            </p>
+
+            <p
+              className="italic text-right mt-11"
+              style={{
+                fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+                fontWeight: 400,
+                fontSize: '1.5rem',
+                color: 'var(--lime, #d4f53c)',
+                letterSpacing: '-0.01em',
+                lineHeight: 1.4,
+              }}
+            >
+              "{FOUNDERS[1].quote}"
+            </p>
+          </motion.div>
+
+          {/* Right Column - Rudra */}
+          <motion.div
+            className="flex flex-col items-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
+          >
+            {/* Image */}
+            <div
+              className="w-full max-w-sm aspect-[4/5] rounded-3xl overflow-hidden mb-8"
+              style={{ border: '2px solid var(--border)' }}
+            >
+              <img
+                src={FOUNDERS[1].image}
+                alt={FOUNDERS[1].name}
+                className="w-full h-full object-cover"
+              />
             </div>
 
-            {/* Hover glow effect - theme-aware gradient */}
-            <div
-              className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            {/* Name */}
+            <h3
+              className="text-3xl md:text-4xl mb-2"
               style={{
-                background: `linear-gradient(135deg, ${glowColor}0D 0%, transparent 50%, transparent 100%)`,
+                fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+                fontWeight: 400,
+                color: 'var(--heading-color)',
+                letterSpacing: '-0.02em',
               }}
-            />
+            >
+              {FOUNDERS[1].name}
+            </h3>
+
+            {/* Role */}
+            <p
+              className="text-xs tracking-[0.25em] uppercase mb-8"
+              style={{
+                color: 'var(--text-muted)',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {FOUNDERS[1].role}
+            </p>
+
+            {/* Social Buttons */}
+            <div className="flex items-center gap-3">
+              <a
+                href={FOUNDERS[1].github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium transition-all duration-300"
+                style={{
+                  background: 'var(--surface)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                  fontFamily: 'var(--font-body)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--lime)';
+                  e.currentTarget.style.color = 'var(--lime)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
+              >
+                <Github size={14} />
+                Github
+              </a>
+              <a
+                href={FOUNDERS[1].linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium transition-all duration-300"
+                style={{
+                  background: 'var(--surface)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                  fontFamily: 'var(--font-body)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--lime)';
+                  e.currentTarget.style.color = 'var(--lime)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
+              >
+                <Linkedin size={14} />
+                linkedin
+              </a>
+            </div>
           </motion.div>
-        ))}
-      </motion.div>
-    </div>
+        </div>
+
+        {/* Mobile Quotes */}
+        <motion.div
+          className="lg:hidden flex flex-col items-center gap-8 mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
+        >
+          <p
+            className="text-center italic"
+            style={{
+              fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+              fontWeight: 400,
+              fontSize: '1.25rem',
+              color: 'var(--lime, #d4f53c)',
+              letterSpacing: '-0.01em',
+              lineHeight: 1.4,
+            }}
+          >
+            "{FOUNDERS[0].quote}"
+          </p>
+
+          <p
+            className="text-center italic"
+            style={{
+              fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+              fontWeight: 400,
+              fontSize: '1.25rem',
+              color: 'var(--lime, #d4f53c)',
+              letterSpacing: '-0.01em',
+              lineHeight: 1.4,
+            }}
+          >
+            "{FOUNDERS[1].quote}"
+          </p>
+        </motion.div>
+
+        {/* Bottom Text */}
+        <motion.div
+          className="text-center pt-12"
+          style={{ borderTop: '1px solid var(--border)' }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: EASE, delay: 0.6 }}
+        >
+          <p
+            className="text-sm tracking-[0.25em] uppercase"
+            style={{
+              color: 'var(--text-faint)',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            2 founders · rating · experience
+          </p>
+        </motion.div>
+      </div>
+    </section>
   );
 }

@@ -31,7 +31,7 @@ export default function CustomCursor() {
         };
 
         const onMouseDown = () => setState('click');
-        const onMouseUp   = () => setState(s => s === 'click' ? 'default' : s);
+        const onMouseUp = () => setState(s => s === 'click' ? 'default' : s);
 
         const onEnter = (e: Event) => {
             const el = e.currentTarget as HTMLElement;
@@ -41,7 +41,7 @@ export default function CustomCursor() {
 
             setLabel(cursorLabel);
 
-            if (cursorType === 'view')  return setState('hover');
+            if (cursorType === 'view') return setState('hover');
             if (tag === 'input' || tag === 'textarea') return setState('text');
             setState('hover');
         };
@@ -86,38 +86,38 @@ export default function CustomCursor() {
         return null;
     }
 
-    // ── Size / style per state ──────────────────────────────────
+    //   Size / style per state       
     const ringSize = {
-        default: 36,
-        hover:   64,
-        click:   24,
-        text:    4,
+        default: 50,
+        hover: 64,
+        click: 24,
+        text: 4,
     }[state];
 
     const ringOpacity = {
-        default: 0.5,
-        hover:   0.9,
-        click:   0.3,
-        text:    0,
+        default: 0.9,
+        hover: 0.9,
+        click: 0.3,
+        text: 0,
     }[state];
 
     const dotSize = {
-        default: 5,
-        hover:   5,
-        click:   3,
-        text:    24,
+        default: 7,
+        hover: 5,
+        click: 3,
+        text: 24,
     }[state];
 
     const dotBg = {
         default: '#d4f53c',
-        hover:   'transparent',
-        click:   '#d4f53c',
-        text:    '#d4f53c',
+        hover: 'transparent',
+        click: '#d4f53c',
+        text: '#d4f53c',
     }[state];
 
     return (
         <>
-            {/* ── Outer ring ─────────────────────────────────────── */}
+            {/*   Outer ring         ─ */}
             <motion.div
                 className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:flex items-center justify-center"
                 style={{
@@ -128,7 +128,7 @@ export default function CustomCursor() {
                     opacity: isVisible ? 1 : 0,
                 }}
                 animate={{
-                    width:  ringSize,
+                    width: ringSize,
                     height: ringSize,
                     opacity: isVisible ? ringOpacity : 0,
                 }}
@@ -165,7 +165,7 @@ export default function CustomCursor() {
                 </AnimatePresence>
             </motion.div>
 
-            {/* ── Inner dot ──────────────────────────────────────── */}
+            {/*   Inner dot           */}
             <motion.div
                 className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:block rounded-full"
                 style={{
@@ -177,16 +177,16 @@ export default function CustomCursor() {
                     opacity: isVisible ? 1 : 0,
                 }}
                 animate={{
-                    width:        dotSize,
-                    height:       dotSize,
+                    width: dotSize,
+                    height: dotSize,
                     borderRadius: state === 'text' ? '2px' : '50%',
-                    background:   dotBg,
-                    opacity:      isVisible ? 1 : 0,
+                    background: dotBg,
+                    opacity: isVisible ? 1 : 0,
                 }}
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             />
 
-            {/* ── Click ripple ───────────────────────────────────── */}
+            {/*   Click ripple        ─ */}
             <AnimatePresence>
                 {state === 'click' && (
                     <motion.div

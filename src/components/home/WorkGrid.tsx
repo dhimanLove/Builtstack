@@ -1,42 +1,39 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import * as THREE from 'three';
 
+//    CONSTANTS & TYPES                                     ─
 
-// CONSTANTS & TYPES
-
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1] as const;
-
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const PROJECTS = [
-  { title: 'Portfolio', category: 'Web App', year: '2025' },
-  { title: 'Duo Studio', category: 'Web App', year: '2026' },
-  { title: 'Meridian', category: 'Brand Identity', year: '2023' },
-  { title: 'Sahara', category: 'Web and Mobile App', year: '2023' },
-  { title: 'Onyx Brand', category: 'Brand · Web', year: '2023' },
+  {
+    title: "Admin Panel",
+    image: "/projects/pannel.png",
+    category: "Dashboard UI",
+    year: "2026",
+    url: "https://adminn-silk.vercel.app", // 👈 ADD THIS
+  },
+  {
+    title: "Neeraj Dental",
+    image: "/projects/neerajdental.png",
+    category: "Healthcare SaaS",
+    year: "2026",
+    url: "https://neeraj-dental-clnc.vercel.app", // 👈 ADD THIS
+  },
+  {
+    title: "Sahara",
+    image: "/projects/sahara.png",
+    category: "Travel Platform",
+    year: "2026",
+    url: "https://sahara-weld.vercel.app", // 👈 ADD THIS
+  },
 ];
-
-type PixelBlastVariant = 'square' | 'circle' | 'triangle' | 'diamond';
-
-const SHAPE_MAP: Record<PixelBlastVariant, number> = {
-  square: 0,
-  circle: 1,
-  triangle: 2,
-  diamond: 3,
-};
-
 const MAX_CLICKS = 10;
 
-
-// SHADERS (unchanged logic, theme-aware uniforms injected at runtime)
-
-const VERTEX_SRC = `
-void main() {
-  gl_Position = vec4(position, 1.0);
-}
-`;
+const VERTEX_SRC = `void main() { gl_Position = vec4(position, 1.0); }`;
 
 const FRAGMENT_SRC = `
 precision highp float;
@@ -53,165 +50,90 @@ uniform float uRippleSpeed;
 uniform float uRippleThickness;
 uniform float uRippleIntensity;
 uniform float uEdgeFade;
-
 uniform int   uShapeType;
-const int SHAPE_SQUARE   = 0;
-const int SHAPE_CIRCLE   = 1;
-const int SHAPE_TRIANGLE = 2;
-const int SHAPE_DIAMOND  = 3;
 
-const int   MAX_CLICKS = 10;
+const int MAX_CLICKS = 10;
 uniform vec2  uClickPos  [MAX_CLICKS];
 uniform float uClickTimes[MAX_CLICKS];
 
 out vec4 fragColor;
 
-float Bayer2(vec2 a) {
-  a = floor(a);
-  return fract(a.x / 2. + a.y * a.y * .75);
-}
-#define Bayer4(a) (Bayer2(.5*(a))*0.25 + Bayer2(a))
-#define Bayer8(a) (Bayer4(.5*(a))*0.25 + Bayer2(a))
+float Bayer2(vec2 a){a=floor(a);return fract(a.x/2.+a.y*a.y*.75);}
+#define Bayer4(a) (Bayer2(.5*(a))*.25+Bayer2(a))
+#define Bayer8(a) (Bayer4(.5*(a))*.25+Bayer2(a))
 
-#define FBM_OCTAVES     5
-#define FBM_LACUNARITY  1.25
-#define FBM_GAIN        1.0
-
-float hash11(float n){ return fract(sin(n)*43758.5453); }
-
+float hash11(float n){return fract(sin(n)*43758.5453);}
 float vnoise(vec3 p){
-  vec3 ip = floor(p);
-  vec3 fp = fract(p);
-  float n000 = hash11(dot(ip + vec3(0.0,0.0,0.0), vec3(1.0,57.0,113.0)));
-  float n100 = hash11(dot(ip + vec3(1.0,0.0,0.0), vec3(1.0,57.0,113.0)));
-  float n010 = hash11(dot(ip + vec3(0.0,1.0,0.0), vec3(1.0,57.0,113.0)));
-  float n110 = hash11(dot(ip + vec3(1.0,1.0,0.0), vec3(1.0,57.0,113.0)));
-  float n001 = hash11(dot(ip + vec3(0.0,0.0,1.0), vec3(1.0,57.0,113.0)));
-  float n101 = hash11(dot(ip + vec3(1.0,0.0,1.0), vec3(1.0,57.0,113.0)));
-  float n011 = hash11(dot(ip + vec3(0.0,1.0,1.0), vec3(1.0,57.0,113.0)));
-  float n111 = hash11(dot(ip + vec3(1.0,1.0,1.0), vec3(1.0,57.0,113.0)));
-  vec3 w = fp*fp*fp*(fp*(fp*6.0-15.0)+10.0);
-  float x00 = mix(n000, n100, w.x);
-  float x10 = mix(n010, n110, w.x);
-  float x01 = mix(n001, n101, w.x);
-  float x11 = mix(n011, n111, w.x);
-  float y0  = mix(x00, x10, w.y);
-  float y1  = mix(x01, x11, w.y);
-  return mix(y0, y1, w.z) * 2.0 - 1.0;
+  vec3 ip=floor(p),fp=fract(p);
+  float n000=hash11(dot(ip+vec3(0,0,0),vec3(1,57,113)));
+  float n100=hash11(dot(ip+vec3(1,0,0),vec3(1,57,113)));
+  float n010=hash11(dot(ip+vec3(0,1,0),vec3(1,57,113)));
+  float n110=hash11(dot(ip+vec3(1,1,0),vec3(1,57,113)));
+  float n001=hash11(dot(ip+vec3(0,0,1),vec3(1,57,113)));
+  float n101=hash11(dot(ip+vec3(1,0,1),vec3(1,57,113)));
+  float n011=hash11(dot(ip+vec3(0,1,1),vec3(1,57,113)));
+  float n111=hash11(dot(ip+vec3(1,1,1),vec3(1,57,113)));
+  vec3 w=fp*fp*fp*(fp*(fp*6.-15.)+10.);
+  return mix(mix(mix(n000,n100,w.x),mix(n010,n110,w.x),w.y),
+             mix(mix(n001,n101,w.x),mix(n011,n111,w.x),w.y),w.z)*2.-1.;
+}
+float fbm2(vec2 uv,float t){
+  vec3 p=vec3(uv*uScale,t);float amp=1.,freq=1.,sum=1.;
+  for(int i=0;i<5;++i){sum+=amp*vnoise(p*freq);freq*=1.25;amp*=1.;}
+  return sum*.5+.5;
 }
 
-float fbm2(vec2 uv, float t){
-  vec3 p = vec3(uv * uScale, t);
-  float amp = 1.0;
-  float freq = 1.0;
-  float sum = 1.0;
-  for (int i = 0; i < FBM_OCTAVES; ++i){
-    sum  += amp * vnoise(p * freq);
-    freq *= FBM_LACUNARITY;
-    amp  *= FBM_GAIN;
-  }
-  return sum * 0.5 + 0.5;
-}
-
-float maskCircle(vec2 p, float cov){
-  float r = sqrt(cov) * .25;
-  float d = length(p - 0.5) - r;
-  float aa = 0.5 * fwidth(d);
-  return cov * (1.0 - smoothstep(-aa, aa, d * 2.0));
-}
-
-float maskTriangle(vec2 p, vec2 id, float cov){
-  bool flip = mod(id.x + id.y, 2.0) > 0.5;
-  if (flip) p.x = 1.0 - p.x;
-  float r = sqrt(cov);
-  float d  = p.y - r*(1.0 - p.x);
-  float aa = fwidth(d);
-  return cov * clamp(0.5 - d/aa, 0.0, 1.0);
-}
-
-float maskDiamond(vec2 p, float cov){
-  float r = sqrt(cov) * 0.564;
-  return step(abs(p.x - 0.49) + abs(p.y - 0.49), r);
-}
+float maskCircle(vec2 p,float cov){float r=sqrt(cov)*.25;float d=length(p-.5)-r;float aa=.5*fwidth(d);return cov*(1.-smoothstep(-aa,aa,d*2.));}
+float maskDiamond(vec2 p,float cov){float r=sqrt(cov)*.564;return step(abs(p.x-.49)+abs(p.y-.49),r);}
 
 void main(){
-  float pixelSize = uPixelSize;
-  vec2 fragCoord = gl_FragCoord.xy - uResolution * .5;
-  float aspectRatio = uResolution.x / uResolution.y;
+  vec2 fragCoord=gl_FragCoord.xy-uResolution*.5;
+  float ar=uResolution.x/uResolution.y;
+  vec2 pixelId=floor(fragCoord/uPixelSize);
+  vec2 pixelUV=fract(fragCoord/uPixelSize);
+  float cps=8.*uPixelSize;
+  vec2 cellId=floor(fragCoord/cps);
+  vec2 uv=cellId*cps/uResolution*vec2(ar,1.);
+  float base=fbm2(uv,uTime*.05)*.5-.65;
+  float feed=base+(uDensity-.5)*.3;
 
-  vec2 pixelId = floor(fragCoord / pixelSize);
-  vec2 pixelUV = fract(fragCoord / pixelSize);
-
-  float cellPixelSize = 8.0 * pixelSize;
-  vec2 cellId = floor(fragCoord / cellPixelSize);
-  vec2 cellCoord = cellId * cellPixelSize;
-  vec2 uv = cellCoord / uResolution * vec2(aspectRatio, 1.0);
-
-  float base = fbm2(uv, uTime * 0.05);
-  base = base * 0.5 - 0.65;
-
-  float feed = base + (uDensity - 0.5) * 0.3;
-
-  float speed     = uRippleSpeed;
-  float thickness = uRippleThickness;
-  const float dampT     = 1.0;
-  const float dampR     = 10.0;
-
-  if (uEnableRipples == 1) {
-    for (int i = 0; i < MAX_CLICKS; ++i){
-      vec2 pos = uClickPos[i];
-      if (pos.x < 0.0) continue;
-      float cellPixelSizeLocal = 8.0 * pixelSize;
-      vec2 cuv = (((pos - uResolution * .5 - cellPixelSizeLocal * .5) / (uResolution))) * vec2(aspectRatio, 1.0);
-      float t = max(uTime - uClickTimes[i], 0.0);
-      float r = distance(uv, cuv);
-      float waveR = speed * t;
-      float ring  = exp(-pow((r - waveR) / thickness, 2.0));
-      float atten = exp(-dampT * t) * exp(-dampR * r);
-      feed = max(feed, ring * atten * uRippleIntensity);
+  if(uEnableRipples==1){
+    for(int i=0;i<MAX_CLICKS;++i){
+      vec2 pos=uClickPos[i];if(pos.x<0.)continue;
+      float cpsL=8.*uPixelSize;
+      vec2 cuv=((pos-uResolution*.5-cpsL*.5)/uResolution)*vec2(ar,1.);
+      float t=max(uTime-uClickTimes[i],0.);float r=distance(uv,cuv);
+      float ring=exp(-pow((r-uRippleSpeed*t)/uRippleThickness,2.));
+      float atten=exp(-1.*t)*exp(-10.*r);
+      feed=max(feed,ring*atten*uRippleIntensity);
     }
   }
 
-  float bayer = Bayer8(fragCoord / uPixelSize) - 0.5;
-  float bw = step(0.5, feed + bayer);
+  float bayer=Bayer8(fragCoord/uPixelSize)-.5;
+  float bw=step(.5,feed+bayer);
+  float h=fract(sin(dot(floor(fragCoord/uPixelSize),vec2(127.1,311.7)))*43758.5453);
+  float coverage=bw*(1.+(h-.5)*uPixelJitter);
 
-  float h = fract(sin(dot(floor(fragCoord / uPixelSize), vec2(127.1, 311.7))) * 43758.5453);
-  float jitterScale = 1.0 + (h - 0.5) * uPixelJitter;
-  float coverage = bw * jitterScale;
   float M;
-  if      (uShapeType == SHAPE_CIRCLE)   M = maskCircle (pixelUV, coverage);
-  else if (uShapeType == SHAPE_TRIANGLE) M = maskTriangle(pixelUV, pixelId, coverage);
-  else if (uShapeType == SHAPE_DIAMOND)  M = maskDiamond(pixelUV, coverage);
-  else                                   M = coverage;
+  if(uShapeType==1) M=maskCircle(pixelUV,coverage);
+  else if(uShapeType==3) M=maskDiamond(pixelUV,coverage);
+  else M=coverage;
 
-  if (uEdgeFade > 0.0) {
-    vec2 norm = gl_FragCoord.xy / uResolution;
-    float edge = min(min(norm.x, norm.y), min(1.0 - norm.x, 1.0 - norm.y));
-    float fade = smoothstep(0.0, uEdgeFade, edge);
-    M *= fade;
+  if(uEdgeFade>0.){
+    vec2 norm=gl_FragCoord.xy/uResolution;
+    float edge=min(min(norm.x,norm.y),min(1.-norm.x,1.-norm.y));
+    M*=smoothstep(0.,uEdgeFade,edge);
   }
 
-  vec3 color = uColor;
-  vec3 srgbColor = mix(
-    color * 12.92,
-    1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055,
-    step(0.0031308, color)
-  );
-  fragColor = vec4(srgbColor, M);
+  vec3 c=uColor;
+  vec3 srgb=mix(c*12.92,1.055*pow(c,vec3(1./2.4))-.055,step(0.0031308,c));
+  fragColor=vec4(srgb,M*.45);
 }
 `;
 
-
-// THEME UTILS
-
-function getThemeColor(cssVar: string, fallback: string): string {
-  if (typeof window === 'undefined') return fallback;
-  return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim() || fallback;
-}
+//    THEME UTILS                                         ─
 
 function parseHslToRgb(hslStr: string): [number, number, number] {
-  // Fallback if parsing fails
-  if (!hslStr) return [212, 245, 60];
   const match = hslStr.match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/);
   if (!match) return [212, 245, 60];
   const [, h, s, l] = match.map(Number);
@@ -226,403 +148,239 @@ function parseHslToRgb(hslStr: string): [number, number, number] {
   else if (h < 240) [r, g, b] = [0, x, c];
   else if (h < 300) [r, g, b] = [x, 0, c];
   else[r, g, b] = [c, 0, x];
-  return [
-    Math.round((r + m) * 255),
-    Math.round((g + m) * 255),
-    Math.round((b + m) * 255),
-  ];
+  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
 }
 
+function getThemeColor(cssVar: string, fallback: string): string {
+  if (typeof window === 'undefined') return fallback;
+  return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim() || fallback;
+}
 
-// PARTICLE CARD COMPONENT
+//    PARTICLE CARD                                         
 
 const ParticleCard = ({
   children,
   className = '',
-  glowColorCssVar = '--lime',
-  particleCount = 12,
-  enableTilt = true,
-  clickEffect = true,
-  enableMagnetism = true,
-  disableAnimations = false,
 }: {
   children: React.ReactNode;
   className?: string;
-  glowColorCssVar?: string;
-  particleCount?: number;
-  enableTilt?: boolean;
-  clickEffect?: boolean;
-  enableMagnetism?: boolean;
-  disableAnimations?: boolean;
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement[]>([]);
-  const ctxRef = useRef<gsap.Context | null>(null);
   const isHoveredRef = useRef(false);
-  const glowRgbRef = useRef<string>('212, 245, 60');
-
-  const getGlowRgb = useCallback(() => {
-    const hex = getThemeColor(glowColorCssVar, '#d4f53c');
-    // If it's already rgb, parse it
-    if (hex.startsWith('rgb')) {
-      const match = hex.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-      if (match) return match.slice(1, 4).join(', ');
-    }
-    // If it's hex, convert
-    if (hex.startsWith('#')) {
-      const bigint = parseInt(hex.slice(1), 16);
-      return `${(bigint >> 16) & 255}, ${(bigint >> 8) & 255}, ${bigint & 255}`;
-    }
-    // If it's hsl, convert
-    if (hex.startsWith('hsl')) {
-      const [r, g, b] = parseHslToRgb(hex);
-      return `${r}, ${g}, ${b}`;
-    }
-    return '212, 245, 60';
-  }, [glowColorCssVar]);
-
-  useEffect(() => {
-    const updateColor = () => { glowRgbRef.current = getGlowRgb(); };
-    updateColor();
-    const observer = new MutationObserver(updateColor);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => observer.disconnect();
-  }, [getGlowRgb]);
-
-  const createParticle = useCallback((x: number, y: number) => {
-    const el = document.createElement('div');
-    const glowRgb = glowRgbRef.current;
-    el.className = 'work-particle';
-    el.style.cssText = `
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: rgba(${glowRgb}, 1);
-      box-shadow: 0 0 8px rgba(${glowRgb}, 0.8);
-      pointer-events: none;
-      z-index: 100;
-      left: ${x}px;
-      top: ${y}px;
-      will-change: transform, opacity;
-    `;
-    return el;
-  }, [getGlowRgb]);
+  const glowRgb = '212, 245, 60'; // lime — static for OLED theme
 
   const clearParticles = useCallback(() => {
-    particlesRef.current.forEach((p) => p.remove());
+    particlesRef.current.forEach(p => p.remove());
     particlesRef.current = [];
   }, []);
 
   useEffect(() => {
-    if (disableAnimations || !cardRef.current) return;
-
     const el = cardRef.current;
-    ctxRef.current = gsap.context(() => {
-      let magnetismTween: gsap.core.Tween | null = null;
+    if (!el) return;
 
-      const onMouseEnter = () => {
-        isHoveredRef.current = true;
+    let magnetTween: gsap.core.Tween | null = null;
 
-        for (let i = 0; i < particleCount; i++) {
-          setTimeout(() => {
-            if (!isHoveredRef.current || !el) return;
+    const onEnter = () => {
+      isHoveredRef.current = true;
+      for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+          if (!isHoveredRef.current || !el) return;
+          const rect = el.getBoundingClientRect();
+          const p = document.createElement('div');
+          p.style.cssText = `
+            position:absolute;width:3px;height:3px;border-radius:50%;pointer-events:none;z-index:50;
+            background:rgba(${glowRgb},1);box-shadow:0 0 6px rgba(${glowRgb},.9);
+            left:${Math.random() * rect.width}px;top:${Math.random() * rect.height}px;
+            will-change:transform,opacity;
+          `;
+          el.appendChild(p);
+          particlesRef.current.push(p);
+          gsap.fromTo(p, { scale: 0, opacity: 0 }, { scale: 1, opacity: 0.85, duration: 0.35, ease: 'back.out(2)' });
+          gsap.to(p, { x: (Math.random() - .5) * 100, y: (Math.random() - .5) * 100, rotation: Math.random() * 360, duration: 3 + Math.random() * 2, ease: 'none', repeat: -1, yoyo: true });
+          gsap.to(p, { opacity: 0.25, duration: 1.6, ease: 'power2.inOut', repeat: -1, yoyo: true });
+        }, i * 70);
+      }
+    };
 
-            const rect = el.getBoundingClientRect();
-            const particle = createParticle(
-              Math.random() * rect.width,
-              Math.random() * rect.height
-            );
-            el.appendChild(particle);
-            particlesRef.current.push(particle);
+    const onLeave = () => {
+      isHoveredRef.current = false;
+      clearParticles();
+      gsap.to(el, { rotateX: 0, rotateY: 0, x: 0, y: 0, duration: 0.5, ease: 'power3.out' });
+    };
 
-            gsap.fromTo(
-              particle,
-              { scale: 0, opacity: 0 },
-              { scale: 1, opacity: 0.9, duration: 0.4, ease: 'back.out(1.8)' }
-            );
+    const onMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.width / 2, cy = rect.height / 2;
+      const x = e.clientX - rect.left, y = e.clientY - rect.top;
+      gsap.to(el, { rotateX: ((y - cy) / cy) * -7, rotateY: ((x - cx) / cx) * 7, duration: 0.15, ease: 'power2.out', transformPerspective: 1200 });
+      magnetTween?.kill();
+      magnetTween = gsap.to(el, { x: (x - cx) * 0.05, y: (y - cy) * 0.05, duration: 0.4, ease: 'power2.out' });
+    };
 
-            gsap.to(particle, {
-              x: (Math.random() - 0.5) * 120,
-              y: (Math.random() - 0.5) * 120,
-              rotation: Math.random() * 400 - 200,
-              duration: 2.5 + Math.random() * 2,
-              ease: 'none',
-              repeat: -1,
-              yoyo: true,
-            });
+    const onClick = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+      const maxD = Math.max(Math.hypot(cx, cy), Math.hypot(cx - rect.width, cy), Math.hypot(cx, cy - rect.height), Math.hypot(cx - rect.width, cy - rect.height));
+      const ripple = document.createElement('div');
+      ripple.style.cssText = `
+        position:absolute;border-radius:50%;pointer-events:none;z-index:200;
+        width:${maxD * 2}px;height:${maxD * 2}px;
+        left:${cx - maxD}px;top:${cy - maxD}px;
+        background:radial-gradient(circle,rgba(${glowRgb},.3) 10%,rgba(${glowRgb},.1) 45%,transparent 70%);
+      `;
+      el.appendChild(ripple);
+      gsap.fromTo(ripple, { scale: 0.15, opacity: 0.7 }, { scale: 1.1, opacity: 0, duration: 0.85, ease: 'power2.out', onComplete: () => ripple.remove() });
+    };
 
-            gsap.to(particle, {
-              opacity: 0.3,
-              duration: 1.8,
-              ease: 'power2.inOut',
-              repeat: -1,
-              yoyo: true,
-            });
-          }, i * 80);
-        }
-      };
-
-      const onMouseLeave = () => {
-        isHoveredRef.current = false;
-        clearParticles();
-
-        gsap.to(el, {
-          rotateX: 0,
-          rotateY: 0,
-          x: 0,
-          y: 0,
-          duration: 0.4,
-          ease: 'power2.out',
-        });
-      };
-
-      const onMouseMove = (e: MouseEvent) => {
-        const rect = el.getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        if (enableTilt) {
-          const rotateX = ((y - centerY) / centerY) * -8;
-          const rotateY = ((x - centerX) / centerX) * 8;
-          gsap.to(el, {
-            rotateX,
-            rotateY,
-            duration: 0.15,
-            ease: 'power2.out',
-            transformPerspective: 1200,
-          });
-        }
-
-        if (enableMagnetism) {
-          const magnetX = (x - centerX) * 0.06;
-          const magnetY = (y - centerY) * 0.06;
-          magnetismTween?.kill();
-          magnetismTween = gsap.to(el, {
-            x: magnetX,
-            y: magnetY,
-            duration: 0.4,
-            ease: 'power2.out',
-          });
-        }
-      };
-
-      const onClick = (e: MouseEvent) => {
-        if (!clickEffect) return;
-        const rect = el.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-        const glowRgb = glowRgbRef.current;
-
-        const maxDist = Math.max(
-          Math.hypot(clickX, clickY),
-          Math.hypot(clickX - rect.width, clickY),
-          Math.hypot(clickX, clickY - rect.height),
-          Math.hypot(clickX - rect.width, clickY - rect.height)
-        );
-
-        const ripple = document.createElement('div');
-        ripple.style.cssText = `
-          position: absolute;
-          width: ${maxDist * 2}px;
-          height: ${maxDist * 2}px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(${glowRgb}, 0.35) 10%, rgba(${glowRgb}, 0.15) 40%, transparent 70%);
-          left: ${clickX - maxDist}px;
-          top: ${clickY - maxDist}px;
-          pointer-events: none;
-          z-index: 200;
-        `;
-        el.appendChild(ripple);
-
-        gsap.fromTo(
-          ripple,
-          { scale: 0.2, opacity: 0.6 },
-          {
-            scale: 1.1,
-            opacity: 0,
-            duration: 0.9,
-            ease: 'power2.out',
-            onComplete: () => ripple.remove(),
-          }
-        );
-      };
-
-      el.addEventListener('mouseenter', onMouseEnter);
-      el.addEventListener('mouseleave', onMouseLeave);
-      el.addEventListener('mousemove', onMouseMove);
-      el.addEventListener('click', onClick);
-
-      return () => {
-        clearParticles();
-        magnetismTween?.kill();
-        el.removeEventListener('mouseenter', onMouseEnter);
-        el.removeEventListener('mouseleave', onMouseLeave);
-        el.removeEventListener('mousemove', onMouseMove);
-        el.removeEventListener('click', onClick);
-      };
-    }, cardRef);
+    el.addEventListener('mouseenter', onEnter);
+    el.addEventListener('mouseleave', onLeave);
+    el.addEventListener('mousemove', onMove);
+    el.addEventListener('click', onClick);
 
     return () => {
-      ctxRef.current?.revert();
+      clearParticles();
+      magnetTween?.kill();
+      el.removeEventListener('mouseenter', onEnter);
+      el.removeEventListener('mouseleave', onLeave);
+      el.removeEventListener('mousemove', onMove);
+      el.removeEventListener('click', onClick);
     };
-  }, [disableAnimations, enableTilt, enableMagnetism, clickEffect, particleCount, createParticle, clearParticles, getGlowRgb]);
+  }, [clearParticles]);
 
   return (
-    <div ref={cardRef} className={`${className} relative overflow-hidden`} style={{ position: 'relative' }}>
+    <div ref={cardRef} className={`${className} relative overflow-hidden`}>
       {children}
     </div>
   );
 };
 
-
-// WORK CARD WITH PATTERN
-
-function WorkCardWithPattern({
+//    WORK CARD                                           ─
+//    WORK CARD                                           ─
+function WorkCard({
   project,
   index,
-  glowColorCssVar = '--lime',
 }: {
   project: (typeof PROJECTS)[0];
   index: number;
-  glowColorCssVar?: string;
 }) {
-  const isLarge = index === 0 || index === 4;
-  const isFull = index === 2;
-
-  const patterns = ['dots', 'grid', 'diagonal', 'zigzag', 'waves'];
-  const pattern = patterns[index % patterns.length];
-
-  const getPatternStyle = () => {
-    switch (pattern) {
-      case 'dots':
-        return { backgroundImage: `url("/projects/portfolio.png")` };
-      case 'grid':
-        return { backgroundImage: `url("/projects/duostudio.png")` };
-      case 'diagonal':
-        return { backgroundImage: `url("/projects/adminpannel.png")` };
-      case 'zigzag':
-        return { backgroundImage: `url("/projects/neerajdental.png")` };
-      case 'waves':
-        return { backgroundImage: `url("/projects/sahara.png")` };
-      default:
-        return {};
-    }
-  };
-
-  // Theme-aware overlay gradient
-  const overlayGradient = `linear-gradient(to top, 
-    hsl(var(--bg) / 0.9) 0%, 
-    hsl(var(--bg) / 0.5) 50%, 
-    transparent 100%)`;
+  const isFull = project.title === "Admin Panel";
 
   return (
     <motion.div
-      className={`${isFull ? 'col-span-1 md:col-span-2' : isLarge ? 'col-span-1 md:col-span-1' : 'col-span-1'}`}
-      initial={{ opacity: 0, y: 70 }}
+      className={isFull ? 'col-span-1 md:col-span-2' : 'col-span-1'}
+      initial={{ opacity: 0, y: 60 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.75, ease: EASE, delay: index * 0.07 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.8, ease: EASE, delay: index * 0.08 }}
     >
-      <ParticleCard
-        className="group cursor-pointer rounded-2xl"
-        glowColorCssVar={glowColorCssVar}
-        particleCount={10}
-        enableTilt={true}
-        clickEffect={true}
-        enableMagnetism={true}
+      <a
+        href={project.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block h-full"
       >
-        <div
-          className={`relative overflow-hidden rounded-2xl ${isFull ? 'aspect-[2.1/1]' : 'aspect-[4/3]'}`}
-          style={{
-            backgroundColor: 'hsl(var(--bg))',
-            ...getPatternStyle(),
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
-          {/* Pattern overlay */}
+        <ParticleCard className="group cursor-pointer rounded-2xl">
+          {/* Image container */}
           <div
-            className="absolute inset-0 transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-[2deg]"
-            style={{
-              ...getPatternStyle(),
-              opacity: 0.35,
-              backgroundSize: 'contain',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
-          />
-
-          {/* Hover overlay with theme-aware gradient */}
-          <div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-8 text-center"
-            style={{ background: overlayGradient }}
+            className={`relative overflow-hidden rounded-2xl ${isFull ? 'aspect-[2.2/1]' : 'aspect-[4/3]'}`}
+            style={{ backgroundColor: '#0d0d0d' }}
           >
-            <h3 className="text-[var(--heading-color,hsl(var(--text-primary)))] text-3xl md:text-4xl font-display mb-3 translate-y-6 group-hover:translate-y-0 transition-all duration-500">
-              {project.title}
-            </h3>
-            <p className="text-[var(--body-color,hsl(var(--text-muted)))] text-base tracking-wide translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-100">
-              {project.category}
-            </p>
-            <div className="mt-4 text-xs uppercase tracking-[2px] text-[var(--text-faint,hsl(var(--text-faint)))] translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-200">
+            {/* Project image — fills the card, shows on hover via scale */}
+            <img
+              src={project.image}
+              alt={project.title}
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+              style={{ willChange: 'transform' }}
+            />
+
+            {/* Persistent dark vignette so text is always legible */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(to top, rgba(5,5,5,0.92) 0%, rgba(5,5,5,0.35) 45%, rgba(5,5,5,0.05) 100%)',
+              }}
+            />
+
+            {/* Hover overlay — slightly deeper so details pop */}
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(to top, rgba(5,5,5,0.97) 0%, rgba(5,5,5,0.55) 55%, rgba(5,5,5,0.1) 100%)',
+              }}
+            />
+
+            {/* Project name always-visible at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
+              <h3
+                className="font-display leading-tight mb-1 transition-all duration-500"
+                style={{
+                  fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+                  fontSize: isFull ? 'clamp(1.5rem, 3vw, 2.5rem)' : 'clamp(1.25rem, 2.5vw, 2rem)',
+                  color: '#f0ece4',
+                  textShadow: '0 2px 20px rgba(0,0,0,0.8)',
+                }}
+              >
+                {project.title}
+              </h3>
+              <p
+                className="text-sm tracking-wide transition-all duration-500 translate-y-1 group-hover:translate-y-0"
+                style={{ color: '#a0a0a0' }}
+              >
+                {project.category}
+              </p>
+            </div>
+
+            {/* Year tag — top right */}
+            <div
+              className="absolute top-4 right-4 z-10 px-2.5 py-1 rounded-full text-[11px] tracking-[2px] uppercase"
+              style={{
+                background: 'rgba(5,5,5,0.7)',
+                border: '1px solid rgba(212,245,60,0.18)',
+                color: '#d4f53c',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
               {project.year}
             </div>
+
+            {/* Lime accent line — slides in on hover */}
+            <div
+              className="absolute bottom-0 left-0 right-0 h-[1.5px] scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center"
+              style={{ background: 'linear-gradient(90deg, transparent, #d4f53c, transparent)' }}
+            />
+
+            {/* Corner glow on hover */}
+            <div
+              className="absolute bottom-0 left-0 w-32 h-32 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle at bottom left, rgba(212,245,60,0.12) 0%, transparent 65%)',
+              }}
+            />
           </div>
-
-          {/* Bottom accent line */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center"
-            style={{
-              background: `linear-gradient(90deg, transparent, var(--lime), transparent)`,
-            }}
-          />
-        </div>
-
-        {/* Card footer */}
-        <div className="flex justify-between items-center mt-5 px-2">
-          <span className="text-sm text-[var(--body-color,hsl(var(--text-muted)))]">{project.category}</span>
-          <span className="text-xs text-[var(--text-faint,hsl(var(--text-faint)))] tracking-widest">{project.year}</span>
-        </div>
-      </ParticleCard>
+        </ParticleCard>
+      </a>
     </motion.div>
   );
 }
 
-
-// PIXELBLAST BACKGROUND (Three.js shader)
+//    PIXEL BLAST BACKGROUND                                 ──
 
 function PixelBlastBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
   const threeRef = useRef<{
     renderer: THREE.WebGLRenderer;
-    scene: THREE.Scene;
-    camera: THREE.OrthographicCamera;
-    material: THREE.ShaderMaterial;
+    uniforms: Record<string, THREE.IUniform>;
     clock: THREE.Clock;
     clickIx: number;
-    uniforms: Record<string, THREE.IUniform>;
     raf: number | null;
   } | null>(null);
 
-  // Get theme-aware color for shader
-  const getShaderColor = useCallback(() => {
-    const lime = getThemeColor('--lime', '#d4f53c');
-    // Parse to THREE.Color
-    if (lime.startsWith('#')) return new THREE.Color(lime);
-    if (lime.startsWith('rgb')) {
-      const match = lime.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-      if (match) {
-        const [, r, g, b] = match.map(Number);
-        return new THREE.Color(r / 255, g / 255, b / 255);
-      }
-    }
-    if (lime.startsWith('hsl')) {
-      const [r, g, b] = parseHslToRgb(lime);
-      return new THREE.Color(r / 255, g / 255, b / 255);
-    }
+  const getShaderColor = useCallback((): THREE.Color => {
+    const v = getThemeColor('--lime', '#d4f53c');
+    if (v.startsWith('#')) return new THREE.Color(v);
+    if (v.startsWith('hsl')) { const [r, g, b] = parseHslToRgb(v); return new THREE.Color(r / 255, g / 255, b / 255); }
     return new THREE.Color('#d4f53c');
   }, []);
 
@@ -633,123 +391,109 @@ function PixelBlastBackground() {
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setClearColor(0x080808, 0);
-    renderer.domElement.style.position = 'absolute';
-    renderer.domElement.style.top = '0';
-    renderer.domElement.style.left = '0';
-    renderer.domElement.style.width = '100%';
-    renderer.domElement.style.height = '100%';
-    renderer.domElement.style.pointerEvents = 'none';
+    renderer.setClearColor(0x000000, 0);
+    Object.assign(renderer.domElement.style, { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', pointerEvents: 'none' });
     container.appendChild(renderer.domElement);
 
-    const uniforms = {
+    const uniforms: Record<string, THREE.IUniform> = {
       uResolution: { value: new THREE.Vector2(container.clientWidth, container.clientHeight) },
       uTime: { value: 0 },
       uColor: { value: getShaderColor() },
       uClickPos: { value: Array.from({ length: MAX_CLICKS }, () => new THREE.Vector2(-1, -1)) },
       uClickTimes: { value: new Float32Array(MAX_CLICKS) },
-      uShapeType: { value: SHAPE_MAP.circle },
-      uPixelSize: { value: 4.5 },
-      uScale: { value: 1.65 },
-      uDensity: { value: 0.68 },
-      uPixelJitter: { value: 0.12 },
+      uShapeType: { value: 1 },   // circle
+      uPixelSize: { value: 4.0 },
+      uScale: { value: 1.5 },
+      uDensity: { value: 0.62 },
+      uPixelJitter: { value: 0.1 },
       uEnableRipples: { value: 1 },
-      uRippleSpeed: { value: 0.38 },
-      uRippleThickness: { value: 0.11 },
-      uRippleIntensity: { value: 0.55 },
-      uEdgeFade: { value: 0.18 },
+      uRippleSpeed: { value: 0.36 },
+      uRippleThickness: { value: 0.1 },
+      uRippleIntensity: { value: 0.5 },
+      uEdgeFade: { value: 0.14 },
     };
-
-    const material = new THREE.ShaderMaterial({
-      vertexShader: VERTEX_SRC,
-      fragmentShader: FRAGMENT_SRC,
-      uniforms,
-      transparent: true,
-    });
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    const geometry = new THREE.PlaneGeometry(2, 2);
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    const geo = new THREE.PlaneGeometry(2, 2);
+    const mat = new THREE.ShaderMaterial({ vertexShader: VERTEX_SRC, fragmentShader: FRAGMENT_SRC, uniforms, transparent: true });
+    scene.add(new THREE.Mesh(geo, mat));
 
     const clock = new THREE.Clock();
+    let clickIx = 0;
+    let raf: number | null = null;
 
     const handleResize = () => {
-      if (!container) return;
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      renderer.setSize(width, height);
-      uniforms.uResolution.value.set(width, height);
+      const w = container.clientWidth, h = container.clientHeight;
+      renderer.setSize(w, h);
+      uniforms.uResolution.value.set(w, h);
     };
 
     const handleClick = (e: MouseEvent) => {
-      if (!renderer.domElement) return;
       const rect = renderer.domElement.getBoundingClientRect();
       const x = (e.clientX - rect.left) * (renderer.domElement.width / rect.width);
       const y = renderer.domElement.height - (e.clientY - rect.top) * (renderer.domElement.height / rect.height);
-
-      const ix = threeRef.current?.clickIx ?? 0;
-      uniforms.uClickPos.value[ix].set(x, y);
-      uniforms.uClickTimes.value[ix] = uniforms.uTime.value;
-      if (threeRef.current) threeRef.current.clickIx = (ix + 1) % MAX_CLICKS;
+      uniforms.uClickPos.value[clickIx].set(x, y);
+      uniforms.uClickTimes.value[clickIx] = uniforms.uTime.value;
+      clickIx = (clickIx + 1) % MAX_CLICKS;
     };
 
     const animate = () => {
-      if (!threeRef.current) return;
-      uniforms.uTime.value = clock.getElapsedTime() * 0.32;
+      uniforms.uTime.value = clock.getElapsedTime() * 0.3;
       renderer.render(scene, camera);
-      threeRef.current.raf = requestAnimationFrame(animate);
+      raf = requestAnimationFrame(animate);
     };
-
-    window.addEventListener('resize', handleResize);
-    renderer.domElement.addEventListener('click', handleClick);
     animate();
 
-    threeRef.current = { renderer, scene, camera, material, clock, clickIx: 0, uniforms, raf: null };
+    // make parent section clickable for ripples
+    container.parentElement?.addEventListener('click', handleClick);
+    window.addEventListener('resize', handleResize);
 
-    const updateShaderColor = () => {
-      if (threeRef.current) {
-        threeRef.current.uniforms.uColor.value = getShaderColor();
-      }
-    };
-    const observer = new MutationObserver(updateShaderColor);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    const colorObserver = new MutationObserver(() => { uniforms.uColor.value = getShaderColor(); });
+    colorObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    threeRef.current = { renderer, uniforms, clock, clickIx, raf };
 
     return () => {
-      observer.disconnect();
+      colorObserver.disconnect();
       window.removeEventListener('resize', handleResize);
-      renderer.domElement.removeEventListener('click', handleClick);
-      if (threeRef.current?.raf) cancelAnimationFrame(threeRef.current.raf);
-
-      geometry.dispose();
-      material.dispose();
+      container.parentElement?.removeEventListener('click', handleClick);
+      if (raf) cancelAnimationFrame(raf);
+      geo.dispose();
+      mat.dispose();
       renderer.dispose();
-
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
+      if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     };
   }, [getShaderColor]);
 
   return <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />;
 }
 
-
-// MAIN WORKGRID COMPONENT
+//    MAIN EXPORT   ─
 
 export default function WorkGrid() {
   return (
     <section
       id="work"
       className="relative px-6 md:px-10 py-24 md:py-40 max-w-7xl mx-auto overflow-hidden"
-      style={{ backgroundColor: 'var(--section-bg, hsl(var(--bg)))' }}
+      style={{
+        backgroundColor: 'transparent',
+        backgroundAttachment: 'fixed',
+      }}
     >
-      {/* Background Shader */}
-      <PixelBlastBackground />
+      {/* Subtle radial glow in top-center */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[70vw] h-[40vw] pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(ellipse, rgba(212,245,60,0.04) 0%, transparent 65%)',
+          filter: 'blur(40px)',
+        }}
+      />
 
-      {/* Content Layer */}
+      {/* Content */}
       <div className="relative z-10">
+
+        {/* Section header */}
         <motion.div
           className="flex flex-col md:flex-row md:justify-between md:items-end mb-16 gap-6"
           initial={{ opacity: 0, y: 40 }}
@@ -758,32 +502,59 @@ export default function WorkGrid() {
           transition={{ duration: 0.85, ease: EASE }}
         >
           <div>
-            <span className="text-xs uppercase tracking-[3px] text-[var(--text-muted,hsl(var(--text-muted)))]">
+            <span
+              className="text-[11px] uppercase tracking-[3.5px]"
+              style={{ color: '#d4f53c', opacity: 0.7 }}
+            >
               Selected work
             </span>
-            <h2 className="font-display text-4xl md:text-6xl mt-3 leading-none" style={{ color: 'var(--heading-color, hsl(var(--text-primary)))' }}>
+            <h2
+              className="mt-3 leading-none"
+              style={{
+                fontFamily: 'var(--font-display, "Instrument Serif", serif)',
+                fontSize: 'clamp(2.4rem, 5vw, 4.5rem)',
+                color: '#f0ece4',
+                letterSpacing: '-0.02em',
+              }}
+            >
               What we&apos;ve shipped.
             </h2>
           </div>
+
           <a
             href="#"
-            className="text-sm text-[var(--body-color,hsl(var(--text-muted)))] hover:text-[var(--heading-color,hsl(var(--text-primary)))] transition-colors flex items-center group"
+            className="flex items-center gap-2 text-sm transition-colors duration-300 group"
+            style={{ color: '#4a4a4a' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#f0ece4')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#4a4a4a')}
           >
             View all work
-            <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </a>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
           {PROJECTS.map((project, i) => (
-            <WorkCardWithPattern
-              key={project.title}
-              project={project}
-              index={i}
-              glowColorCssVar="--lime"
-            />
+            <WorkCard key={project.title} project={project} index={i} />
           ))}
         </div>
+
+        {/* Bottom rule */}
+        <motion.div
+          className="mt-20 flex items-center gap-6"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.4 }}
+        >
+          <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, #1a1a1a, transparent)' }} />
+          <span className="text-[11px] uppercase tracking-[3px]" style={{ color: '#2a2a2a' }}>
+            {PROJECTS.length} projects
+          </span>
+          <div className="flex-1 h-px" style={{ background: 'linear-gradient(270deg, #1a1a1a, transparent)' }} />
+        </motion.div>
+
       </div>
     </section>
   );

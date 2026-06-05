@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 :root {
-  /* ── Core palette ── */
+  /* ── Core palette (Dark) ── */
   --bg: 0 0% 3.1%;
   --surface: 0 0% 6.3%;
   --surface-raised: 0 0% 8.6%;
@@ -15,7 +15,7 @@
   --text-faint: 0 0% 38%;
   --accent: 73 90% 59.8%;
 
-  /* ── Component-level tokens ── */
+  /* ── Component-level tokens (Dark) ── */
   --nav-pill-bg: #1a1a1a;
   --nav-pill-text: #9e9e9a;
   --nav-backdrop: rgba(8, 8, 8, 0.60);
@@ -77,47 +77,50 @@
   --duration-xslow: 1.4s;
 }
 
-/* ── Light theme ── */
+/* ── Light theme (Refined & Premium) ── */
 [data-theme="light"] {
-  --bg: 36 25% 93%;
-  --surface: 36 20% 97%;
-  --surface-raised: 36 18% 89%;
-  --border: 36 14% 80%;
-  --text-primary: 30 8% 10%;
-  --text-muted: 30 5% 42%;
-  --text-faint: 30 4% 64%;
-  --accent: 73 75% 32%;
+  /* Core palette - Clean, minimal, sophisticated */
+  --bg: 40 20% 96%;
+  --surface: 40 15% 98%;
+  --surface-raised: 40 12% 92%;
+  --border: 40 10% 85%;
+  --text-primary: 20 10% 12%;
+  --text-muted: 20 8% 45%;
+  --text-faint: 20 6% 62%;
+  --accent: 75 65% 38%;
 
-  --nav-pill-bg: #e8e2d8;
-  --nav-pill-text: #6b6560;
-  --nav-backdrop: rgba(237, 232, 223, 0.72);
-  --nav-backdrop-mobile: rgba(237, 232, 223, 0.94);
-  --nav-border: #d4cdc2;
+  /* Component tokens - Refined for light mode */
+  --nav-pill-bg: #f5f2ed;
+  --nav-pill-text: #5a5650;
+  --nav-backdrop: rgba(245, 242, 237, 0.75);
+  --nav-backdrop-mobile: rgba(245, 242, 237, 0.92);
+  --nav-border: #e8e3dc;
   --logo-text: #1a1714;
-  --logo-subtext: #9e988f;
+  --logo-subtext: #8c877f;
   --lime: #4a6a00;
   --lime-dark: #3a5500;
-  --on-lime: #f5f2ec;
+  --on-lime: #ffffff;
   --on-lime-hover: #4a6a00;
   --hamburger: #1a1714;
-  --glow-lime: rgba(74, 106, 0, 0.12);
-  --glow-subtle: rgba(74, 106, 0, 0.06);
-  --color-shadow-soft: rgba(0, 0, 0, 0.2);
-  --section-bg: #f0ebe2;
-  --card-bg: #f7f4f0;
-  --card-border: #ddd7cc;
+  --glow-lime: rgba(74, 106, 0, 0.15);
+  --glow-subtle: rgba(74, 106, 0, 0.08);
+  --color-shadow-soft: rgba(0, 0, 0, 0.08);
+  --section-bg: #faf8f5;
+  --card-bg: #ffffff;
+  --card-border: #e8e3dc;
   --heading-color: #1a1714;
-  --body-color: #6b6560;
-  --tag-bg: #e8e2d8;
-  --tag-text: #8c877f;
-  --input-bg: #f7f4f0;
-  --input-border: #ddd7cc;
+  --body-color: #5a5650;
+  --tag-bg: #f5f2ed;
+  --tag-text: #7a756f;
+  --input-bg: #ffffff;
+  --input-border: #e8e3dc;
   --input-focus: #4a6a00;
-  --chip-bg: #e8e2d8;
-  --chip-text: #6b6560;
+  --chip-bg: #f5f2ed;
+  --chip-text: #5a5650;
   --chip-active-bg: #4a6a00;
-  --chip-active-text: #f5f2ec;
+  --chip-active-text: #ffffff;
 
+  /* Shadcn overrides */
   --primary-foreground: 0 0% 100%;
   --destructive: 0 65% 48%;
 }
@@ -126,6 +129,18 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Hide default cursor globally - custom cursor handles all interactions */
+html, body, * {
+  cursor: none !important;
+}
+
+/* Restore cursor for touch devices */
+@media (pointer: coarse) {
+  html, body, * {
+    cursor: auto !important;
+  }
 }
 
 html {
@@ -191,6 +206,7 @@ img, video, canvas, svg,
 .gsap-animated {
   transition: none !important;
 }
+
 img {
   -webkit-user-select: none;
   user-select: none;
@@ -287,7 +303,7 @@ input, textarea, select, button {
   background: var(--lime);
   color: var(--on-lime);
   border: none;
-  cursor: pointer;
+  cursor: none !important;
   transition: transform 0.2s var(--ease-expo);
 }
 
@@ -302,5 +318,37 @@ input, textarea, select, button {
 .btn-primary:disabled {
   background: var(--nav-pill-bg);
   color: var(--nav-pill-text);
-  cursor: not-allowed;
+  cursor: not-allowed !important;
+}
+
+/* Light theme specific refinements */
+[data-theme="light"] {
+  /* Subtle shadows for depth */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .card,
+[data-theme="light"] [class*="card"] {
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .nav,
+[data-theme="light"] nav {
+  box-shadow: 0 1px 0 var(--card-border);
+}
+
+/* Ensure proper contrast in light mode */
+[data-theme="light"] a:hover {
+  color: var(--lime);
+}
+
+[data-theme="light"] button:hover:not(:disabled) {
+  border-color: var(--lime);
+}
+
+/* Smooth theme transition */
+html {
+  transition: background-color 0.4s var(--ease-expo), color 0.4s var(--ease-expo);
 }

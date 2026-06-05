@@ -1,358 +1,566 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import InteractiveMeshGrid from '@/components/ui/InteractiveMeshGrid';
 
+// ─── CONSTANTS    ───────────
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-// EASING & CONSTANTS
-const EASE = [0.16, 1, 0.3, 1] as const;
+const CALENDLY_URL = 'https://calendly.com/builtstack/30min';
+const WHATSAPP_URL = 'https://wa.me/8398919452';
 
+// ─── SEO STRUCTURED DATA    ─
+const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'BuiltStack',
+  url: 'https://builtstack.co',
+  description:
+    'BuiltStack is a design and engineering studio specializing in web apps, SaaS platforms, mobile apps, and brand systems for founders and startups.',
+  founder: [
+    { '@type': 'Person', name: 'Loveraj', jobTitle: 'Co-Founder & Developer' },
+    { '@type': 'Person', name: 'Rudra', jobTitle: 'Co-Founder' },
+  ],
+  sameAs: [
+    'https://linkedin.com/company/builtstack',
+    'https://www.instagram.com/builtstack/',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'sales',
+    url: CALENDLY_URL,
+    availableLanguage: ['English', 'Hindi'],
+  },
+};
 
-// WORD ANIMATION COMPONENT
-function Word({ word, delay, accent = false }: { word: string; delay: number; accent?: boolean }) {
+// ─── CALENDLY HOOK    ───────
+function useCalendly() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const existing = document.querySelector(
+      'script[src="https://assets.calendly.com/assets/external/widget.js"]'
+    );
+    if (existing) {
+      setReady(true);
+      return;
+    }
+
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://assets.calendly.com/assets/external/widget.css';
+    document.head.appendChild(link);
+
+    const script = document.createElement('script');
+    script.src = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+    script.onload = () => setReady(true);
+    document.head.appendChild(script);
+  }, []);
+
+  const openPopup = () => {
+    if (typeof window !== 'undefined' && (window as any).Calendly) {
+      (window as any).Calendly.initPopupWidget({ url: CALENDLY_URL });
+    } else {
+      window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  return { ready, openPopup };
+}
+
+// ─── SPLIT TEXT ANIMATION    
+function SplitWords({ text, baseDelay }: { text: string; baseDelay: number }) {
   return (
-    <span className="inline-block overflow-hidden mr-[0.22em] pb-[0.18em] mb-[-0.18em] align-bottom">
-      <motion.span
-        className={`inline-block ${accent ? 'text-[var(--lime)]' : 'text-inherit'}`}
-        initial={{ y: '110%', opacity: 0 }}
-        animate={{ y: '0%', opacity: 1 }}
-        transition={{ duration: 1.05, ease: EASE as unknown as number[], delay }}
-      >
-        {word}
-      </motion.span>
+    <span className="inline-block">
+      {text.split(' ').map((word, i) => (
+        <span
+          key={i}
+          className="inline-block overflow-hidden mr-[0.22em] pb-[0.12em] mb-[-0.12em] align-bottom"
+        >
+          <motion.span
+            className="inline-block"
+            initial={{ y: '100%' }}
+            animate={{ y: '0%' }}
+            transition={{
+              duration: 0.9,
+              ease: EASE,
+              delay: baseDelay + i * 0.06,
+            }}
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
     </span>
   );
 }
 
-
-// SPLIT WORDS UTILITY
-function SplitWords({ text, baseDelay, accent = false }: {
-  text: string; baseDelay: number; accent?: boolean;
+// ─── TYPEWRITER    ──────────
+function TypewriterWord({
+  words,
+  startDelay = 0,
+  typeSpeed = 70,
+  eraseSpeed = 40,
+  pauseAfterType = 2200,
+  pauseAfterErase = 400,
+}: {
+  words: string[];
+  startDelay?: number;
+  typeSpeed?: number;
+  eraseSpeed?: number;
+  pauseAfterType?: number;
+  pauseAfterErase?: number;
 }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayed, setDisplayed] = useState('');
+  const [phase, setPhase] = useState<'idle' | 'typing' | 'pausing' | 'erasing'>('idle');
+  const [cursorOn, setCursorOn] = useState(true);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const currentWord = words[currentIndex];
+
+  useEffect(() => {
+    const blink = setInterval(() => setCursorOn(p => !p), 530);
+    return () => clearInterval(blink);
+  }, []);
+
+  useEffect(() => {
+    const startTimeout = setTimeout(() => setPhase('typing'), startDelay * 1000);
+    return () => clearTimeout(startTimeout);
+  }, [startDelay]);
+
+  useEffect(() => {
+    if (phase === 'idle') return;
+
+    if (phase === 'typing') {
+      if (displayed.length < currentWord.length) {
+        timeoutRef.current = setTimeout(() => {
+          setDisplayed(currentWord.slice(0, displayed.length + 1));
+        }, typeSpeed);
+      } else {
+        timeoutRef.current = setTimeout(() => setPhase('pausing'), pauseAfterType);
+      }
+    } else if (phase === 'pausing') {
+      timeoutRef.current = setTimeout(() => setPhase('erasing'), 50);
+    } else if (phase === 'erasing') {
+      if (displayed.length > 0) {
+        timeoutRef.current = setTimeout(() => {
+          setDisplayed(currentWord.slice(0, displayed.length - 1));
+        }, eraseSpeed);
+      } else {
+        timeoutRef.current = setTimeout(() => {
+          setCurrentIndex(i => (i + 1) % words.length);
+          setPhase('typing');
+        }, pauseAfterErase);
+      }
+    }
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [displayed, phase, currentWord, typeSpeed, eraseSpeed, pauseAfterType, pauseAfterErase]);
+
+  return (
+    <span className="inline-block italic" style={{ color: 'var(--lime, #d4f53c)' }}>
+      {displayed}
+      <span
+        className="inline-block ml-[1px] font-light"
+        style={{
+          opacity: cursorOn ? 0.9 : 0.1,
+          transition: 'opacity 0.12s',
+        }}
+      >
+        |
+      </span>
+    </span>
+  );
+}
+
+// ─── BUTTON    ──────────────
+function Button({
+  children,
+  onClick,
+  href,
+  variant = 'primary',
+  ariaLabel,
+  delay = 0,
+  target,
+  rel,
+}: {
+  children: React.ReactNode;
+  onClick?: (e: React.MouseEvent) => void;
+  href?: string;
+  variant?: 'primary' | 'ghost';
+  ariaLabel: string;
+  delay?: number;
+  target?: string;
+  rel?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const springX = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
+  const springY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 });
+
+  const handleMove = (e: React.MouseEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + rect.width / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
+    x.set(dx * 0.25);
+    y.set(dy * 0.25);
+  };
+
+  const handleLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  const isPrimary = variant === 'primary';
+
+  const baseStyles: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '14px 32px',
+    fontSize: '11px',
+    fontWeight: 500,
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    textDecoration: 'none',
+    borderRadius: '9999px',
+    cursor: 'pointer',
+    userSelect: 'none',
+    transition: 'background 0.3s, color 0.3s, border-color 0.3s',
+    background: isPrimary ? 'var(--lime, #d4f53c)' : 'transparent',
+    color: isPrimary ? '#0a0a0a' : 'var(--text-primary, #fff)',
+    border: isPrimary ? '1px solid transparent' : '1px solid var(--border, rgba(255,255,255,0.15))',
+  };
+
+  const content = (
+    <>
+      <span>{children}</span>
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ transition: 'transform 0.3s' }}
+      >
+        <line x1="7" y1="17" x2="17" y2="7" />
+        <polyline points="7 7 17 7 17 17" />
+      </svg>
+    </>
+  );
+
+  const motionProps = {
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay, duration: 0.8, ease: EASE },
+  };
+
+  const sharedProps = {
+    ref,
+    style: { ...baseStyles, x: springX, y: springY },
+    'aria-label': ariaLabel,
+    onMouseMove: handleMove,
+    onMouseLeave: handleLeave,
+    onClick,
+  };
+
+  if (href) {
+    return (
+      <motion.a
+        href={href}
+        target={target}
+        rel={rel}
+        {...sharedProps}
+        {...motionProps}
+        whileHover={{
+          background: isPrimary ? '#c8ee30' : 'transparent',
+          borderColor: isPrimary ? 'transparent' : 'var(--lime, #d4f53c)',
+          color: isPrimary ? '#0a0a0a' : 'var(--lime, #d4f53c)',
+        }}
+        whileTap={{ scale: 0.97 }}
+      >
+        {content}
+      </motion.a>
+    );
+  }
+
+  return (
+    <motion.button
+      type="button"
+      {...sharedProps}
+      {...motionProps}
+      whileHover={{ background: '#c8ee30' }}
+      whileTap={{ scale: 0.97 }}
+    >
+      {content}
+    </motion.button>
+  );
+}
+
+// ─── HERO    ────────────────
+export default function Hero() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start start', 'end start'],
+  });
+
+  const textY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
+  const textOp = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
+  const imgOp = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
+  const { openPopup } = useCalendly();
+
   return (
     <>
-      {text.split(' ').map((word, i) => (
-        <Word key={i} word={word} delay={baseDelay + i * 0.08} accent={accent} />
-      ))}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+      />
+
+      <section
+        ref={ref}
+        aria-label="BuiltStack — Design & Engineering Studio"
+        className="relative overflow-hidden"
+        style={{
+          minHeight: '100svh',
+          backgroundColor: 'var(--section-bg, hsl(var(--bg)))',
+        }}
+      >
+        {/* Background grid - very subtle */}
+        <InteractiveMeshGrid
+          className="absolute inset-0 z-0 pointer-events-none opacity-[1]"
+          aria-hidden="true"
+        />
+
+        {/* Top bar — minimal info */}
+        <motion.div
+          className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 md:px-12"
+          style={{ paddingTop: 'clamp(88px, 11vw, 128px)' }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.7, ease: EASE }}
+        >
+          <div className="flex items-center gap-2.5">
+            <span
+              className="w-[5px] h-[5px] rounded-full"
+              style={{ backgroundColor: 'var(--lime, #d4f53c)' }}
+            />
+            <span
+              className="text-[11px] tracking-[0.28em] uppercase"
+              style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}
+            >
+              Design · Engineering · Brand
+            </span>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-2">
+            <span
+              className="w-[5px] h-[5px] rounded-full"
+              style={{ backgroundColor: 'var(--lime, #d4f53c)' }}
+            />
+            <span
+              className="text-[11px] tracking-[0.28em] uppercase"
+              style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}
+            >
+              Available Q1 2026
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Mascot — clean, no glow */}
+        <motion.div
+          className="absolute z-20 pointer-events-none"
+          style={{
+            y: imgY,
+            opacity: imgOp,
+            right: 'clamp(0px, 4vw, 60px)',
+            top: 'clamp(140px, 18vw, 200px)',
+            width: 'clamp(220px, 32vw, 460px)',
+          }}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.8, duration: 1.1, ease: EASE }}
+          aria-hidden="true"
+        >
+          <motion.div
+            animate={{ y: [0, 12, 0] }}
+            transition={{
+              duration: 5,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: 'easeInOut',
+            }}
+          >
+            <img
+              src="/builtstack.png"
+              alt=""
+              loading="eager"
+              fetchPriority="high"
+              width={600}
+              height={600}
+              className="w-full h-auto block select-none pointer-events-none"
+              style={{ objectFit: 'contain' }}
+            />
+          </motion.div>
+        </motion.div>
+
+        {/* Main content */}
+        <div
+          className="relative z-10 flex flex-col justify-end"
+          style={{
+            minHeight: '100svh',
+            padding: '0 clamp(24px, 5vw, 48px)',
+            paddingBottom: 'clamp(60px, 8vw, 100px)',
+            paddingTop: 'clamp(260px, 45vw, 320px)',
+          }}
+        >
+          <motion.div
+            style={{
+              y: textY,
+              opacity: textOp,
+              maxWidth: 'min(100%, 60vw)',
+            }}
+          >
+            {/* Eyebrow */}
+            <motion.div
+              className="mb-6 md:mb-8"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.7, ease: EASE }}
+            >
+
+            </motion.div>
+
+            {/* H1 */}
+            <h1
+              className="font-display"
+              style={{
+                fontFamily: 'var(--font-display, "Instrument Serif")',
+                fontSize: 'clamp(2rem, 5vw, 7rem)',
+                lineHeight: 1.05,
+                letterSpacing: '-0.03em',
+                marginBottom: 'clamp(24px, 3.5vw, 48px)',
+                color: 'var(--heading-color, hsl(var(--text-primary)))',
+              }}
+            >
+              <span className="sr-only">
+                BuiltStack — We design and engineer digital products that perform.
+                Web apps, SaaS platforms, mobile apps, and brand systems for founders.
+              </span>
+
+              <span aria-hidden="true" className="block">
+                <SplitWords text="We design &" baseDelay={0.25} />
+              </span>
+              <span aria-hidden="true" className="block">
+                <SplitWords text="engineer products" baseDelay={0.48} />
+              </span>
+              <span aria-hidden="true" className="block">
+                <SplitWords text="that perform" baseDelay={0.72} />
+                <span className="inline-block ml-[0.15em]">
+                  <TypewriterWord
+                    words={['always.', 'flawlessly.', 'at scale.']}
+                    startDelay={1.1}
+                  />
+                </span>
+              </span>
+            </h1>
+
+            {/* Subtext
+            <motion.p
+              className="mb-8 md:mb-10"
+              style={{
+                fontSize: 'clamp(0.95rem, 1.1vw, 1.05rem)',
+                lineHeight: 1.7,
+                color: 'var(--text-muted, hsl(var(--text-muted)))',
+                maxWidth: '460px',
+              }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.8, ease: EASE }}
+            >
+              We build web apps, SaaS platforms, and brand systems for founders
+              who care about craft. Fast execution, clean code, direct communication.
+            </motion.p> */}
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                variant="primary"
+                ariaLabel="Book a free call"
+                delay={1}
+                onClick={(e) => {
+                  e.preventDefault();
+                  openPopup();
+                }}
+              >
+                Book a Free Call
+              </Button>
+
+              <Button
+                variant="ghost"
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                ariaLabel="Chat with BuiltStack on WhatsApp"
+                delay={1.52}
+              >
+                Chat on WhatsApp
+              </Button>
+            </div>
+
+            {/* Bottom meta line */}
+            <motion.div
+              className="mt-12 md:mt-16 flex items-center gap-6 flex-wrap"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.8, duration: 0.8 }}
+            >
+              <div className="flex items-center gap-4">
+                <span
+                  className="text-[10px] tracking-[0.2em] uppercase"
+                  style={{ color: 'var(--text-faint, hsl(var(--text-faint)))' }}
+                >
+                  Trusted by
+                </span>
+                <div className="flex items-center gap-3">
+                  {['Neeraj Dental', 'Sahara', 'Admin Panel'].map((name, i) => (
+                    <span
+                      key={i}
+                      className="text-[11px] tracking-wide"
+                      style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}
+                    >
+                      {name}
+                      {i < 2 && (
+                        <span
+                          className="ml-3"
+                          style={{ color: 'var(--border, rgba(255,255,255,0.1))' }}
+                        >
+                          ·
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
     </>
   );
 }
-
-
-// TYPEWRITER WORD — reveals chars one by one after a start delay
-function TypewriterWord({
-  text,
-  startDelay,
-  charInterval = 80,
-}: {
-  text: string;
-  startDelay: number;
-  charInterval?: number;
-}) {
-  const [displayed, setDisplayed] = useState('');
-  const [cursorVisible, setCursorVisible] = useState(true);
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    let index = 0;
-    let typeInterval: number;
-
-    const startTimeout = window.setTimeout(() => {
-      typeInterval = window.setInterval(() => {
-        index += 1;
-        setDisplayed(text.slice(0, index));
-        if (index >= text.length) {
-          window.clearInterval(typeInterval);
-          setDone(true);
-        }
-      }, charInterval);
-    }, startDelay * 1000);
-
-    const blinkInterval = window.setInterval(() => {
-      setCursorVisible(prev => !prev);
-    }, 520);
-
-    return () => {
-      window.clearTimeout(startTimeout);
-      if (typeInterval) window.clearInterval(typeInterval);
-      window.clearInterval(blinkInterval);
-    };
-  }, [text, startDelay, charInterval]);
-
-  return (
-    <span className="inline-block overflow-hidden pb-[0.18em] mb-[-0.18em] align-bottom">
-      <motion.span
-        className="inline-block italic"
-        style={{ color: 'var(--lime)' }}
-        initial={{ y: '110%', opacity: 0 }}
-        animate={{ y: '0%', opacity: 1 }}
-        transition={{ duration: 0.6, ease: EASE as unknown as number[], delay: startDelay - 0.05 }}
-      >
-        {displayed}
-        <span
-          className="inline-block ml-[1px]"
-          style={{
-            opacity: cursorVisible ? 0.85 : 0.05,
-            transition: 'opacity 0.1s',
-            // hide cursor gracefully 1s after typing finishes
-            display: done && !cursorVisible ? 'none' : 'inline',
-          }}
-        >
-          |
-        </span>
-      </motion.span>
-    </span>
-  );
-}
-
-
-// HERO SECTION
-export default function Hero() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-
-  // Scroll-based transforms
-  const textY  = useTransform(scrollYProgress, [0, 1],    ['0%', '22%']);
-  const textOp = useTransform(scrollYProgress, [0, 0.5],  [1, 0]);
-  const textSc = useTransform(scrollYProgress, [0, 0.5],  [1, 0.97]);
-  const imgY   = useTransform(scrollYProgress, [0, 1],    ['0%', '8%']);
-  const imgOp  = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
-
-  return (
-    <section
-      ref={ref}
-      className="relative overflow-hidden"
-      style={{
-        minHeight: '100svh',
-        backgroundColor: 'var(--section-bg, hsl(var(--bg)))',
-      }}
-    >
-      {/* ── Interactive Mesh Grid ── */}
-      <InteractiveMeshGrid className="absolute inset-0 z-0 pointer-events-none opacity-[0.85]" />
-
-      {/* ── Grain Overlay ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          opacity: 0.02,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: '180px 180px',
-        }}
-      />
-
-      {/* ── Studio Label (Top Left) ── */}
-      <motion.div
-        className="absolute flex items-center gap-2.5 z-30"
-        style={{
-          top: 'clamp(88px, 11vw, 128px)',
-          left: 'clamp(24px, 5vw, 48px)',
-        }}
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.8, ease: EASE as unknown as number[] }}
-      >
-        <motion.span
-          className="rounded-full shrink-0"
-          style={{ width: 3, height: 3, backgroundColor: 'var(--lime)' }}
-          animate={{ scale: [1, 1.6, 1] }}
-          transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 2.2 }}
-        />
-        <span
-          className="text-[12px] tracking-[0.32em] uppercase"
-          style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}
-        >
-          Design & Engineering Studio
-        </span>
-      </motion.div>
-
-      {/* ── Available Badge (Top Right) ── */}
-      <motion.div
-        className="absolute hidden sm:flex items-center gap-2 z-30"
-        style={{
-          top: 'clamp(100px, 15vw, 128px)',
-          right: 'clamp(24px, 5vw, 48px)',
-        }}
-        initial={{ opacity: 0, x: 14 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.5, duration: 0.8, ease: EASE as unknown as number[] }}
-      >
-        <motion.span
-          className="rounded-full shrink-0"
-          style={{ width: 4, height: 4, backgroundColor: 'var(--lime)' }}
-          animate={{ opacity: [1, 0.25, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <span
-          className="text-[12px] tracking-[0.25em] uppercase"
-          style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}
-        >
-          Available for projects
-        </span>
-      </motion.div>
-
-      {/* ── Floating Image ── */}
-      <motion.div
-        className="hero-img-float absolute z-20 pointer-events-none"
-        style={{
-          y: imgY,
-          opacity: imgOp,
-          right: 'clamp(-10px, 2vw, 40px)',
-          top: 'clamp(80px, 12vw, 140px)',
-          width: 'clamp(280px, 38vw, 540px)',
-        }}
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.9, duration: 1.2, ease: EASE as unknown as number[] }}
-      >
-        <style>{`
-          @media (max-width: 767px) {
-            .hero-img-float {
-              right: 40% !important;
-              transform: translateX(50%) translateY(0) !important;
-              top: 130px !important;
-              width: clamp(160px, 58vw, 240px) !important;
-            }
-          }
-        `}</style>
-
-        {/* Lime glow behind image */}
-        <div
-          className="absolute inset-[5%] rounded-full z-0"
-          style={{
-            background: 'radial-gradient(ellipse, var(--glow-lime) 0%, transparent 65%)',
-            filter: 'blur(40px)',
-          }}
-        />
-
-        {/* Float + rock animation */}
-        <motion.div
-          className="relative z-10"
-          animate={{ y: [0, 20, 0], rotate: [0, 1.2, -0.8, 0] }}
-          transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', times: [0, 0.45, 0.75, 1] }}
-        >
-          {/* Ground shadow */}
-          <motion.div
-            className="absolute bottom-[-50%] left-[18%] right-[18%] h-8 rounded-full"
-            style={{
-              background: 'var(--glow-lime)',
-              boxShadow: `0 0 40px var(--glow-lime), 0 0 80px var(--glow-lime), 0 20px 60px var(--color-shadow-soft, rgba(0,0,0,0.35))`,
-              filter: 'blur(22px)',
-            }}
-            animate={{ scaleX: [1, 0.75, 1], opacity: [0.7, 0.25, 0.7] }}
-            transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          {/* Mascot */}
-          <img
-            src="/builtstack.png"
-            alt="BuiltStack mascot"
-            loading="eager"
-            className="w-full h-auto block select-none pointer-events-none"
-            style={{
-              objectFit: 'contain',
-              filter: `drop-shadow(0 32px 48px var(--color-shadow-soft, rgba(0,0,0,0.6))) drop-shadow(0 0 40px var(--glow-subtle, rgba(212,245,60,0.08)))`,
-            }}
-          />
-        </motion.div>
-      </motion.div>
-
-      {/* ── Text Content Block ── */}
-      <div
-        className="relative z-10 flex flex-col justify-end"
-        style={{
-          minHeight: '100svh',
-          padding: '0 clamp(24px, 5vw, 48px)',
-          paddingBottom: 'clamp(52px, 7vw, 88px)',
-          paddingTop: 'clamp(280px, 52vw, 340px)',
-        }}
-      >
-        <motion.div
-          className="origin-bottom"
-          style={{
-            y: textY,
-            opacity: textOp,
-            scale: textSc,
-            maxWidth: 'min(100%, 56vw)',
-          }}
-        >
-          <style>{`
-            @media (max-width: 767px) {
-              .hero-text-inner { max-width: 100% !important; }
-            }
-          `}</style>
-
-          {/* Main Heading */}
-          <h1
-            className="font-display hero-text-inner"
-            style={{
-              fontFamily: 'var(--font-display, "Instrument Serif, serif")',
-              fontSize: 'clamp(2.6rem, 5.5vw, 7.5rem)',
-              lineHeight: 1.08,
-              letterSpacing: '-0.025em',
-              marginBottom: 'clamp(28px, 4vw, 52px)',
-              color: 'var(--heading-color, hsl(var(--text-primary)))',
-              maxWidth: 'min(100%, 56vw)',
-            }}
-          >
-            <span className="block">
-              <SplitWords text="We design &" baseDelay={0.28} />
-            </span>
-            <span className="block">
-              <SplitWords text="engineer products" baseDelay={0.52} />
-            </span>
-            {/*
-              Third line: "that perform" slides in normally,
-              then "always." types in green with cursor.
-              startDelay = 1.05 (after last SplitWord lands ~0.76 + 0.08*2 = 0.92s)
-            */}
-            <span className="block">
-              <SplitWords text="that perform" baseDelay={0.76} />
-              <span className="inline-block ml-[0.1em]">
-                <TypewriterWord text="always." startDelay={1.1} charInterval={82} />
-              </span>
-            </span>
-          </h1>
-
-          {/* Subtext + Indicator */}
-          <div
-            className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 hero-text-inner"
-            style={{ maxWidth: 'min(100%, 56vw)' }}
-          >
-            <motion.p
-              className="max-w-[320px] leading-[1.8]"
-              style={{
-                color: 'var(--body-color, hsl(var(--text-muted)))',
-                fontSize: 'clamp(1rem, 1vw, 1rem)',
-              }}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.45, duration: 0.85, ease: EASE as unknown as number[] }}
-            >
-              From idea to launch — we build high-performance products, SaaS platforms, and brand systems for founders who refuse to blend in.
-            </motion.p>
-
-            {/* Animated vertical indicator */}
-            <motion.div
-              className="flex items-center gap-3 shrink-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 2, duration: 0.8 }}
-            >
-              <div
-                className="relative w-[3px] h-[52px] shrink-0"
-                style={{ backgroundColor: 'var(--nav-border, hsl(var(--border)))' }}
-              >
-                <motion.div
-                  className="absolute left-0 w-full rounded-full"
-                  style={{ backgroundColor: 'var(--lime-dark, #8aa900)' }}
-                  animate={{ top: ['0%', '80%', '0%'], height: ['20%', '20%', '20%'], opacity: [0, 1, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                />
-              </div>
-            </motion.div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-} 

@@ -11,7 +11,6 @@ import {
 } from 'framer-motion';
 import InteractiveMeshGrid from '@/components/ui/InteractiveMeshGrid';
 
-
 // EASING & CONSTANTS
 
 const EASE = [0.23, 1, 0.32, 1] as const;
@@ -31,17 +30,18 @@ const secondaryOverlayVariants = {
   hover: { opacity: 1 },
 };
 
-
 // THEME-AWARE MAGNETIC BUTTON
 
 function MagneticButton({
   href,
   children,
   primary = false,
+  icon,
 }: {
   href: string;
   children: React.ReactNode;
   primary?: boolean;
+  icon?: React.ReactNode;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const reducedMotion = useReducedMotion();
@@ -86,6 +86,8 @@ function MagneticButton({
     <motion.a
       ref={ref}
       href={href}
+      target={href.startsWith('http') ? '_blank' : undefined}
+      rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       whileTap={{ scale: reducedMotion ? 1 : 0.96 }}
@@ -110,6 +112,7 @@ function MagneticButton({
         overflow: 'hidden',
         userSelect: 'none',
         boxShadow: primary ? `0 4px 20px ${primaryShadow}` : 'none',
+        textDecoration: 'none',
       }}
       className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lime)]/70 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--section-bg,hsl(var(--bg)))]"
     >
@@ -173,10 +176,11 @@ function MagneticButton({
 
       {/* Button Content with Lift */}
       <motion.span
-        style={{ position: 'relative', zIndex: 2 }}
+        style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: '8px' }}
         whileHover={{ y: -1.5 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
       >
+        {icon && <span style={{ display: 'inline-flex' }}>{icon}</span>}
         {children}
       </motion.span>
 
@@ -191,7 +195,6 @@ function MagneticButton({
     </motion.a>
   );
 }
-
 
 // WORD & LINE COMPONENTS (Theme-aware text colors)
 
@@ -225,8 +228,7 @@ function Line({ text, delay, accent = false }: { text: string; delay: number; ac
   );
 }
 
-
-// CTA SECTION - THEME ADAPTIVE + TAILWIND REFACTORED
+// CTA SECTION - CONVERSION OPTIMIZED
 
 export default function CTA() {
   const ref = useRef<HTMLElement>(null);
@@ -247,10 +249,6 @@ export default function CTA() {
   const linkHoverColor = 'var(--lime, #d4f53c)';
   const socialHoverColor = 'var(--logo-text, hsl(var(--text-primary)))';
 
-  // Grid colors adapt to theme: light uses warm tones, dark uses cool
-  const gridLight = 'hsl(var(--text-primary))';
-  const gridDark = 'hsl(var(--border))';
-
   return (
     <section
       id="contact"
@@ -262,7 +260,6 @@ export default function CTA() {
         padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 60px)',
       }}
     >
-
       <InteractiveMeshGrid className="absolute inset-0 z-0 pointer-events-none opacity-[0.85]" />
 
       <div
@@ -274,7 +271,7 @@ export default function CTA() {
         }}
       />
 
-
+      {/* Corner accents */}
       {[
         { top: 20, left: 20, borderTop: true, borderLeft: true },
         { top: 20, right: 20, borderTop: true, borderRight: true },
@@ -305,7 +302,35 @@ export default function CTA() {
       >
         {/* ── Left Text Content ── */}
         <div className="flex flex-col items-center md:items-start text-center md:text-left flex-1">
-          <div className="flex flex-col items-center md:items-start mb-10">
+          {/* Urgency badge */}
+          <motion.div
+            className="flex items-center gap-3 mb-6 px-4 py-2 rounded-full"
+            style={{
+              background: 'var(--glow-lime, rgba(212,245,60,0.08))',
+              border: '1px solid var(--lime, #d4f53c)',
+            }}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+          >
+            <motion.div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: 'var(--lime, #ffffff91)',
+                boxShadow: '0 0 12px var(--lime, #ffffff)',
+              }}
+              animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <span className="text-[10px] tracking-[0.3em] uppercase font-medium" >
+              Accepting 2 new projects for Q1 2026
+            </span>
+          </motion.div>
+
+          <div className="flex flex-col items-center md:items-start mb-8">
             <motion.span
               className="text-[30px] tracking-[0.36em] uppercase"
               style={{ color: bodyColor }}
@@ -314,12 +339,12 @@ export default function CTA() {
               viewport={{ once: true }}
               transition={{ delay: 0.25, duration: 0.6 }}
             >
-              Let&apos;s work together
+              Let&apos;s build your vision
             </motion.span>
           </div>
 
           <motion.h2
-            className="font-display mb-5"
+            className="font-display mb-6"
             style={{
               y: headlineY,
               fontSize: 'clamp(3rem, 7vw, 8.5rem)',
@@ -328,16 +353,16 @@ export default function CTA() {
               color: headingColor,
             }}
           >
-            <Line text="Ready to build" delay={0.15} />
-            <Line text="something real?" delay={0.4} accent />
+            <Line text="Turn your idea" delay={0.15} />
+            <Line text="into reality." delay={0.4} accent />
           </motion.h2>
 
           <motion.p
-            className="mb-10"
+            className="mb-6"
             style={{
               color: bodyColor,
-              fontSize: 'clamp(1rem, 1.1vw, 1rem)',
-              maxWidth: 360,
+              fontSize: 'clamp(1rem, 1.1vw, 1.1rem)',
+              maxWidth: 420,
               lineHeight: 1.85,
             }}
             initial={{ opacity: 0, y: 20 }}
@@ -345,9 +370,33 @@ export default function CTA() {
             viewport={{ once: true }}
             transition={{ delay: 0.55, duration: 0.7, ease: EASE }}
           >
-            From MVP to full product - we move fast, write clean code,
-            and ship things that actually work.
+            We&apos;ve helped startups and businesses launch products that users love.
+            From concept to deployment in weeks, not months.
           </motion.p>
+
+          {/* Social proof stats */}
+          <motion.div
+            className="flex items-center gap-8 mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.65, duration: 0.7, ease: EASE }}
+          >
+            {[
+              { value: '50+', label: 'Projects Shipped' },
+              { value: '98%', label: 'Client Satisfaction' },
+              { value: '4.9★', label: 'Average Rating' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center md:text-left">
+                <div style={{ fontSize: 'clamp(1.5rem, 2vw, 2rem)', fontWeight: 700, color: 'var(--lime, #d4f53c)', lineHeight: 1 }}>
+                  {stat.value}
+                </div>
+                <div style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: bodyColor, marginTop: 4 }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </motion.div>
 
           {/* ── Buttons ── */}
           <motion.div
@@ -355,13 +404,20 @@ export default function CTA() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.62, duration: 0.7, ease: EASE }}
+            transition={{ delay: 0.72, duration: 0.7, ease: EASE }}
           >
-            <MagneticButton href="/contact" primary>
-              Start a project
+            <MagneticButton href="mailto:hello@builtstack.co" primary>
+              Start Your Project
             </MagneticButton>
-            <MagneticButton href="#work">
-              View our work
+            <MagneticButton href="https://cal.com/builtstack/30min" icon={
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            }>
+              Book a Call
             </MagneticButton>
           </motion.div>
 
@@ -396,11 +452,11 @@ export default function CTA() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.8, duration: 0.8 }}
+            transition={{ delay: 0.9, duration: 0.8 }}
           >
             <a
-              href="mailto:hello@builtstack.co"
-              className="text-[10px] tracking-[0.3em] uppercase"
+              href="mailto:builtstack@gmail.com"
+              className="text-[10px] tracking-[0.3em] uppercase transition-colors duration-300"
               style={{ color: bodyColor }}
               onMouseEnter={e => (e.currentTarget.style.color = linkHoverColor)}
               onMouseLeave={e => (e.currentTarget.style.color = bodyColor)}
@@ -408,18 +464,29 @@ export default function CTA() {
               builtstack@gmail.com
             </a>
             <span style={{ color: cornerBorderColor, fontSize: 10 }}>·</span>
-            {['Twitter', 'LinkedIn', 'GitHub'].map(s => (
-              <a
-                key={s}
-                href="#"
-                className="text-[10px] tracking-[0.3em] uppercase"
-                style={{ color: bodyColor }}
-                onMouseEnter={e => (e.currentTarget.style.color = socialHoverColor)}
-                onMouseLeave={e => (e.currentTarget.style.color = bodyColor)}
-              >
-                {s}
-              </a>
-            ))}
+            <a
+              href="https://www.instagram.com/builtstack/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] tracking-[0.3em] uppercase transition-colors duration-300"
+              style={{ color: bodyColor }}
+              onMouseEnter={e => (e.currentTarget.style.color = socialHoverColor)}
+              onMouseLeave={e => (e.currentTarget.style.color = bodyColor)}
+            >
+              Instagram
+            </a>
+            <span style={{ color: cornerBorderColor, fontSize: 10 }}>·</span>
+            <a
+              href="https://www.linkedin.com/company/builtstack"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] tracking-[0.3em] uppercase transition-colors duration-300"
+              style={{ color: bodyColor }}
+              onMouseEnter={e => (e.currentTarget.style.color = socialHoverColor)}
+              onMouseLeave={e => (e.currentTarget.style.color = bodyColor)}
+            >
+              LinkedIn
+            </a>
           </motion.div>
         </div>
 
