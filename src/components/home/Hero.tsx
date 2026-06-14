@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  useSpring,
+  useReducedMotion,
+} from 'framer-motion';
+import { ArrowUpRight, WhatsappLogo, CalendarBlank } from '@phosphor-icons/react';
 import InteractiveMeshGrid from '@/components/ui/InteractiveMeshGrid';
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -14,21 +22,32 @@ const STRUCTURED_DATA = {
   '@type': 'Organization',
   name: 'BuiltStack',
   url: 'https://builtstack-eight.vercel.app/',
-  description: 'BuiltStack is a design and engineering studio specializing in web apps, SaaS platforms, mobile apps, and brand systems for founders and startups.',
+  description:
+    'BuiltStack is a design and engineering studio specializing in web apps, SaaS platforms, mobile apps, and brand systems for founders and startups.',
   founder: [
     { '@type': 'Person', name: 'Loveraj', jobTitle: 'Co-Founder & Developer' },
     { '@type': 'Person', name: 'Rudra', jobTitle: 'Co-Founder' },
   ],
-  sameAs: ['https://linkedin.com/company/builtstack', 'https://www.instagram.com/builtstack/'],
-  contactPoint: { '@type': 'ContactPoint', contactType: 'sales', url: CALENDLY_URL, availableLanguage: ['English', 'Hindi'] },
+  sameAs: [
+    'https://linkedin.com/company/builtstack',
+    'https://www.instagram.com/builtstack/',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'sales',
+    url: CALENDLY_URL,
+    availableLanguage: ['English', 'Hindi'],
+  },
 };
 
+// ── Calendly hook ─────────────────────────────────────────
 function useCalendly() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (document.querySelector('script[src="https://assets.calendly.com/assets/external/widget.js"]')) {
-      setReady(true); return;
+      setReady(true);
+      return;
     }
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -40,9 +59,12 @@ function useCalendly() {
     script.onload = () => setReady(true);
     document.head.appendChild(script);
   }, []);
+
   const openPopup = () => {
-    const w = window as Window & { Calendly?: { initPopupWidget: (opts: { url: string }) => void } };
-    if (typeof window !== 'undefined' && w.Calendly) {
+    const w = window as Window & {
+      Calendly?: { initPopupWidget: (opts: { url: string }) => void };
+    };
+    if (w.Calendly) {
       w.Calendly.initPopupWidget({ url: CALENDLY_URL });
     } else {
       window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer');
@@ -51,13 +73,21 @@ function useCalendly() {
   return { ready, openPopup };
 }
 
+// ── Split word reveal ─────────────────────────────────────
 function SplitWords({ text, baseDelay }: { text: string; baseDelay: number }) {
   return (
     <span className="inline-block">
       {text.split(' ').map((word, i) => (
-        <span key={i} className="inline-block overflow-hidden mr-[0.22em] pb-[0.12em] mb-[-0.12em] align-bottom">
-          <motion.span className="inline-block" initial={{ y: '100%' }} animate={{ y: '0%' }}
-            transition={{ duration: 0.9, ease: EASE, delay: baseDelay + i * 0.06 }}>
+        <span
+          key={i}
+          className="inline-block overflow-hidden mr-[0.22em] pb-[0.12em] mb-[-0.12em] align-bottom"
+        >
+          <motion.span
+            className="inline-block"
+            initial={{ y: '100%' }}
+            animate={{ y: '0%' }}
+            transition={{ duration: 0.9, ease: EASE, delay: baseDelay + i * 0.06 }}
+          >
             {word}
           </motion.span>
         </span>
@@ -66,6 +96,7 @@ function SplitWords({ text, baseDelay }: { text: string; baseDelay: number }) {
   );
 }
 
+// ── Typewriter ────────────────────────────────────────────
 function TypewriterWord({ words, startDelay = 0 }: { words: string[]; startDelay?: number }) {
   const [idx, setIdx] = useState(0);
   const [displayed, setDisplayed] = useState('');
@@ -74,32 +105,62 @@ function TypewriterWord({ words, startDelay = 0 }: { words: string[]; startDelay
   const t = useRef<ReturnType<typeof setTimeout> | null>(null);
   const word = words[idx];
 
-  useEffect(() => { const b = setInterval(() => setCursorOn(p => !p), 530); return () => clearInterval(b); }, []);
-  useEffect(() => { const s = setTimeout(() => setPhase('typing'), startDelay * 1000); return () => clearTimeout(s); }, [startDelay]);
+  useEffect(() => {
+    const b = setInterval(() => setCursorOn((p) => !p), 530);
+    return () => clearInterval(b);
+  }, []);
+
+  useEffect(() => {
+    const s = setTimeout(() => setPhase('typing'), startDelay * 1000);
+    return () => clearTimeout(s);
+  }, [startDelay]);
+
   useEffect(() => {
     if (phase === 'idle') return;
     const clear = () => { if (t.current) clearTimeout(t.current); };
     if (phase === 'typing') {
-      if (displayed.length < word.length) t.current = setTimeout(() => setDisplayed(word.slice(0, displayed.length + 1)), 70);
+      if (displayed.length < word.length)
+        t.current = setTimeout(() => setDisplayed(word.slice(0, displayed.length + 1)), 70);
       else t.current = setTimeout(() => setPhase('pausing'), 2200);
     } else if (phase === 'pausing') {
       t.current = setTimeout(() => setPhase('erasing'), 50);
     } else if (phase === 'erasing') {
-      if (displayed.length > 0) t.current = setTimeout(() => setDisplayed(word.slice(0, displayed.length - 1)), 40);
-      else t.current = setTimeout(() => { setIdx(i => (i + 1) % words.length); setPhase('typing'); }, 400);
+      if (displayed.length > 0)
+        t.current = setTimeout(() => setDisplayed(word.slice(0, displayed.length - 1)), 40);
+      else
+        t.current = setTimeout(() => {
+          setIdx((i) => (i + 1) % words.length);
+          setPhase('typing');
+        }, 400);
     }
     return clear;
   }, [displayed, phase, word, words.length]);
 
   return (
-    <span className="inline-block italic" style={{ color: 'var(--lime, #8fa42e)' }}>
+    <span className="inline-block italic text-[var(--lime)]">
       {displayed}
-      <span className="inline-block ml-[1px] font-light" style={{ opacity: cursorOn ? 0.9 : 0.1, transition: 'opacity 0.12s' }}>|</span>
+      <span
+        className="inline-block ml-px font-light"
+        style={{ opacity: cursorOn ? 0.9 : 0.1, transition: 'opacity 0.12s' }}
+      >
+        |
+      </span>
     </span>
   );
 }
 
-function Button({ children, onClick, href, variant = 'primary', ariaLabel, delay = 0, target, rel }: {
+// ── Button ────────────────────────────────────────────────
+function Button({
+  children,
+  onClick,
+  href,
+  variant = 'primary',
+  ariaLabel,
+  delay = 0,
+  target,
+  rel,
+  icon,
+}: {
   children: React.ReactNode;
   onClick?: (e: React.MouseEvent) => void;
   href?: string;
@@ -108,9 +169,11 @@ function Button({ children, onClick, href, variant = 'primary', ariaLabel, delay
   delay?: number;
   target?: string;
   rel?: string;
+  icon?: React.ReactNode;
 }) {
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const reducedMotion = useReducedMotion();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
@@ -118,198 +181,284 @@ function Button({ children, onClick, href, variant = 'primary', ariaLabel, delay
   const isPrimary = variant === 'primary';
 
   const handleMove = (e: React.MouseEvent) => {
-    const el = (anchorRef.current ?? buttonRef.current); if (!el) return;
+    if (reducedMotion) return;
+    const el = anchorRef.current ?? buttonRef.current;
+    if (!el) return;
     const r = el.getBoundingClientRect();
     x.set((e.clientX - (r.left + r.width / 2)) * 0.25);
     y.set((e.clientY - (r.top + r.height / 2)) * 0.25);
   };
 
-  const baseStyle: React.CSSProperties = {
-    display: 'inline-flex', alignItems: 'center', gap: '6px',
-    padding: isPrimary ? '8px 16px' : '8px 12px',
-    fontSize: '9px',
-    letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none',
-    borderRadius: '9999px', userSelect: 'none',
-    transition: 'background 0.3s, color 0.3s, border-color 0.3s, opacity 0.3s',
-    background: isPrimary ? 'var(--lime, #8fa42e)' : 'transparent',
-    color: isPrimary ? '#0a0a0a' : 'var(--text-muted, rgba(255,255,255,0.55))',
-    border: isPrimary ? '1px solid transparent' : 'none',
+  const baseClass = [
+    'inline-flex items-center justify-center gap-2',
+    // touch target: min 44px height, comfortable padding
+    'min-h-[44px] px-5 sm:px-6',
+    'text-[11px] sm:text-[11px] font-medium tracking-[0.18em] uppercase',
+    'rounded-full select-none no-underline border',
+    'transition-colors duration-200',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lime)]/60 focus-visible:ring-offset-2',
+    isPrimary
+      ? 'bg-[var(--lime)] text-[#0a0a0a] hover:bg-[var(--lime)]/90 border-transparent'
+      : 'bg-transparent text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--lime)] hover:text-[var(--lime)]',
+  ].join(' ');
+
+  const motionProps = {
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay, duration: 0.8, ease: EASE },
+    whileTap: { scale: reducedMotion ? 1 : 0.97 },
+    style: { x: reducedMotion ? 0 : sx, y: reducedMotion ? 0 : sy },
+    'aria-label': ariaLabel,
+    onMouseMove: handleMove,
+    onMouseLeave: () => { x.set(0); y.set(0); },
+    onClick,
   };
 
-  const icon = (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" />
-    </svg>
+  const content = (
+    <>
+      {icon && <span className="inline-flex" aria-hidden="true">{icon}</span>}
+      <span>{children}</span>
+      <ArrowUpRight size={12} weight="bold" aria-hidden="true" />
+    </>
   );
 
-  const motionProps = { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { delay, duration: 0.8, ease: EASE } };
-  const shared = { style: { ...baseStyle, x: sx, y: sy }, 'aria-label': ariaLabel, onMouseMove: handleMove, onMouseLeave: () => { x.set(0); y.set(0); }, onClick };
-
-  if (href) return (
-    <motion.a ref={anchorRef} href={href} target={target} rel={rel} {...shared} {...motionProps}
-      whileHover={{ background: isPrimary ? '#a3b949' : 'transparent', color: isPrimary ? '#0a0a0a' : 'var(--lime, #8fa42e)', opacity: 1 }}
-      whileTap={{ scale: 0.97 }}>
-      <span>{children}</span>{icon}
-    </motion.a>
-  );
+  if (href) {
+    return (
+      <motion.a ref={anchorRef} href={href} target={target} rel={rel} className={baseClass} {...motionProps}>
+        {content}
+      </motion.a>
+    );
+  }
 
   return (
-    <motion.button ref={buttonRef} type="button" {...shared} {...motionProps} whileHover={{ background: '#9ab337' }} whileTap={{ scale: 0.97 }}>
-      <span>{children}</span>{icon}
+    <motion.button ref={buttonRef} type="button" className={baseClass} {...motionProps}>
+      {content}
     </motion.button>
   );
 }
 
+// ── Hero ──────────────────────────────────────────────────
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const textY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
   const textOp = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
   const imgOp = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
   const { openPopup } = useCalendly();
+
+  const headline = (
+    <h1
+      className="font-display text-[var(--heading-color)]"
+      style={{
+        fontFamily: 'var(--font-display, "Instrument Serif")',
+        lineHeight: 1.05,
+        letterSpacing: '-0.03em',
+      }}
+    >
+      <span className="sr-only">
+        BuiltStack — We design and engineer digital products that perform.
+      </span>
+      <span aria-hidden="true" className="block">
+        <SplitWords text="We design &" baseDelay={0.25} />
+      </span>
+      <span aria-hidden="true" className="block">
+        <SplitWords text="engineer products" baseDelay={0.48} />
+      </span>
+      <span aria-hidden="true" className="block">
+        <SplitWords text="that perform" baseDelay={0.72} />
+        <span className="inline-block ml-[0.15em]">
+          <TypewriterWord words={['always.', 'flawlessly.', 'at scale.']} startDelay={1.1} />
+        </span>
+      </span>
+    </h1>
+  );
+
+  const buttons = (mobile: boolean) => (
+    <div className={mobile
+      ? 'flex flex-col gap-3 w-full'
+      : 'flex flex-row items-center gap-3'
+    }>
+      <Button
+        variant="primary"
+        ariaLabel="Book a free call"
+        delay={1}
+        icon={<CalendarBlank size={13} weight="regular" />}
+        onClick={(e) => { e.preventDefault(); openPopup(); }}
+      >
+        Book a Free Call
+      </Button>
+      <Button
+        variant="ghost"
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        ariaLabel="Chat with BuiltStack on WhatsApp"
+        delay={1.3}
+        icon={<WhatsappLogo size={13} weight="regular" />}
+      >
+        Chat on WhatsApp
+      </Button>
+    </div>
+  );
+
+  const trustedBy = (
+    <motion.div
+      className="flex items-center gap-3 flex-wrap"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.8, duration: 0.8 }}
+    >
+      <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-faint)]">
+        Trusted by
+      </span>
+      <div className="flex items-center gap-2 flex-wrap">
+        {CLIENTS.map((name, i) => (
+          <span key={i} className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
+            {name}
+            {i < CLIENTS.length - 1 && (
+              <span className="text-[var(--border)]" aria-hidden="true">·</span>
+            )}
+          </span>
+        ))}
+      </div>
+    </motion.div>
+  );
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+      />
 
-      <section ref={ref} aria-label="BuiltStack — Design & Engineering Studio"
-        className="relative overflow-hidden" style={{ minHeight: '100svh', backgroundColor: 'var(--section-bg, hsl(var(--bg)))' }}>
+      <section
+        ref={ref}
+        aria-label="BuiltStack — Design & Engineering Studio"
+        className="relative overflow-hidden bg-[var(--section-bg)]"
+        style={{ minHeight: '100svh' }}
+      >
+        <InteractiveMeshGrid
+          className="absolute inset-0 z-0 pointer-events-none opacity-2 grayscale"
+          aria-hidden="true"
+        />
 
-        <InteractiveMeshGrid className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true" />
-
-        {/* Top bar — desktop only */}
-        <motion.div className="absolute top-0 left-0 right-0 z-30 hidden md:flex items-center justify-between px-12"
+        {/* ── Top bar — desktop only ── */}
+        <motion.div
+          className="absolute top-6 left-0 right-0 z-30 hidden md:flex items-center justify-between px-12"
           style={{ paddingTop: 'clamp(88px, 11vw, 128px)' }}
-          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.7, ease: EASE }}>
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.7, ease: EASE }}
+        >
           <div className="flex items-center gap-2.5">
-            <span className="w-[5px] h-[5px] rounded-full" style={{ backgroundColor: 'var(--lime, #8fa42e)' }} />
-            <span className="text-[11px] tracking-[0.28em] uppercase" style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}>
+            {/* <span className="w-[5px] h-[5px] rounded-full bg-[var(--lime)]" />
+            <span className="text-[11px] tracking-[0.28em] uppercase text-[var(--text-muted)]">
               Design · Engineering · Brand
-            </span>
+            </span> */}
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-[5px] h-[5px] rounded-full" style={{ backgroundColor: 'var(--lime, #8fa42e)' }} />
-            <span className="text-[11px] tracking-[0.28em] uppercase" style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}>
+            <span className="w-[5px] h-[5px] rounded-full bg-[var(--lime)]" />
+            <span className="text-[11px] tracking-[0.28em] uppercase text-[var(--text-muted)]">
               Available Q1 2026
             </span>
           </div>
         </motion.div>
 
-        {/* Desktop: side-by-side */}
-        <div className="relative z-10 hidden md:flex items-end min-h-[100svh] px-12 lg:px-16 xl:px-20"
-          style={{ paddingBottom: 'clamp(60px, 8vw, 100px)' }}>
-
-          <motion.div className="flex-1 min-w-0 pr-8 lg:pr-12" style={{ y: textY, opacity: textOp }}>
-            <h1 className="font-display" style={{
-              fontFamily: 'var(--font-display, "Instrument Serif")',
-              fontSize: 'clamp(2.8rem, 4.5vw, 7rem)',
-              lineHeight: 1.05, letterSpacing: '-0.03em',
-              marginBottom: 'clamp(24px, 3.5vw, 40px)',
-              color: 'var(--heading-color, hsl(var(--text-primary)))',
-            }}>
-              <span className="sr-only">BuiltStack — We design and engineer digital products that perform.</span>
-              <span aria-hidden="true" className="block"><SplitWords text="We design &" baseDelay={0.25} /></span>
-              <span aria-hidden="true" className="block"><SplitWords text="engineer products" baseDelay={0.48} /></span>
-              <span aria-hidden="true" className="block">
-                <SplitWords text="that perform" baseDelay={0.72} />
-                <span className="inline-block ml-[0.15em]">
-                  <TypewriterWord words={['always.', 'flawlessly.', 'at scale.']} startDelay={1.1} />
-                </span>
-              </span>
-            </h1>
-
-            <div className="flex flex-row items-center gap-3 mb-10">
-              <Button variant="primary" ariaLabel="Book a free call" delay={1}
-                onClick={(e) => { e.preventDefault(); openPopup(); }}>
-                Book a Free Call
-              </Button>
-              <Button variant="ghost" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
-                ariaLabel="Chat with BuiltStack on WhatsApp" delay={1.4}>
-                Chat on WhatsApp
-              </Button>
+        {/* ── Desktop layout ── */}
+        <div className="relative z-10 hidden md:flex items-center min-h-[100svh] px-12 lg:px-16 xl:px-20 pt-28 pb-16">
+          <motion.div
+            className="flex-1 min-w-0 pr-8 lg:pr-16 pt-48 lg:pt-64"
+            style={{ y: reducedMotion ? 0 : textY, opacity: textOp }}
+          >
+            <div
+              style={{
+                fontSize: 'clamp(2.8rem, 4.2vw, 6rem)',
+                marginBottom: 'clamp(24px, 3vw, 40px)',
+              }}
+            >
+              {headline}
             </div>
 
-            <motion.div className="flex items-center gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8, duration: 0.8 }}>
-              <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: 'var(--text-faint, hsl(var(--text-faint)))' }}>Trusted by</span>
-              <div className="flex items-center gap-3">
-                {CLIENTS.map((name, i) => (
-                  <span key={i} className="text-[11px] tracking-wide" style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}>
-                    {name}{i < CLIENTS.length - 1 && <span className="ml-3" style={{ color: 'var(--border, rgba(255,255,255,0.1))' }}>·</span>}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
+            <div className="mb-10">
+              {buttons(false)}
+            </div>
+
+            {trustedBy}
           </motion.div>
 
           <motion.div
-            className="flex-shrink-0 w-[42vw] lg:w-[46vw] xl:w-[50vw] max-w-[760px] pointer-events-none"
-            style={{ y: imgY, opacity: imgOp }}
-            initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.8, duration: 1.1, ease: EASE }} aria-hidden="true">
-            <motion.div animate={{ y: [0, 14, 0] }} transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}>
-              <img src="/builtstack.png" alt="" loading="eager" fetchPriority="high" width={800} height={800}
-                className="w-full h-auto block select-none pointer-events-none" style={{ objectFit: 'contain' }} />
+            className="flex-shrink-0 w-[36vw] lg:w-[38vw] xl:w-[40vw] max-w-[560px] pointer-events-none"
+            style={{ y: reducedMotion ? 0 : imgY, opacity: imgOp }}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.8, duration: 1.1, ease: EASE }}
+            aria-hidden="true"
+          >
+            <motion.div
+              animate={reducedMotion ? {} : { y: [0, 6, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <img
+                src="/builtstack.png"
+                alt=""
+                loading="eager"
+                width={800}
+                height={800}
+                className="w-full h-auto block select-none pointer-events-none"
+                style={{ objectFit: 'contain' }}
+              />
             </motion.div>
           </motion.div>
         </div>
 
-        {/* Mobile: stacked, image on top flush to text */}
-        <div className="relative z-10 flex md:hidden flex-col justify-end min-h-[100svh]">
+        {/* ── Mobile layout ── */}
+        <div className="relative z-10 flex md:hidden flex-col min-h-[100svh]">
 
-          <motion.div className="w-full pointer-events-none" style={{ y: imgY, opacity: imgOp }}
-            initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 1.0, ease: EASE }} aria-hidden="true">
-            <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}>
-              <img src="/builtstack.png" alt="" loading="eager" fetchPriority="high" width={600} height={600}
+          {/* Mascot — top half, constrained, centered */}
+          <motion.div
+            className="flex-1 flex items-end justify-center pointer-events-none pt-24 pb-4"
+            style={{ y: reducedMotion ? 0 : imgY, opacity: imgOp }}
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4, duration: 1.0, ease: EASE }}
+            aria-hidden="true"
+          >
+            <motion.div
+              animate={reducedMotion ? {} : { y: [0, 6, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-full max-w-[280px] sm:max-w-[320px]"
+            >
+              <img
+                src="/builtstack.png"
+                alt=""
+                loading="eager"
+                width={600}
+                height={600}
+                draggable="false"
                 className="w-full h-auto block select-none pointer-events-none"
-                style={{ objectFit: 'contain', maxHeight: '38svh' }} />
+                style={{ objectFit: 'contain' }}
+              />
             </motion.div>
           </motion.div>
 
-          <motion.div className="px-6 pb-12" style={{ y: textY, opacity: textOp }}>
-            <h1 className="font-display" style={{
-              fontFamily: 'var(--font-display, "Instrument Serif")',
-              fontSize: 'clamp(2.8rem, 11vw, 3.8rem)',
-              lineHeight: 1.05, letterSpacing: '-0.03em',
-              marginBottom: 'clamp(20px, 5vw, 28px)',
-              color: 'var(--heading-color, hsl(var(--text-primary)))',
-            }}>
-              <span className="sr-only">BuiltStack — We design and engineer digital products that perform.</span>
-              <span aria-hidden="true" className="block"><SplitWords text="We design &" baseDelay={0.25} /></span>
-              <span aria-hidden="true" className="block"><SplitWords text="engineer products" baseDelay={0.48} /></span>
-              <span aria-hidden="true" className="block">
-                <SplitWords text="that perform" baseDelay={0.72} />
-                <span className="inline-block ml-[0.15em]">
-                  <TypewriterWord words={['always.', 'flawlessly.', 'at scale.']} startDelay={1.1} />
-                </span>
-              </span>
-            </h1>
-
-            <div className="flex flex-row items-center gap-1 mb-8">
-              <Button variant="primary" ariaLabel="Book a free call" delay={1}
-                onClick={(e) => { e.preventDefault(); openPopup(); }}>
-                Book a Free Call
-              </Button>
-              <Button variant="ghost" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
-                ariaLabel="Chat with BuiltStack on WhatsApp" delay={1.4}>
-                Chat on WhatsApp
-              </Button>
+          {/* Text + buttons — bottom, fixed breathing room */}
+          <motion.div
+            className="px-6 pb-10 pt-6 flex flex-col gap-6"
+            style={{ y: reducedMotion ? 0 : textY, opacity: textOp }}
+          >
+            <div style={{ fontSize: 'clamp(2.5rem, 10.5vw, 3.6rem)' }}>
+              {headline}
             </div>
 
-            <motion.div className="flex items-center gap-4 flex-wrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8, duration: 0.8 }}>
-              <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: 'var(--text-faint, hsl(var(--text-faint)))' }}>Trusted by</span>
-              <div className="flex items-center gap-3 flex-wrap">
-                {CLIENTS.map((name, i) => (
-                  <span key={i} className="text-[11px] tracking-wide" style={{ color: 'var(--text-muted, hsl(var(--text-muted)))' }}>
-                    {name}{i < CLIENTS.length - 1 && <span className="ml-3" style={{ color: 'var(--border, rgba(255,255,255,0.1))' }}>·</span>}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
+            {buttons(true)}
+
+            {trustedBy}
           </motion.div>
         </div>
-
       </section>
     </>
   );
