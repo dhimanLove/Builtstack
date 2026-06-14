@@ -86,7 +86,7 @@ function SplitWords({ text, baseDelay }: { text: string; baseDelay: number }) {
             className="inline-block"
             initial={{ y: '100%' }}
             animate={{ y: '0%' }}
-            transition={{ duration: 0.9, ease: EASE, delay: baseDelay + i * 0.06 }}
+            transition={{ duration: 0.7, ease: EASE, delay: baseDelay + i * 0.04 }}
           >
             {word}
           </motion.span>
@@ -160,6 +160,7 @@ function Button({
   target,
   rel,
   icon,
+  fullWidth = false,
 }: {
   children: React.ReactNode;
   onClick?: (e: React.MouseEvent) => void;
@@ -170,6 +171,7 @@ function Button({
   target?: string;
   rel?: string;
   icon?: React.ReactNode;
+  fullWidth?: boolean;
 }) {
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -190,10 +192,12 @@ function Button({
   };
 
   const baseClass = [
-    'inline-flex items-center justify-center gap-2',
+    'inline-flex items-center justify-center gap-1.5 sm:gap-2',
     // touch target: min 44px height, comfortable padding
-    'min-h-[44px] px-5 sm:px-6',
-    'text-[11px] sm:text-[11px] font-medium tracking-[0.18em] uppercase',
+    'min-h-[44px] px-3 sm:px-6',
+    fullWidth ? 'flex-1 w-full' : '',
+    'text-[11px] sm:text-[11px] font-medium tracking-[0.12em] sm:tracking-[0.18em] uppercase',
+    'whitespace-nowrap',
     'rounded-full select-none no-underline border',
     'transition-colors duration-200',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lime)]/60 focus-visible:ring-offset-2',
@@ -255,41 +259,44 @@ export default function Hero() {
       className="font-display text-[var(--heading-color)]"
       style={{
         fontFamily: 'var(--font-display, "Instrument Serif")',
-        lineHeight: 1.05,
-        letterSpacing: '-0.03em',
+        lineHeight: 1.15,
+        letterSpacing: '-0.02em',
       }}
     >
       <span className="sr-only">
         BuiltStack — We design and engineer digital products that perform.
       </span>
       <span aria-hidden="true" className="block">
-        <SplitWords text="We design &" baseDelay={0.25} />
+        <SplitWords text="We design &" baseDelay={0.2} />
       </span>
       <span aria-hidden="true" className="block">
-        <SplitWords text="engineer products" baseDelay={0.48} />
+        <SplitWords text="engineer products" baseDelay={0.35} />
       </span>
       <span aria-hidden="true" className="block">
-        <SplitWords text="that perform" baseDelay={0.72} />
+        <SplitWords text="that perform" baseDelay={0.5} />
         <span className="inline-block ml-[0.15em]">
-          <TypewriterWord words={['always.', 'flawlessly.', 'at scale.']} startDelay={1.1} />
+          <TypewriterWord words={['always.', 'flawlessly.', 'at scale.']} startDelay={0.9} />
         </span>
       </span>
     </h1>
   );
 
+  // Buttons: side-by-side (row, equal width) on mobile per wireframe;
+  // natural row layout on desktop.
   const buttons = (mobile: boolean) => (
     <div className={mobile
-      ? 'flex flex-col gap-3 w-full'
+      ? 'flex flex-row gap-2 w-full'
       : 'flex flex-row items-center gap-3'
     }>
       <Button
         variant="primary"
         ariaLabel="Book a free call"
-        delay={1}
+        delay={0.7}
         icon={<CalendarBlank size={13} weight="regular" />}
         onClick={(e) => { e.preventDefault(); openPopup(); }}
+        fullWidth={mobile}
       >
-        Book a Free Call
+        {mobile ? 'Free Call' : 'Book a Free Call'}
       </Button>
       <Button
         variant="ghost"
@@ -297,27 +304,28 @@ export default function Hero() {
         target="_blank"
         rel="noopener noreferrer"
         ariaLabel="Chat with BuiltStack on WhatsApp"
-        delay={1.3}
+        delay={0.85}
         icon={<WhatsappLogo size={13} weight="regular" />}
+        fullWidth={mobile}
       >
-        Chat on WhatsApp
+        {mobile ? 'Chat' : 'Chat on WhatsApp'}
       </Button>
     </div>
   );
 
   const trustedBy = (
     <motion.div
-      className="flex items-center gap-3 flex-wrap"
+      className="flex items-center gap-2 sm:gap-3 flex-wrap"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 1.8, duration: 0.8 }}
+      transition={{ delay: 1.1, duration: 0.6 }}
     >
-      <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-faint)]">
+      <span className="text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[var(--text-faint)] whitespace-nowrap">
         Trusted by
       </span>
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
         {CLIENTS.map((name, i) => (
-          <span key={i} className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
+          <span key={i} className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-[var(--text-muted)] whitespace-nowrap">
             {name}
             {i < CLIENTS.length - 1 && (
               <span className="text-[var(--border)]" aria-hidden="true">·</span>
@@ -418,9 +426,9 @@ export default function Hero() {
         {/* ── Mobile layout ── */}
         <div className="relative z-10 flex md:hidden flex-col min-h-[100svh]">
 
-          {/* Mascot — top half, constrained, centered */}
+          {/* Mascot — no border, takes more vertical space */}
           <motion.div
-            className="flex-1 flex items-end justify-center pointer-events-none pt-24 pb-4"
+            className="flex-[1.4] flex items-center justify-center pointer-events-none px-10 pt-20 pb-2"
             style={{ y: reducedMotion ? 0 : imgY, opacity: imgOp }}
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -430,7 +438,7 @@ export default function Hero() {
             <motion.div
               animate={reducedMotion ? {} : { y: [0, 6, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-full max-w-[280px] sm:max-w-[320px]"
+              className="w-full max-w-[320px]"
             >
               <img
                 src="/builtstack.png"
@@ -445,12 +453,12 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* Text + buttons — bottom, fixed breathing room */}
+          {/* Text + buttons — bottom, condensed for less clutter */}
           <motion.div
-            className="px-6 pb-10 pt-6 flex flex-col gap-6"
+            className="px-6 pb-8 pt-4 flex flex-col gap-4"
             style={{ y: reducedMotion ? 0 : textY, opacity: textOp }}
           >
-            <div style={{ fontSize: 'clamp(2.5rem, 10.5vw, 3.6rem)' }}>
+            <div style={{ fontSize: 'clamp(2.2rem, 9vw, 3.2rem)' }}>
               {headline}
             </div>
 
