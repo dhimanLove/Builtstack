@@ -1,33 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://builtstack.co/</loc>
-    <lastmod>2026-05-17</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://builtstack-eight.vercel.app/</loc>
+    <lastmod>2026-06-25</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://builtstack.co/about</loc>
-    <lastmod>2026-05-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://builtstack-eight.vercel.app/about</loc>
+    <lastmod>2026-06-25</lastmod>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://builtstack.co/contact</loc>
-    <lastmod>2026-05-17</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://builtstack-eight.vercel.app/contact</loc>
+    <lastmod>2026-06-25</lastmod>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://builtstack.co/privacy</loc>
-    <lastmod>2026-05-17</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <loc>https://builtstack-eight.vercel.app/privacy</loc>
+    <lastmod>2026-06-25</lastmod>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://builtstack.co/terms</loc>
-    <lastmod>2026-05-17</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <loc>https://builtstack-eight.vercel.app/terms</loc>
+    <lastmod>2026-06-25</lastmod>
+    <priority>0.9</priority>
   </url>
 </urlset>

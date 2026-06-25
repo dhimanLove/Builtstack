@@ -14,22 +14,23 @@ const PROJECTS = [
     image: "/projects/pannel.png",
     category: "Dashboard UI",
     year: "2026",
-    url: "https://adminn-silk.vercel.app", // 👈 ADD THIS
+    url: "https://adminn-silk.vercel.app", 
   },
   {
     title: "Neeraj Dental",
     image: "/projects/neerajdental.png",
     category: "Healthcare SaaS",
     year: "2026",
-    url: "https://neeraj-dental-clnc.vercel.app", // 👈 ADD THIS
+    url: "https://neeraj-dental-clnc.vercel.app", 
   },
   {
-    title: "Sahara",
-    image: "/projects/sahara.png",
-    category: "Travel Platform",
-    year: "2026",
-    url: "https://sahara-weld.vercel.app", // 👈 ADD THIS
+    title: "Grog",
+    image: "/projects/grog.png",
+    category: "Product",
+    year: "2026", 
+    url: "https://grog-brown.vercel.app/",   
   },
+  
 ];
 const MAX_CLICKS = 10;
 
