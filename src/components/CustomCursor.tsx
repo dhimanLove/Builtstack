@@ -12,12 +12,12 @@ export default function CustomCursor() {
     const isTouchDevice = useRef(false);
 
     // Outer ring - slow, springy
-    const ringX = useSpring(cursorX, { damping: 20, stiffness: 180, mass: 0.4 });
-    const ringY = useSpring(cursorY, { damping: 20, stiffness: 180, mass: 0.4 });
-
+    const ringX = useSpring(cursorX, { damping: 25, stiffness: 200, mass: 0.3 });
+    const ringY = useSpring(cursorY, { damping: 25, stiffness: 200, mass: 0.3 });
+    
     // Inner dot - fast, snappy
-    const dotX = useSpring(cursorX, { damping: 28, stiffness: 400, mass: 0.2 });
-    const dotY = useSpring(cursorY, { damping: 28, stiffness: 400, mass: 0.2 });
+    const dotX = useSpring(cursorX, { damping: 30, stiffness: 500, mass: 0.15 });
+    const dotY = useSpring(cursorY, { damping: 30, stiffness: 500, mass: 0.15 });
 
     useEffect(() => {
         isTouchDevice.current = window.matchMedia('(pointer: coarse)').matches;
@@ -119,7 +119,7 @@ export default function CustomCursor() {
         <>
             {/*   Outer ring         ─ */}
             <motion.div
-                className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:flex items-center justify-center"
+                className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:flex items-center justify-center will-change-transform"
                 style={{
                     x: ringX,
                     y: ringY,
@@ -167,7 +167,7 @@ export default function CustomCursor() {
 
             {/*   Inner dot           */}
             <motion.div
-                className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:block rounded-full"
+                className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:block rounded-full will-change-transform"
                 style={{
                     x: dotX,
                     y: dotY,

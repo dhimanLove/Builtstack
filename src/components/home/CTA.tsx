@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, lazy, Suspense } from 'react';
 import {
   motion,
   useScroll,
@@ -9,6 +9,7 @@ import {
   useSpring,
   useReducedMotion,
 } from 'framer-motion';
+import LazyImage from '@/components/LazyImage';
 
 // EASING & CONSTANTS
 const EASE = [0.23, 1, 0.32, 1] as const;
@@ -406,11 +407,13 @@ export default function CTA() {
               />
 
               {/* Mascot Image */}
-              <img
+              <LazyImage
                 src="/builtstack.png"
                 alt="BuiltStack mascot"
-                loading="eager"
+                width={500}
+                height={500}
                 className="w-full h-auto block select-none pointer-events-none object-contain drop-shadow-[0_24px_40px_var(--color-shadow-soft,rgba(0,0,0,0.6))] drop-shadow-[0_0_32px_var(--glow-subtle,rgba(212,245,60,0.06))]"
+                objectFit="contain"
               />
             </motion.div>
           </div>

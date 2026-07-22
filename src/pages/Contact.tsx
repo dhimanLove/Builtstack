@@ -1,7 +1,9 @@
+import { lazy, Suspense } from 'react';
 import Seo from '@/components/Seo';
 import ContactForm from '@/components/ContactForm';
-import InteractiveMeshGrid from '@/components/ui/InteractiveMeshGrid';
 import { PAGE_SEO } from '@/lib/seo';
+
+const InteractiveMeshGrid = lazy(() => import('@/components/ui/InteractiveMeshGrid'));
 
 const meta = PAGE_SEO.contact;
 
@@ -14,7 +16,9 @@ export default function ContactPage() {
         style={{ background: 'var(--section-bg, hsl(var(--bg)))' }}
       >
         {/* Highly Optimized Interactive Canvas Background Mesh */}
-        <InteractiveMeshGrid className="absolute inset-0 z-0 pointer-events-none opacity-[0.85]" />
+        <Suspense fallback={<div className="absolute inset-0 z-0 bg-[var(--section-bg)]" />}>
+          <InteractiveMeshGrid className="absolute inset-0 z-0 pointer-events-none opacity-[0.85]" />
+        </Suspense>
 
         <div className="relative z-10 max-w-3xl mx-auto">
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">

@@ -17,6 +17,8 @@ import React, {
   useCallback,
   useMemo,
   useState,
+  Suspense,
+  lazy,
 } from 'react';
 import * as THREE from 'three';
 import { Effect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
@@ -32,6 +34,7 @@ import {
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
+import LazyImage from '@/components/LazyImage';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -673,7 +676,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                 display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
               }}>
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt={name} loading="lazy" className="w-full" style={{ borderRadius: cardRadius }} />
+                  <LazyImage src={avatarUrl} alt={`${name} avatar`} className="w-full" wrapperClassName="w-full" objectFit="cover" />
                 ) : (
                   /* Placeholder silhouette when no avatar provided */
                   <div style={{
@@ -695,7 +698,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                     <div className="rounded-full overflow-hidden border border-white/10 flex-shrink-0 flex items-center justify-content-center bg-white/10"
                       style={{ width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {miniAvatarUrl || avatarUrl ? (
-                        <img src={miniAvatarUrl || avatarUrl} alt={name} loading="lazy" className="w-full h-full object-cover rounded-full" />
+                        <LazyImage src={miniAvatarUrl || avatarUrl} alt={`${name} mini avatar`} className="w-full h-full object-cover rounded-full" objectFit="cover" />
                       ) : (
                         <span style={{ fontSize: '20px', opacity: 0.5 }}>👤</span>
                       )}

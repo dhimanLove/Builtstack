@@ -1,10 +1,7 @@
-'use client';
-
-import { useEffect, useRef, createContext, useContext } from 'react';
+import { useEffect, useRef, createContext, useContext, useCallback } from 'react';
 import Lenis from '@studio-freight/lenis';
-import { useMotionValue, useSpring, motionValue } from 'framer-motion';
+import { useMotionValue, useSpring, motionValue, useReducedMotion } from 'framer-motion';
 
-// Context
 interface LenisContextType {
   lenis: Lenis | null;
   scrollY: ReturnType<typeof motionValue<number>>;
@@ -19,40 +16,35 @@ const LenisContext = createContext<LenisContextType>({
   velocity: motionValue(0),
 });
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useLenis = () => useContext(LenisContext);
 
-
-// Provider
-
-export default function SmoothScroll({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
+  const reducedMotion = useReducedMotion();
 
-  // Motion values (global reactive scroll state)
   const scrollY = useMotionValue(0);
   const scrollProgress = useMotionValue(0);
   const velocity = useMotionValue(0);
 
-  // Smooth velocity (more natural feel)
   const smoothVelocity = useSpring(velocity, {
     damping: 30,
     stiffness: 200,
     mass: 0.5,
   });
 
+  const rafRef = useRef<number | null>(null);
+
+  const raf = useCallback((time: number) => {
+    lenisRef.current?.raf(time);
+    rafRef.current = requestAnimationFrame(raf);
+  }, []);
+
   useEffect(() => {
-
-    // Lenis Init (optimized)
-
     const lenis = new Lenis({
-      duration: 1.1, // faster but smoother perception
-      easing: (t: number) => 1 - Math.pow(1 - t, 3), // cubic ease-out
+      duration: reducedMotion ? 0 : 1.1,
+      easing: (t: number) => 1 - Math.pow(1 - t, 3),
       orientation: 'vertical',
-      smoothWheel: true,
+      smoothWheel: !reducedMotion,
       wheelMultiplier: 1,
       touchMultiplier: 1.2,
       infinite: false,
@@ -60,29 +52,13 @@ export default function SmoothScroll({
 
     lenisRef.current = lenis;
 
-
-    // Sync Lenis -> Motion Values
-
     lenis.on('scroll', ({ scroll, progress, velocity: vel }) => {
       scrollY.set(scroll);
       scrollProgress.set(progress);
       velocity.set(vel);
     });
 
-
-    // RAF Loop (stable + efficient)
-
-    let rafId: number;
-
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    };
-
-    rafId = requestAnimationFrame(raf);
-
-
-    // Pause on tab switch (perf boost)
+    rafRef.current = requestAnimationFrame(raf);
 
     const onVisibility = () => {
       if (document.hidden) {
@@ -91,18 +67,18 @@ export default function SmoothScroll({
         lenis.start();
       }
     };
-
     document.addEventListener('visibilitychange', onVisibility);
 
-     
-    // Cleanup
+    const onResize = () => lenis.resize();
+    window.addEventListener('resize', onResize);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lenis.destroy();
       document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('resize', onResize);
     };
-  }, [scrollProgress, scrollY, velocity]);
+  }, [raf, scrollProgress, scrollY, velocity, reducedMotion]);
 
   return (
     <LenisContext.Provider

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense, lazy } from 'react';
 import {
   motion,
   useScroll,
@@ -10,7 +10,9 @@ import {
   useReducedMotion,
 } from 'framer-motion';
 import { ArrowUpRight, WhatsappLogo, CalendarBlank } from '@phosphor-icons/react';
-import InteractiveMeshGrid from '@/components/ui/InteractiveMeshGrid';
+import LazyImage from '@/components/LazyImage';
+
+const InteractiveMeshGrid = lazy(() => import('@/components/ui/InteractiveMeshGrid'));
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const CALENDLY_URL = 'https://calendly.com/builtstack/30min';
@@ -349,10 +351,12 @@ export default function Hero() {
         className="relative overflow-hidden bg-[var(--section-bg)]"
         style={{ minHeight: '100svh' }}
       >
-        <InteractiveMeshGrid
-          className="absolute inset-0 z-0 pointer-events-none opacity-2 grayscale"
-          aria-hidden="true"
-        />
+        <Suspense fallback={<div className="absolute inset-0 z-0 bg-[var(--section-bg)]" />}>
+          <InteractiveMeshGrid
+            className="absolute inset-0 z-0 pointer-events-none opacity-2 grayscale"
+            aria-hidden="true"
+          />
+        </Suspense>
 
         {/* ── Top bar — desktop only ── */}
         <motion.div
@@ -410,14 +414,14 @@ export default function Hero() {
               animate={reducedMotion ? {} : { y: [0, 6, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <img
+              <LazyImage
                 src="/builtstack.png"
-                alt=""
-                loading="eager"
+                alt="BuiltStack — Design & Engineering Studio"
                 width={800}
                 height={800}
+                priority
                 className="w-full h-auto block select-none pointer-events-none"
-                style={{ objectFit: 'contain' }}
+                objectFit="contain"
               />
             </motion.div>
           </motion.div>
@@ -440,15 +444,14 @@ export default function Hero() {
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               className="w-full max-w-[320px]"
             >
-              <img
+              <LazyImage
                 src="/builtstack.png"
-                alt=""
-                loading="eager"
+                alt="BuiltStack — Design & Engineering Studio"
                 width={600}
                 height={600}
-                draggable="false"
-                className="w-full h-auto block select-none pointer-events-none"
-                style={{ objectFit: 'contain' }}
+                priority
+                className="w-full h-auto block select-none pointer-events-none select-none"
+                objectFit="contain"
               />
             </motion.div>
           </motion.div>

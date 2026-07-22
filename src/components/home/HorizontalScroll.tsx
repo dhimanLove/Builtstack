@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { GithubLogo, LinkedinLogo } from '@phosphor-icons/react';
+import LazyImage from '@/components/LazyImage';
 
 const EASE: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
@@ -417,12 +418,14 @@ function FounderCard({
     >
       {/* Photo */}
       <div className="founder-image-wrap">
-        <img
+        <LazyImage
           src={founder.image}
           alt={`${founder.name}, ${founder.role} at BuiltStack`}
           width={320}
           height={400}
-          loading="lazy"
+          wrapperClassName="w-full h-full"
+          className="w-full h-full"
+          objectFit="cover"
         />
       </div>
 

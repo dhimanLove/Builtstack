@@ -191,6 +191,34 @@ body {
   }
 }
 
+/* ── Lazy Image Loader ── */
+.lazy-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface, #111);
+}
+
+.lazy-image-wrapper img {
+  transition: opacity 0.5s ease;
+}
+
+.lazy-image-placeholder {
+  position: absolute;
+  inset: 0;
+  background: var(--surface, #111);
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+/* ── Will-change utility (only during active animation) ── */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
 /* Smooth transitions for theme switching */
 * {
   transition-property: background-color, border-color, color, box-shadow;
